@@ -1,0 +1,23 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Data & SQLite databases
+data/
+*.db
+*.sqlite3
+
+# Cache & environments
+.cache/
+.env
+venv/
+env/
+ENV/
+
+# Output & Reports
+dist/
+reports/
+trending_dashboard.html
+*report*.md
+results.json

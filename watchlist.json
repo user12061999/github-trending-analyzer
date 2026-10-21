@@ -1,0 +1,27 @@
+{
+  "keywords": [
+    "agent",
+    "mcp",
+    "rag",
+    "llm",
+    "automation",
+    "security",
+    "terminal",
+    "cli",
+    "inference",
+    "workflow",
+    "vision",
+    "deep-learning"
+  ],
+  "languages": [
+    "Python",
+    "Rust",
+    "TypeScript",
+    "Go"
+  ],
+  "categories": [
+    "AI & Machine Learning",
+    "Developer Tooling & CLI",
+    "Security & Privacy"
+  ]
+}

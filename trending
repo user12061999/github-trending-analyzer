@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Zero-dependency launcher. Override explicitly to use a virtual environment.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PYTHON_BIN="${GH_TRENDING_PYTHON:-python3}"
+exec "$PYTHON_BIN" "$SCRIPT_DIR/gh_trending.py" "$@"
