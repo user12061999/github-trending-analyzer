@@ -104,5 +104,13 @@ class TestGitHubSearch(unittest.TestCase):
         self.assertIn('/api/feedback', html)
         self.assertIn('/api/sync-watchlist', html)
 
+    def test_dashboard_bilingual_support(self):
+        html = generate_html_dashboard([])
+        self.assertIn('id="langSelect"', html)
+        self.assertIn('setLanguage', html)
+        self.assertIn('I18N', html)
+        self.assertIn('WHAT IT DOES & CORE PURPOSE', html)
+        self.assertIn('KEY FEATURES & HIGHLIGHTS', html)
+
 
 if __name__ == '__main__': unittest.main()

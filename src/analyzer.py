@@ -82,6 +82,15 @@ class RepoAnalysis:
     grounding_critique: List[str] = field(default_factory=list)
     few_shot_source: str = ""
 
+    # Bilingual Translations (Vietnamese & English)
+    core_purpose_vi: str = ""
+    core_purpose_en: str = ""
+    key_features_vi: List[str] = field(default_factory=list)
+    key_features_en: List[str] = field(default_factory=list)
+    suitable_major_en: str = ""
+    target_roles_en: str = ""
+    real_world_impact_en: str = ""
+
     def to_dict(self) -> Dict[str, any]:
         return {
             **{key: getattr(self, key) for key in ("research_depth", "how_it_works", "practical_examples", "limitations", "adoption_notes", "comparisons", "evidence", "research_gaps", "data_sources")},
@@ -127,6 +136,13 @@ class RepoAnalysis:
             "grounding_score": self.grounding_score,
             "grounding_critique": self.grounding_critique,
             "few_shot_source": self.few_shot_source,
+            "core_purpose_vi": self.core_purpose_vi or self.core_purpose,
+            "core_purpose_en": self.core_purpose_en or self.description or self.core_purpose,
+            "key_features_vi": self.key_features_vi or self.key_features,
+            "key_features_en": self.key_features_en or self.key_features,
+            "suitable_major_en": self.suitable_major_en,
+            "target_roles_en": self.target_roles_en,
+            "real_world_impact_en": self.real_world_impact_en,
         }
 
 
@@ -248,43 +264,67 @@ def extract_lead_intro(content: str) -> str:
 MAJOR_ROLE_MAP = {
     "AI & Machine Learning": {
         "major": "Trí tuệ nhân tạo (AI), Khoa học dữ liệu (Data Science), Kỹ thuật phần mềm",
+        "major_en": "Artificial Intelligence (AI), Data Science, Software Engineering",
         "roles": "AI Engineer, LLM/Agent Developer, Data Scientist, MLOps Engineer",
-        "impact": "Tự động hóa các quy trình nhận thức phức tạp, nâng cao năng suất lập trình và ra quyết định thông minh."
+        "roles_en": "AI Engineer, LLM/Agent Developer, Data Scientist, MLOps Engineer",
+        "impact": "Tự động hóa các quy trình nhận thức phức tạp, nâng cao năng suất lập trình và ra quyết định thông minh.",
+        "impact_en": "Automates complex cognitive workflows, enhances developer productivity, and powers intelligent decision-making."
     },
     "Developer Tooling & CLI": {
         "major": "Kỹ thuật phần mềm (Software Engineering), Khoa học máy tính",
+        "major_en": "Software Engineering, Computer Science",
         "roles": "Software Engineer, Fullstack Developer, DevOps, CLI Tooling Specialist",
-        "impact": "Giảm thiểu thao tác lặp lại thủ công, tối ưu hóa tốc độ lập trình và chuẩn hóa môi trường làm việc."
+        "roles_en": "Software Engineer, Fullstack Developer, DevOps, CLI Tooling Specialist",
+        "impact": "Giảm thiểu thao tác lặp lại thủ công, tối ưu hóa tốc độ lập trình và chuẩn hóa môi trường làm việc.",
+        "impact_en": "Minimizes manual repetitive tasks, accelerates development workflow, and standardizes workspace environments."
     },
     "Web & Frontend": {
         "major": "Công nghệ thông tin, Thiết kế web & Trải nghiệm người dùng (UI/UX), Phát triển giao diện",
+        "major_en": "Information Technology, Web Design & UI/UX, Frontend Development",
         "roles": "Frontend Developer, Fullstack Developer, Web Architect, UI/UX Engineer",
-        "impact": "Tối ưu hóa hiệu năng tải trang, đem lại trải nghiệm tương tác mượt mà và trực quan cho người dùng."
+        "roles_en": "Frontend Developer, Fullstack Developer, Web Architect, UI/UX Engineer",
+        "impact": "Tối ưu hóa hiệu năng tải trang, đem lại trải nghiệm tương tác mượt mà và trực quan cho người dùng.",
+        "impact_en": "Optimizes page load performance and delivers smooth, intuitive user interactions."
     },
     "Backend & APIs": {
         "major": "Kỹ thuật phần mềm, Hệ thống thông tin, Kiến trúc phần mềm phân tán",
+        "major_en": "Software Engineering, Information Systems, Distributed Systems Architecture",
         "roles": "Backend Developer, API Architect, Microservices Engineer, Cloud Engineer",
-        "impact": "Đảm bảo khả năng chịu tải cao, mở rộng linh hoạt và bảo vệ tính toàn vẹn dữ liệu cho hệ thống lớn."
+        "roles_en": "Backend Developer, API Architect, Microservices Engineer, Cloud Engineer",
+        "impact": "Đảm bảo khả năng chịu tải cao, mở rộng linh hoạt và bảo vệ tính toàn vẹn dữ liệu cho hệ thống lớn.",
+        "impact_en": "Ensures high concurrency, elastic scalability, and robust data integrity for enterprise systems."
     },
     "DevOps & Infrastructure": {
         "major": "Mạng máy tính & Truyền thông dữ liệu, Điện toán đám mây (Cloud Computing), Quản trị hạ tầng",
+        "major_en": "Computer Networks, Cloud Computing, Infrastructure Engineering",
         "roles": "DevOps Engineer, SRE (Site Reliability Engineer), Cloud Architect, Platform Engineer",
-        "impact": "Tự động hóa triển khai CI/CD, chuẩn hóa môi trường phát triển và tiết kiệm chi phí hạ tầng máy chủ."
+        "roles_en": "DevOps Engineer, SRE (Site Reliability Engineer), Cloud Architect, Platform Engineer",
+        "impact": "Tự động hóa triển khai CI/CD, chuẩn hóa môi trường phát triển và tiết kiệm chi phí hạ tầng máy chủ.",
+        "impact_en": "Automates CI/CD pipelines, standardizes deployment environments, and optimizes cloud infrastructure costs."
     },
     "Database & Storage": {
         "major": "Hệ thống thông tin quản lý, Kỹ thuật dữ liệu (Data Engineering), Cơ sở dữ liệu",
+        "major_en": "Management Information Systems, Data Engineering, Databases",
         "roles": "Data Engineer, Database Administrator (DBA), Backend Developer, Big Data Architect",
-        "impact": "Tăng tốc độ truy vấn dữ liệu lớn, lưu trữ an toàn và hỗ trợ tìm kiếm vector cho ứng dụng hiện đại."
+        "roles_en": "Data Engineer, Database Administrator (DBA), Backend Developer, Big Data Architect",
+        "impact": "Tăng tốc độ truy vấn dữ liệu lớn, lưu trữ an toàn và hỗ trợ tìm kiếm vector cho ứng dụng hiện đại.",
+        "impact_en": "Accelerates big data queries, provides secure storage, and powers vector search for modern applications."
     },
     "Security & Privacy": {
         "major": "An toàn thông tin (Cybersecurity), Điều tra số (Digital Forensics), Mạng máy tính",
+        "major_en": "Cybersecurity, Digital Forensics, Computer Networks",
         "roles": "Security Researcher, Pentester, SOC Analyst, Chuyên gia an ninh mạng",
-        "impact": "Chủ động phát hiện lỗ hổng bảo mật, phần mềm gián điệp và ngăn chặn nguy cơ rò rỉ dữ liệu nhạy cảm."
+        "roles_en": "Security Researcher, Pentester, SOC Analyst, Security Specialist",
+        "impact": "Chủ động phát hiện lỗ hổng bảo mật, phần mềm gián điệp và ngăn chặn nguy cơ rò rỉ dữ liệu nhạy cảm.",
+        "impact_en": "Proactively identifies security vulnerabilities, spyware, and prevents sensitive data leaks."
     },
     "Automation & Workflow": {
         "major": "Tự động hóa quy trình (RPA), Truyền thông đa phương tiện, Quản trị vận hành số",
+        "major_en": "Robotic Process Automation (RPA), Multimedia, Digital Operations",
         "roles": "Automation Engineer, Growth Hacker, Video Editor, Content Creator",
-        "impact": "Cắt giảm 80-90% thời gian xử lý thủ công các tác vụ lặp đi lặp lại như cắt ghép video, đồng bộ dữ liệu."
+        "roles_en": "Automation Engineer, Growth Hacker, Video Editor, Content Creator",
+        "impact": "Cắt giảm 80-90% thời gian xử lý thủ công các tác vụ lặp đi lặp lại như cắt ghép video, đồng bộ dữ liệu.",
+        "impact_en": "Eliminates 80-90% of manual effort for repetitive tasks like video editing, batching, and data synchronization."
     },
 }
 
@@ -313,9 +353,15 @@ def translate_tech_phrase_to_vi(text: str, category: str, language: str) -> str:
 
     # English technical patterns
     t = text
+    t = re.sub(r"^A\s+coding-agent\s+skill\s+for\s+multi-phase\s+security\s+audits\s+with\s+independently\s+verified,\s+machine-readable\s+findings", "Kỹ năng coding agent chuyên phục vụ kiểm tra an toàn bảo mật (security audit) nhiều giai đoạn với các phát hiện được kiểm chứng độc lập và máy đọc được", t, flags=re.IGNORECASE)
+    t = re.sub(r"^A\s+high-throughput\s+and\s+memory-efficient\s+inference\s+and\s+serving\s+engine\s+for\s+LLMs", "Bộ máy phục vụ suy luận (inference & serving engine) cho LLM với thông lượng cao và tiết kiệm bộ nhớ", t, flags=re.IGNORECASE)
+    t = re.sub(r"(?:^|.*\s+)the\s+open-source\s+search\s+engine\s+for\s+job\s+seekers", "công cụ tìm kiếm việc làm mã nguồn mở cho người tìm việc", t, flags=re.IGNORECASE)
     t = re.sub(r"^A\s+framework\s+for\s+building\s+", "Framework hỗ trợ xây dựng ", t, flags=re.IGNORECASE)
     t = re.sub(r"^An?\s+open-source\s+(alternative\s+to\s+)", "Giải pháp mã nguồn mở thay thế cho ", t, flags=re.IGNORECASE)
+    t = re.sub(r"^An?\s+open-source\s+search\s+engine\s+for\s+", "Công cụ tìm kiếm mã nguồn mở dành cho ", t, flags=re.IGNORECASE)
     t = re.sub(r"^An?\s+open-source\s+", "Dự án mã nguồn mở ", t, flags=re.IGNORECASE)
+    t = re.sub(r"^An?\s+autonomous\s+agent\s+framework\s+", "Framework agent tự hành ", t, flags=re.IGNORECASE)
+    t = re.sub(r"^Autonomous\s+multi-agent\s+orchestration\s+framework\s+for\s+LLMs", "Framework điều phối đa agent tự hành cho LLM", t, flags=re.IGNORECASE)
     t = re.sub(r"^An?\s+agentic\s+coding\s+tool\s+", "Công cụ lập trình AI tự hành (agentic) ", t, flags=re.IGNORECASE)
     t = re.sub(r"^Scale\s+", "Giải pháp mở rộng quy mô ", t, flags=re.IGNORECASE)
     t = re.sub(r"^Secure\s+environments\s+for\s+", "Môi trường an toàn dành cho ", t, flags=re.IGNORECASE)
@@ -381,6 +427,13 @@ def analyze_repo_heuristic(repo: TrendingRepo, readme_raw: Optional[str] = None)
         why_trending=f"GitHub ghi nhận +{repo.stars_since} stars trong kỳ {repo.timeframe}. Chưa xác định nguyên nhân tăng trưởng từ các nguồn đã đọc.",
         quick_verdict="Phân tích từ tài liệu, chưa chạy thử. Đọc cách hoạt động, yêu cầu triển khai và giới hạn trước khi quyết định áp dụng.",
         engine_used="heuristic",
+        core_purpose_vi=core_purpose,
+        core_purpose_en=raw_purpose,
+        key_features_vi=translated_features[:4],
+        key_features_en=features[:4],
+        suitable_major_en=role_info.get("major_en", ""),
+        target_roles_en=role_info.get("roles_en", ""),
+        real_world_impact_en=role_info.get("impact_en", ""),
     )
     from src.grounding import sanitize_and_ground_analysis
     return sanitize_and_ground_analysis(res)
