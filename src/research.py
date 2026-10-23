@@ -10,26 +10,52 @@ from src.fetcher import clean_markdown_for_analysis
 from src.scraper import get_ssl_context
 
 TOPICS = {
-    'how_it_works': ('architecture', 'how it works', 'workflow', 'design', 'concept', 'pipeline', 'engine', 'model', 'kiến trúc'),
-    'practical_examples': ('usage', 'example', 'tutorial', 'use case', 'demo', 'sử dụng'),
-    'limitations': ('limitation', 'warning', 'caveat', 'requirement', 'security', 'known issue', 'disclaimer', 'constraint', 'performance', 'hardware', 'migration'),
-    'adoption_notes': ('install', 'quick start', 'quickstart', 'getting started', 'deployment', 'configuration', 'license', 'prerequisite', 'macos', 'windows', 'linux'),
-    'comparisons': ('comparison', 'alternative', 'versus', 'benchmark', 'why ', 'difference'),
+    'how_it_works': (
+        'architecture', 'how it works', 'how to', 'workflow', 'design', 'concept',
+        'pipeline', 'engine', 'model', 'kiến trúc', 'internals', 'what it does',
+        'principles', 'overview', 'under the hood', 'how plugins work', 'cơ chế', 'nguyên lý'
+    ),
+    'practical_examples': (
+        'usage', 'example', 'tutorial', 'use case', 'demo', 'sử dụng', 'commands',
+        'walkthrough', 'guide', 'quickstart', 'sample', 'cookbook', 'ví dụ'
+    ),
+    'limitations': (
+        'limitation', 'warning', 'caveat', 'requirement', 'security', 'known issue',
+        'disclaimer', 'constraint', 'performance', 'hardware', 'migration', 'troubleshooting',
+        'faq', 'giới hạn', 'lưu ý', 'cân nhắc'
+    ),
+    'adoption_notes': (
+        'install', 'quick start', 'quickstart', 'getting started', 'deployment',
+        'configuration', 'license', 'prerequisite', 'macos', 'windows', 'linux',
+        'setup', 'cài đặt', 'marketplace', 'making them yours'
+    ),
+    'comparisons': (
+        'comparison', 'alternative', 'versus', 'benchmark', 'why ', 'why plugins',
+        'numbers', 'scoreboard', 'difference', 'so sánh'
+    ),
 }
 
 
 def sections(content):
-    """Split Markdown on headings outside fences, preserving code/examples."""
+    """Split Markdown on headings outside fences, preserving hierarchy and code/examples."""
     title, lines, fenced = 'Introduction', [], False
     result = []
+    parent_title = ''
     for line in content.splitlines():
         if re.match(r'^\s*(```|~~~)', line):
             fenced = not fenced
-        heading = None if fenced else re.match(r'^#{1,6}\s+(.+?)\s*#*$', line)
+        heading = None if fenced else re.match(r'^(#{1,6})\s+(.+?)\s*#*$', line)
         if heading:
+            level = len(heading.group(1))
+            h_text = heading.group(2).strip()
             if lines:
                 result.append((title, '\n'.join(lines).strip()))
-            title, lines = heading.group(1), []
+                lines = []
+            if level <= 2:
+                parent_title = h_text
+                title = h_text
+            else:
+                title = f"{parent_title} > {h_text}" if parent_title else h_text
         else:
             lines.append(line)
     if lines:
