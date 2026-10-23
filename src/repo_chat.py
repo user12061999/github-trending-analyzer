@@ -48,15 +48,69 @@ def heuristic_search_answer(
     sources = []
     paragraphs = []
 
-    # 1. Intent Analysis
-    is_offline_req = any(w in q_lower for w in ["offline", "local", "cục bộ", "mạng", "gpu", "phần cứng", "hardware", "yêu cầu", "cấu hình", "hệ điều hành", "os", "windows", "linux", "mac"])
+    # 1. Comprehensive Intent Analysis
+    is_offline_req = any(w in q_lower for w in ["offline", "local", "cục bộ", "mạng", "gpu", "phần cứng", "hardware", "yêu cầu", "cấu hình", "hệ điều hành", "os", "windows", "linux", "mac", "ram", "cpu"])
     is_comparison = any(w in q_lower for w in ["so sánh", "so voi", "khác gì", "thay thế", "alternative", "hơn gì", "kém gì", "vs", "compare"])
     is_architecture = any(w in q_lower for w in ["cơ chế", "hoạt động", "luồng", "kiến trúc", "how it works", "architecture", "nguyên lý"])
-    is_install = any(w in q_lower for w in ["cài đặt", "chạy thử", "lệnh", "install", "quick run", "bắt đầu", "setup"])
-    is_license = any(w in q_lower for w in ["license", "bản quyền", "thương mại", "commercial", "agpl", "mit", "apache"])
+    is_install = any(w in q_lower for w in ["cài đặt", "chạy thử", "lệnh", "install", "quick run", "bắt đầu", "setup", "hướng dẫn", "cách dùng", "cách chạy", "how to use", "how to run"])
+    is_license = any(w in q_lower for w in ["license", "bản quyền", "thương mại", "commercial", "agpl", "mit", "apache", "miễn phí", "free", "chi phí", "tính phí", "trả phí", "có mất tiền"])
+    is_purpose = any(w in q_lower for w in ["làm gì", "tác dụng", "mục đích", "sinh ra để", "bài toán", "giải quyết", "công dụng", "chức năng", "purpose", "what does", "to do"])
+    is_audience = any(w in q_lower for w in ["ai nên dùng", "dành cho ai", "đối tượng", "chuyên ngành", "vị trí", "phù hợp", "target", "audience", "who is", "who should"])
+    is_tech = any(w in q_lower for w in ["viết bằng", "ngôn ngữ", "tech stack", "công nghệ", "framework", "thư viện", "language", "written in"])
+    is_features = any(w in q_lower for w in ["tính năng", "điểm mạnh", "ưu điểm", "nổi bật", "có gì hay", "có tính năng", "features", "highlights"])
+    is_maturity = any(w in q_lower for w in ["đánh giá", "ổn định", "sẵn sàng", "độ chín", "chín muồi", "production", "beta", "thử nghiệm", "maturity", "stable", "an toàn"])
+    is_trending = any(w in q_lower for w in ["tại sao hot", "bao nhiêu star", "stars", "lượt star", "nhiều sao", "thịnh hành", "tăng trưởng", "bứt phá", "velocity", "why trending"])
 
     if analysis_dict:
         # Check specific fields
+        if is_purpose:
+            core = analysis_dict.get("core_purpose") or analysis_dict.get("description")
+            if core:
+                paragraphs.append(f"**Tác dụng cốt lõi:** {core}")
+            impact = analysis_dict.get("real_world_impact")
+            if impact and "Chưa có bằng chứng độc lập" not in impact:
+                paragraphs.append(f"**Bài toán thực tế giải quyết:** {impact}")
+            if analysis_dict.get("category"):
+                paragraphs.append(f"**Lĩnh vực chuyên môn:** {analysis_dict['category']}")
+            sources.append({"id": "[S1]", "title": "core_purpose"})
+
+        if is_audience:
+            if analysis_dict.get("target_roles"):
+                paragraphs.append(f"**Vị trí công việc phù hợp:** {analysis_dict['target_roles']}")
+            if analysis_dict.get("suitable_major"):
+                paragraphs.append(f"**Chuyên ngành đào tạo:** {analysis_dict['suitable_major']}")
+            sources.append({"id": "[S1]", "title": "target_roles"})
+
+        if is_tech:
+            if analysis_dict.get("language"):
+                paragraphs.append(f"**Ngôn ngữ lập trình chính:** {analysis_dict['language']}")
+            if analysis_dict.get("tech_stack"):
+                paragraphs.append(f"**Tech Stack nhận diện:** {', '.join(analysis_dict['tech_stack'])}")
+            sources.append({"id": "[S1]", "title": "tech_stack"})
+
+        if is_features and analysis_dict.get("key_features"):
+            feats = "\n".join(f"- {f}" for f in analysis_dict["key_features"])
+            paragraphs.append(f"**Tính năng nổi bật:**\n{feats}")
+            sources.append({"id": "[S1]", "title": "key_features"})
+
+        if is_maturity:
+            badge = analysis_dict.get("maturity_badge", "")
+            verdict = analysis_dict.get("quick_verdict", "")
+            paragraphs.append(f"**Mức độ hoàn thiện:** {badge}\n{verdict}")
+            if analysis_dict.get("limitations"):
+                paragraphs.append("**Giới hạn cần lưu ý:** " + " ".join(analysis_dict["limitations"]))
+            sources.append({"id": "[S1]", "title": "maturity"})
+
+        if is_trending:
+            stars = analysis_dict.get("stars_total", "")
+            since = analysis_dict.get("stars_since", "")
+            why = analysis_dict.get("why_trending", "")
+            vel = analysis_dict.get("velocity_badge", "")
+            paragraphs.append(f"**Tốc độ tăng trưởng:** {vel} (★ +{since} stars trong kỳ, tổng cộng {stars} stars)")
+            if why:
+                paragraphs.append(f"**Lý do thịnh hành:** {why}")
+            sources.append({"id": "[S1]", "title": "velocity"})
+
         if is_offline_req and analysis_dict.get("adoption_notes"):
             notes = " ".join(analysis_dict["adoption_notes"])
             paragraphs.append(f"**Yêu cầu môi trường & Cấu hình:** {notes}")
@@ -73,22 +127,50 @@ def heuristic_search_answer(
             paragraphs.append("**Cơ chế hoạt động:** " + " ".join(analysis_dict["how_it_works"]))
             sources.append({"id": "[S1]", "title": "how_it_works"})
 
-        if is_install and analysis_dict.get("quick_run"):
-            paragraphs.append(f"**Lệnh cài đặt / chạy nhanh:** `{analysis_dict['quick_run']}`")
+        if is_install:
+            if analysis_dict.get("quick_run"):
+                paragraphs.append(f"**Lệnh cài đặt / chạy nhanh:** `{analysis_dict['quick_run']}`")
+            if analysis_dict.get("adoption_notes"):
+                paragraphs.append("**Hướng dẫn triển khai:** " + " ".join(analysis_dict["adoption_notes"]))
+            if analysis_dict.get("practical_examples"):
+                paragraphs.append("**Ví dụ sử dụng:** " + " ".join(analysis_dict["practical_examples"]))
             sources.append({"id": "[S1]", "title": "quick_run"})
 
-        if analysis_dict.get("limitations"):
-            paragraphs.append("**Giới hạn cần lưu ý:** " + " ".join(analysis_dict["limitations"]))
-            sources.append({"id": "[S1]", "title": "limitations"})
+        if is_license:
+            alt = analysis_dict.get("commercial_alternative", "")
+            paragraphs.append(f"**Bản quyền & Sử dụng:** Đây là dự án mã nguồn mở công khai trên GitHub ({analysis_dict.get('url', '')}).")
+            if alt:
+                paragraphs.append(f"Dự án cho phép sử dụng miễn phí thay thế cho giải pháp thương mại đắt đỏ **{alt}**.")
+            sources.append({"id": "[S1]", "title": "license"})
 
     # If specific paragraphs found, format coherent answer
     if paragraphs:
         answer = "\n\n".join(paragraphs)
         return answer, sources
 
-    # Fallback to searching README if available
+    # Fallback to searching README if available (with bilingual keyword expansion)
     if readme_text:
         keywords = [w for w in re.split(r"\s+", q_lower) if len(w) >= 3 and w not in ("cho", "với", "như", "nào", "được", "không", "những", "trong", "dự", "án")]
+        
+        # Expand common Vietnamese terms to English equivalents for README search
+        VI_EN_MAP = {
+            "cài đặt": ["install", "installation", "setup", "build"],
+            "chạy": ["run", "quickstart", "start", "exec"],
+            "dữ liệu": ["data", "dataset", "database"],
+            "mô hình": ["model", "weights"],
+            "cấu hình": ["config", "configuration", "settings", "env"],
+            "bảo mật": ["security", "auth", "token", "permission"],
+            "mạng": ["network", "proxy", "http", "api", "port"],
+            "tốc độ": ["performance", "benchmark", "fast", "speed", "throughput"],
+            "bộ nhớ": ["memory", "ram", "cache"],
+            "tính năng": ["features", "highlight"],
+            "hỗ trợ": ["support", "compatible"],
+            "tìm kiếm": ["search", "query"],
+        }
+        for vi_kw, en_synonyms in VI_EN_MAP.items():
+            if vi_kw in q_lower:
+                keywords.extend(en_synonyms)
+
         matched_lines = []
         for line in readme_text.splitlines():
             line_str = line.strip()
@@ -107,14 +189,21 @@ def heuristic_search_answer(
 
     # General default summary fallback
     if analysis_dict:
-        core = analysis_dict.get("core_purpose", "")
+        core = analysis_dict.get("core_purpose") or analysis_dict.get("description", "")
         verdict = analysis_dict.get("quick_verdict", "")
-        return (
-            f"**Tác dụng cốt lõi của {full_name}:** {core}\n\n"
-            f"**Đánh giá tổng quan:** {verdict}\n\n"
-            "*(Lưu ý: Câu hỏi cụ thể của bạn chưa tìm thấy trực tiếp trong các mục trích xuất tài liệu. Bật `--ai` để có câu trả lời sâu hơn).* ",
-            [{"id": "[S1]", "title": "core_purpose"}]
-        )
+        roles = analysis_dict.get("target_roles", "")
+        quick = analysis_dict.get("quick_run", "")
+        
+        parts = [f"**Tác dụng cốt lõi của {full_name}:** {core}"]
+        if roles:
+            parts.append(f"**Đối tượng sử dụng:** {roles}")
+        if quick:
+            parts.append(f"**Lệnh chạy nhanh:** `{quick}`")
+        if verdict:
+            parts.append(f"**Đánh giá tổng quan:** {verdict}")
+        
+        parts.append("*(💡 Mẹo: Bạn có thể bật cờ `--ai` khi khởi động server với khóa GEMINI_API_KEY để trò chuyện và hỏi đáp tự do không giới hạn với mô hình AI chuyên sâu).*")
+        return ("\n\n".join(parts), [{"id": "[S1]", "title": "summary"}])
 
     return ("Chưa có đủ tài liệu hoặc dữ liệu phân tích cho repository này. Hãy đảm bảo repository có README hoặc thử tải lại.", [])
 
