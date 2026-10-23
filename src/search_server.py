@@ -16,6 +16,7 @@ from src.scraper import TrendingRepo, get_ssl_context, get_trending_repos
 from src.maturity import parse_star_count
 from src.watchlist import load_watchlist
 from src.growth import get_star_growth
+from src.hacker_news import get_hn_trending_repos
 
 
 def validate_search(query, limit, mode, language, sort, scope='name'):
@@ -81,18 +82,37 @@ def search_and_analyze(payload, use_ai=False, model=None, watchlist=None):
     timeframe = payload.get('timeframe', 'daily')
     if timeframe not in ('daily', 'weekly', 'monthly'):
         raise ValueError('Kỳ Trending phải là daily, weekly hoặc monthly.')
-    trending = not query.strip()
-    if trending:
-        # Fetch the full Trending page, rank by new stars, then apply the limit.
+    source = payload.get('source', 'github')
+    if source not in ('github', 'hn'):
+        source = 'github'
+
+    if source == 'hn':
+        repos = get_hn_trending_repos(timeframe=timeframe, limit=limit, query=query.strip() or None)
+        total, incomplete = len(repos), False
+        trending = False
+    elif not query.strip():
+        trending = True
         repos = get_trending_repos(language=language.strip().lower().replace(' ', '-') or None,
                                    since=timeframe, limit=None)
         total, incomplete = len(repos), False
         repos.sort(key=lambda repo: (-parse_star_count(repo.stars_since), -parse_star_count(repo.stars_total), repo.name.lower()))
         repos = repos[:limit]
     else:
+        trending = False
         repos, total, incomplete = search_github(query, limit, payload.get('mode', 'all'), language, sort, scope=scope)
+
     def analyze(repo):
         result = analyze_repository(repo, deep=payload.get('deep', False), use_ai=use_ai, model=model, watchlist=watchlist)
+        if source == 'hn':
+            hn_pts = getattr(repo, 'hn_points', repo.stars_since)
+            hn_cmts = getattr(repo, 'hn_comments', 0)
+            result.velocity_badge = '📰 Hacker News Trend'
+            result.why_trending = f'Thảo luận sôi nổi trên Hacker News: ▲ {hn_pts} điểm · {hn_cmts} thảo luận.'
+            data = result.to_dict()
+            data['hn_url'] = getattr(repo, 'hn_url', '')
+            data['hn_comments'] = hn_cmts
+            data['hn_points'] = hn_pts
+            return data
         if not trending:
             result.velocity_score = 0
             result.velocity_badge = result.velocity_label = ''
@@ -101,11 +121,14 @@ def search_and_analyze(payload, use_ai=False, model=None, watchlist=None):
         if not trending:
             data['growth'] = get_star_growth(result.owner, result.repo)
         return data
+
     with ThreadPoolExecutor(max_workers=4) as pool:
         results = list(pool.map(analyze, repos))
     return {'results': results, 'total_count': total, 'incomplete_results': incomplete,
-            'mode': 'trending' if trending else 'search', 'timeframe': timeframe if trending else 'search',
-            'scope': scope if not trending else None}
+            'mode': 'hn' if source == 'hn' else ('trending' if trending else 'search'),
+            'timeframe': timeframe if (trending or source == 'hn') else 'search',
+            'scope': scope if (not trending and source != 'hn') else None,
+            'source': source}
 
 
 def make_handler(use_ai=False, model=None, deep=False):

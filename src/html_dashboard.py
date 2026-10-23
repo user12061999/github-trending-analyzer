@@ -428,6 +428,190 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             font-size: 1.1rem;
             display: none;
         }}
+
+        /* Deep Dive Modal & Tabs */
+        .modal-backdrop {{
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            padding: 20px;
+            box-sizing: border-box;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }}
+        .modal-backdrop.open {{
+            opacity: 1;
+            pointer-events: auto;
+        }}
+        .modal-dialog {{
+            background: #0d1117;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 900px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+            overflow: hidden;
+            transform: translateY(20px);
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }}
+        .modal-backdrop.open .modal-dialog {{
+            transform: translateY(0);
+        }}
+        .modal-header {{
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #161b22;
+        }}
+        .modal-header-title {{
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-bright);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }}
+        .modal-header-title a {{
+            color: var(--accent-blue);
+            text-decoration: none;
+        }}
+        .modal-header-title a:hover {{
+            text-decoration: underline;
+        }}
+        .modal-close-btn {{
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            cursor: pointer;
+            border-radius: 6px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }}
+        .modal-close-btn:hover {{
+            color: #fff;
+            border-color: #8b949e;
+            background: #21262d;
+        }}
+        .modal-badges {{
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            padding: 10px 20px;
+            background: #0d1117;
+            border-bottom: 1px solid var(--border);
+        }}
+        .modal-tabs {{
+            display: flex;
+            gap: 4px;
+            padding: 8px 16px;
+            background: #161b22;
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+        }}
+        .modal-tab-btn {{
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }}
+        .modal-tab-btn:hover {{
+            color: var(--text-bright);
+            background: rgba(255, 255, 255, 0.05);
+        }}
+        .modal-tab-btn.active {{
+            color: #000;
+            background: var(--accent-blue);
+        }}
+        .modal-body {{
+            padding: 20px;
+            overflow-y: auto;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #c9d1d9;
+            flex: 1;
+        }}
+        .modal-tab-pane {{
+            display: none;
+        }}
+        .modal-tab-pane.active {{
+            display: block;
+        }}
+        .evidence-card {{
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 14px;
+            margin-bottom: 14px;
+        }}
+        .evidence-title {{
+            font-size: 0.88rem;
+            font-weight: bold;
+            color: var(--accent-purple);
+            margin-bottom: 8px;
+        }}
+        .evidence-content {{
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }}
+        .evidence-code-block {{
+            background: #0d1117;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 12px;
+            margin: 8px 0;
+            position: relative;
+            overflow-x: auto;
+            font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+            font-size: 0.84rem;
+        }}
+        .btn-deep-dive {{
+            background: #21262d;
+            border: 1px solid var(--accent-blue);
+            color: var(--accent-blue);
+            padding: 7px 14px;
+            border-radius: 6px;
+            font-size: 0.84rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            width: 100%;
+            justify-content: center;
+        }}
+        .btn-deep-dive:hover {{
+            background: var(--accent-blue);
+            color: #000;
+        }}
     </style>
 </head>
 <body>
@@ -455,6 +639,13 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             </div>
 
             <form id="searchForm" class="search-form">
+                <div class="search-field" {'hidden' if not search_endpoint else ''}>
+                    <label id="lblDataSource" for="dataSource">Nguồn xu hướng</label>
+                    <select id="dataSource" onchange="updateSearchMode()">
+                        <option id="optSourceGitHub" value="github">🔥 GitHub Trending</option>
+                        <option id="optSourceHN" value="hn">📰 Hacker News Trends</option>
+                    </select>
+                </div>
                 <div class="search-field keyword-field">
                     <label id="lblSearchInput" for="searchInput">Từ khóa</label>
                     <input type="search" id="searchInput" placeholder="Ví dụ: agent, voice, Unity" autocomplete="off" aria-describedby="searchHelp">
@@ -645,6 +836,20 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 tagReturning: (times) => `🔄 Đã gặp ${{times || 1}} lần`,
                 tagAlt: (alt) => `💡 Thay thế: ${{alt}}`,
                 deepSummary: (engine, sources) => `Phân tích sâu · ${{engine}} · ${{sources}} nguồn`,
+                btnDeepDive: "🔬 Chi tiết kiến trúc & Deep Dive",
+                lblDataSource: "Nguồn xu hướng",
+                optSourceGitHub: "🔥 GitHub Trending",
+                optSourceHN: "📰 Hacker News Trends",
+                modalTabs: {{
+                    how_it_works: "🏛️ Kiến trúc & Cơ chế",
+                    comparisons: "📊 Benchmarks & So sánh",
+                    practical_examples: "💻 Code & Lệnh chạy",
+                    limitations: "⚠️ Giới hạn & Cảnh báo",
+                    adoption_notes: "🚀 Triển khai & Cài đặt",
+                    sources: "📚 Nguồn tài liệu"
+                }},
+                modalNoEvidence: "Chưa có trích dẫn tài liệu cho phần này. Bạn có thể bật tùy chọn 'Phân tích sâu' khi tìm kiếm để tải thêm tài liệu liên kết.",
+                modalSourcesTitle: "Nguồn tài liệu đã xác minh:",
                 deepTopics: {{
                     how_it_works: 'Cách hoạt động & kiến trúc',
                     practical_examples: 'Ví dụ thực tế & cách đánh giá',
@@ -746,6 +951,20 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 tagReturning: (times) => `🔄 Seen ${{times || 1}} times`,
                 tagAlt: (alt) => `💡 Alternative: ${{alt}}`,
                 deepSummary: (engine, sources) => `Deep Analysis · ${{engine}} · ${{sources}} sources`,
+                btnDeepDive: "🔬 Architecture & Deep Dive",
+                lblDataSource: "Trending Source",
+                optSourceGitHub: "🔥 GitHub Trending",
+                optSourceHN: "📰 Hacker News Trends",
+                modalTabs: {{
+                    how_it_works: "🏛️ Architecture & Internals",
+                    comparisons: "📊 Benchmarks & Comparisons",
+                    practical_examples: "💻 Code & Examples",
+                    limitations: "⚠️ Limitations & Warnings",
+                    adoption_notes: "🚀 Adoption & Setup",
+                    sources: "📚 Document Sources"
+                }},
+                modalNoEvidence: "No direct documentation excerpt found for this section yet. Enable 'Deep Research' in search to fetch linked documents.",
+                modalSourcesTitle: "Verified Document Sources:",
                 deepTopics: {{
                     how_it_works: 'Architecture & How it works',
                     practical_examples: 'Practical Examples & Evaluation',
@@ -1358,6 +1577,12 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                     row.appendChild(document.createTextNode(` · ${{source.fetched_at}} · ${{source.freshness}}`));
                     details.appendChild(row);
                 }});
+                const deepBtn = document.createElement('button');
+                deepBtn.type = 'button';
+                deepBtn.className = 'btn-deep-dive';
+                deepBtn.innerHTML = `<span>🔬</span> <span>${{t.btnDeepDive}}</span>`;
+                deepBtn.addEventListener('click', () => openDeepDiveModal(raw, idx));
+                card.insertBefore(deepBtn, card.querySelector('.card-footer'));
                 card.insertBefore(details, card.querySelector('.card-footer'));
                 grid.appendChild(card);
             }});
@@ -1481,6 +1706,7 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 const response = await fetch(searchEndpoint, {{
                     method: 'POST', headers: {{'Content-Type': 'application/json'}},
                     body: JSON.stringify({{
+                        source: document.getElementById('dataSource')?.value || 'github',
                         query: document.getElementById('searchInput').value.trim(),
                         limit: Number(document.getElementById('resultLimit').value),
                         mode: document.getElementById('keywordMode').value,
@@ -1494,7 +1720,7 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.error || (currentLang === 'vi' ? 'Không tìm kiếm được.' : 'Search failed.'));
                 reposData = data.results; githubTotal = data.total_count; resultMode = data.mode;
-                document.getElementById('sourceBadge').textContent = resultMode === 'trending' ? `📈 Trending · ${{t.timeLabels[data.timeframe] || data.timeframe}}` : `🔎 GitHub Search · ${{data.scope === 'content' ? (currentLang === 'vi' ? 'Nội dung README' : 'README Content') : (currentLang === 'vi' ? 'Tên project' : 'Project Name')}}`;
+                document.getElementById('sourceBadge').textContent = data.source === 'hn' ? `📰 Hacker News · ${{t.timeLabels[data.timeframe] || data.timeframe}}` : resultMode === 'trending' ? `📈 Trending · ${{t.timeLabels[data.timeframe] || data.timeframe}}` : `🔎 GitHub Search · ${{data.scope === 'content' ? (currentLang === 'vi' ? 'Nội dung README' : 'README Content') : (currentLang === 'vi' ? 'Tên project' : 'Project Name')}}`;
                 document.getElementById('velocityFilter').hidden = resultMode !== 'trending';
                 populateCategories();
                 ['repoTypeFilter', 'maturityFilter', 'velocityFilter', 'statusFilter'].forEach(id => {{ const el = document.getElementById(id); if (el) el.value = ''; }});
@@ -1543,7 +1769,161 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
 
         // Initialize Language and Render
         setLanguage(currentLang);
+
+        // Deep Dive Modal Logic
+        function closeDeepDiveModal() {{
+            const modal = document.getElementById('deepDiveModal');
+            if (modal) {{
+                modal.classList.remove('open');
+                setTimeout(() => {{ modal.style.display = 'none'; }}, 200);
+            }}
+        }}
+
+        function openDeepDiveModal(raw, idx) {{
+            const modal = document.getElementById('deepDiveModal');
+            if (!modal) return;
+            const t = I18N[currentLang];
+            const titleLink = document.getElementById('modalTitle');
+            titleLink.textContent = raw.name;
+            titleLink.href = raw.url;
+
+            // Badges
+            const badgesContainer = document.getElementById('modalBadges');
+            badgesContainer.innerHTML = '';
+            const badges = [
+                `💻 ${{raw.language || 'Unknown'}}`,
+                raw.timeframe === 'search' ? `★ ${{raw.stars_total}}` : `★ +${{raw.stars_since || '0'}}`,
+                `🛡️ Grounding: ${{raw.grounding_score || 85}}/100`,
+                `⚙️ Engine: ${{raw.engine_used || 'heuristic'}}`
+            ];
+            if (raw.velocity_badge) badges.push(raw.velocity_badge);
+            if (raw.hn_points) badges.push(`📰 HN: ▲ ${{raw.hn_points}} pts`);
+            badges.forEach(b => {{
+                const span = document.createElement('span');
+                span.className = 'pill-tag';
+                span.textContent = b;
+                badgesContainer.appendChild(span);
+            }});
+
+            // Tabs definition
+            const tabDefs = [
+                {{ id: 'how_it_works', label: t.modalTabs.how_it_works, items: raw.how_it_works || [] }},
+                {{ id: 'comparisons', label: t.modalTabs.comparisons, items: raw.comparisons || [] }},
+                {{ id: 'practical_examples', label: t.modalTabs.practical_examples, items: raw.practical_examples || [], quickRun: raw.quick_run }},
+                {{ id: 'limitations', label: t.modalTabs.limitations, items: raw.limitations || [] }},
+                {{ id: 'adoption_notes', label: t.modalTabs.adoption_notes, items: raw.adoption_notes || [] }},
+                {{ id: 'sources', label: t.modalTabs.sources, sources: raw.data_sources || [], evidence: raw.evidence || [] }}
+            ];
+
+            const tabsBar = document.getElementById('modalTabsBar');
+            const modalBody = document.getElementById('modalBody');
+            tabsBar.innerHTML = '';
+            modalBody.innerHTML = '';
+
+            let firstActive = 'how_it_works';
+            for (const td of tabDefs) {{
+                if ((td.items && td.items.length) || (td.sources && td.sources.length) || td.quickRun) {{
+                    firstActive = td.id;
+                    break;
+                }}
+            }}
+
+            tabDefs.forEach(td => {{
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = `modal-tab-btn ${{td.id === firstActive ? 'active' : ''}}`;
+                const count = td.items ? td.items.length : (td.sources ? td.sources.length : 0);
+                btn.textContent = `${{td.label}}${{count > 0 ? ` (${{count}})` : ''}}`;
+                btn.addEventListener('click', () => {{
+                    modal.querySelectorAll('.modal-tab-btn').forEach(b => b.classList.remove('active'));
+                    modal.querySelectorAll('.modal-tab-pane').forEach(p => p.classList.remove('active'));
+                    btn.classList.add('active');
+                    const pane = document.getElementById(`pane_${{td.id}}`);
+                    if (pane) pane.classList.add('active');
+                }});
+                tabsBar.appendChild(btn);
+
+                // Create Pane
+                const pane = document.createElement('div');
+                pane.id = `pane_${{td.id}}`;
+                pane.className = `modal-tab-pane ${{td.id === firstActive ? 'active' : ''}}`;
+
+                if (td.id === 'sources') {{
+                    if (td.sources && td.sources.length) {{
+                        const h = document.createElement('div');
+                        h.className = 'evidence-title';
+                        h.textContent = t.modalSourcesTitle;
+                        pane.appendChild(h);
+                        td.sources.forEach(src => {{
+                            const sc = document.createElement('div');
+                            sc.className = 'evidence-card';
+                            sc.innerHTML = `<strong>[${{src.id}}]</strong> <a href="${{src.url}}" target="_blank" style="color:var(--accent-blue); text-decoration:none;">${{escapeText(src.title)}}</a> · <span style="color:var(--text-muted); font-size:0.8rem;">${{src.fetched_at}} (${{src.freshness}})</span>`;
+                            pane.appendChild(sc);
+                        }});
+                    }} else {{
+                        pane.innerHTML = `<div style="color:var(--text-muted); padding:20px; text-align:center;">${{t.modalNoEvidence}}</div>`;
+                    }}
+                }} else {{
+                    let hasContent = false;
+                    if (td.quickRun) {{
+                        hasContent = true;
+                        const qrBox = document.createElement('div');
+                        qrBox.className = 'evidence-card';
+                        qrBox.innerHTML = `<div class="evidence-title">⚡ Quick Run / Installation:</div><pre class="evidence-code-block"><code>${{escapeText(td.quickRun)}}</code></pre>`;
+                        pane.appendChild(qrBox);
+                    }}
+                    if (td.items && td.items.length) {{
+                        hasContent = true;
+                        td.items.forEach(item => {{
+                            const card = document.createElement('div');
+                            card.className = 'evidence-card';
+                            const formatted = escapeText(item).replace(/```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g, '<pre class="evidence-code-block"><code>$2</code></pre>');
+                            card.innerHTML = `<div class="evidence-content">${{formatted}}</div>`;
+                            pane.appendChild(card);
+                        }});
+                    }}
+                    if (!hasContent) {{
+                        pane.innerHTML = `<div style="color:var(--text-muted); padding:20px; text-align:center;">${{t.modalNoEvidence}}</div>`;
+                    }}
+                }}
+                modalBody.appendChild(pane);
+            }});
+
+            modal.style.display = 'flex';
+            setTimeout(() => {{ modal.classList.add('open'); }}, 10);
+        }}
+
+        // Close on backdrop click and Esc key
+        document.addEventListener('DOMContentLoaded', () => {{
+            const modal = document.getElementById('deepDiveModal');
+            const closeBtn = document.getElementById('modalCloseBtn');
+            if (closeBtn) closeBtn.addEventListener('click', closeDeepDiveModal);
+            if (modal) {{
+                modal.addEventListener('click', (e) => {{
+                    if (e.target === modal) closeDeepDiveModal();
+                }});
+            }}
+            document.addEventListener('keydown', (e) => {{
+                if (e.key === 'Escape') closeDeepDiveModal();
+            }});
+        }});
+
     </script>
+        <!-- Deep Dive Modal -->
+        <div id="deepDiveModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <div class="modal-dialog">
+                <div class="modal-header">
+                    <div class="modal-header-title">
+                        <span id="modalIcon">🔬</span>
+                        <a id="modalTitle" href="#" target="_blank">repo/name</a>
+                    </div>
+                    <button type="button" class="modal-close-btn" id="modalCloseBtn" aria-label="Close">✕</button>
+                </div>
+                <div id="modalBadges" class="modal-badges"></div>
+                <div class="modal-tabs" id="modalTabsBar"></div>
+                <div class="modal-body" id="modalBody"></div>
+            </div>
+        </div>
 </body>
 </html>
 """

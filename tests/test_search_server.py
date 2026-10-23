@@ -112,5 +112,26 @@ class TestGitHubSearch(unittest.TestCase):
         self.assertIn('WHAT IT DOES & CORE PURPOSE', html)
         self.assertIn('KEY FEATURES & HIGHLIGHTS', html)
 
+    @patch('src.search_server.get_hn_trending_repos')
+    @patch('src.search_server.analyze_repository')
+    def test_search_and_analyze_with_hn_source(self, mock_analyze, mock_hn):
+        mock_repo = TrendingRepo('deepseek-ai/DeepInfer', 'deepseek-ai', 'DeepInfer', 'https://github.com/deepseek-ai/DeepInfer', 'DeepSeek inference', 'Python', '#fff', '▲ 2000', '💬 800', '2000', 'hn_weekly')
+        mock_repo.hn_points = 2000
+        mock_repo.hn_comments = 800
+        mock_repo.hn_url = 'https://news.ycombinator.com/item?id=123'
+        mock_hn.return_value = [mock_repo]
 
-if __name__ == '__main__': unittest.main()
+        mock_analysis = RepoAnalysis('deepseek-ai/DeepInfer', 'deepseek-ai', 'DeepInfer', 'https://github.com/deepseek-ai/DeepInfer', 'Python', '▲ 2000', '2000', 'hn_weekly', 'DeepSeek inference', 'AI', 'Inference framework')
+        mock_analyze.return_value = mock_analysis
+
+        data = search_and_analyze({'source': 'hn', 'timeframe': 'weekly', 'limit': 1})
+        self.assertEqual(data['source'], 'hn')
+        self.assertEqual(data['mode'], 'hn')
+        self.assertEqual(len(data['results']), 1)
+        self.assertEqual(data['results'][0]['velocity_badge'], '📰 Hacker News Trend')
+        self.assertIn('Hacker News', data['results'][0]['why_trending'])
+        self.assertEqual(data['results'][0]['hn_points'], 2000)
+
+
+if __name__ == '__main__':
+    unittest.main()

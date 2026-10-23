@@ -64,6 +64,17 @@ def parse_arguments():
         default=10,
         help="Số lượng repository cần phân tích (mặc định: 10)",
     )
+    parser.add_argument(
+        "--source",
+        choices=["github", "hn"],
+        default="github",
+        help="Nguồn dữ liệu xu hướng:\n- github: GitHub Trending (mặc định)\n- hn: Hacker News Developer Trends",
+    )
+    parser.add_argument(
+        "--hn",
+        action="store_true",
+        help="Lấy các repository đang được cộng đồng bàn luận sôi nổi nhất trên Hacker News",
+    )
     parser.add_argument("--serve", action="store_true", help="Mở dashboard tìm kiếm project mới từ GitHub")
     parser.add_argument("--port", type=int, default=8766, help="Port dashboard local (mặc định 8766)")
     parser.add_argument("--no-browser", action="store_true", help="Không tự mở trình duyệt khi chạy server")
@@ -279,17 +290,27 @@ def main():
         serve_dashboard(port=args.port, use_ai=args.ai, model=args.model, deep=args.deep, open_browser=not args.no_browser)
         return
 
+    source = "hn" if args.hn else args.source
     if not args.json:
-        print(f"{CYAN}⏳ Đang cào dữ liệu từ https://github.com/trending...{RESET}")
+        src_name = "Hacker News discussions" if source == "hn" else "https://github.com/trending"
+        print(f"{CYAN}⏳ Đang cào dữ liệu từ {src_name}...{RESET}")
 
     try:
-        repos = get_trending_repos(
-            language=args.language,
-            since=args.since,
-            limit=args.limit,
-        )
+        if source == "hn":
+            from src.hacker_news import get_hn_trending_repos
+            repos = get_hn_trending_repos(
+                timeframe=args.since,
+                limit=args.limit,
+            )
+        else:
+            repos = get_trending_repos(
+                language=args.language,
+                since=args.since,
+                limit=args.limit,
+            )
     except Exception as e:
-        print(f"\n{BOLD}\033[31m❌ Lỗi khi tải dữ liệu từ GitHub Trending:{RESET} {e}")
+        src_label = "Hacker News" if source == "hn" else "GitHub Trending"
+        print(f"\n{BOLD}\033[31m❌ Lỗi khi tải dữ liệu từ {src_label}:{RESET} {e}")
         print(f"{DIM}Gợi ý: Kiểm tra kết nối Internet hoặc thử lại sau giây lát.{RESET}\n")
         sys.exit(1)
 
