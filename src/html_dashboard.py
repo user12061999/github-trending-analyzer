@@ -1769,6 +1769,9 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
 
         // Initialize Language and Render
         setLanguage(currentLang);
+        if (searchEndpoint && (!reposData || reposData.length === 0)) {{
+            searchProjects();
+        }}
 
         // Deep Dive Modal Logic
         function closeDeepDiveModal() {{
