@@ -612,6 +612,231 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             background: var(--accent-blue);
             color: #000;
         }}
+
+        /* Domain Presets Quick-Filter Bar */
+        .preset-filters-bar {{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding: 10px 14px;
+            background: #161b22;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            flex-wrap: wrap;
+        }}
+        .preset-pills-wrap {{
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            align-items: center;
+        }}
+        .preset-label {{
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-right: 4px;
+        }}
+        .preset-pill {{
+            background: #21262d;
+            border: 1px solid #30363d;
+            color: var(--text-main);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }}
+        .preset-pill:hover {{
+            background: #30363d;
+            border-color: var(--accent-blue);
+            color: #fff;
+        }}
+        .preset-pill.active {{
+            background: rgba(56, 139, 253, 0.15);
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+            font-weight: 600;
+        }}
+        .preset-count {{
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1px 6px;
+            font-size: 0.72rem;
+            color: #c9d1d9;
+        }}
+        .btn-toggle-analytics {{
+            background: rgba(35, 134, 54, 0.15);
+            border: 1px solid #2ea043;
+            color: #3fb950;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            margin-left: auto;
+        }}
+        .btn-toggle-analytics:hover {{
+            background: #238636;
+            color: #fff;
+        }}
+
+        /* Analytics & Chart Panel */
+        .analytics-panel {{
+            background: #161b22;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 18px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            animation: fadeIn 0.25s ease;
+        }}
+        .analytics-header {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+            margin-bottom: 14px;
+        }}
+        .analytics-header h3 {{
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-bright);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }}
+        .analytics-sub {{
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }}
+        .velocity-chart-bars {{
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 12px 0 20px 0;
+        }}
+        .velocity-bar-row {{
+            display: grid;
+            grid-template-columns: 220px 1fr 100px;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.83rem;
+        }}
+        .velocity-bar-name {{
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: var(--text-bright);
+            font-weight: 500;
+            text-decoration: none;
+        }}
+        .velocity-bar-name:hover {{
+            color: var(--accent-blue);
+            text-decoration: underline;
+        }}
+        .velocity-bar-bg {{
+            background: #21262d;
+            border-radius: 6px;
+            height: 18px;
+            overflow: hidden;
+            position: relative;
+        }}
+        .velocity-bar-fill {{
+            height: 100%;
+            border-radius: 6px;
+            background: linear-gradient(90deg, #238636, #3fb950);
+            transition: width 0.4s ease;
+        }}
+        .velocity-bar-val {{
+            text-align: right;
+            font-weight: 600;
+            color: var(--accent-green);
+            font-size: 0.82rem;
+        }}
+        .analytics-grid-two {{
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            border-top: 1px solid var(--border);
+            padding-top: 14px;
+        }}
+        @media (max-width: 768px) {{
+            .analytics-grid-two {{ grid-template-columns: 1fr; }}
+            .velocity-bar-row {{ grid-template-columns: 130px 1fr 80px; }}
+        }}
+        .analytics-card {{
+            background: #0d1117;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px;
+        }}
+        .analytics-card h4 {{
+            margin: 0 0 10px 0;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }}
+        .domain-stacked-bar {{
+            height: 16px;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            background: #21262d;
+            margin-bottom: 12px;
+        }}
+        .domain-legend {{
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-size: 0.78rem;
+        }}
+        .legend-item {{
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: #c9d1d9;
+        }}
+        .legend-dot {{
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }}
+        .maturity-bars {{
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }}
+        .maturity-row {{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.8rem;
+        }}
+        .mini-momentum-pill {{
+            font-size: 0.72rem;
+            font-weight: 600;
+            border-radius: 10px;
+            padding: 2px 7px;
+            background: rgba(56, 139, 253, 0.15);
+            color: var(--accent-blue);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-left: 6px;
+        }}
     </style>
 </head>
 <body>
@@ -738,6 +963,55 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             </div>
         </header>
 
+        <!-- Domain Presets Bar -->
+        <div class="preset-filters-bar">
+            <div class="preset-pills-wrap">
+                <span class="preset-label" id="lblDomainPresets">🎯 Chuyên môn:</span>
+                <button type="button" class="preset-pill active" data-preset="all" onclick="selectDomainPreset('all')">
+                    <span>🌟</span> <span id="presetAll">Tất cả</span> <span class="preset-count" id="countAll">0</span>
+                </button>
+                <button type="button" class="preset-pill" data-preset="ai" onclick="selectDomainPreset('ai')">
+                    <span>🤖</span> <span id="presetAi">AI & Agent</span> <span class="preset-count" id="countAi">0</span>
+                </button>
+                <button type="button" class="preset-pill" data-preset="web" onclick="selectDomainPreset('web')">
+                    <span>🌐</span> <span id="presetWeb">Web & Fullstack</span> <span class="preset-count" id="countWeb">0</span>
+                </button>
+                <button type="button" class="preset-pill" data-preset="security" onclick="selectDomainPreset('security')">
+                    <span>🛡️</span> <span id="presetSecurity">DevSecOps & Cloud</span> <span class="preset-count" id="countSecurity">0</span>
+                </button>
+                <button type="button" class="preset-pill" data-preset="mobile" onclick="selectDomainPreset('mobile')">
+                    <span>📱</span> <span id="presetMobile">Mobile & Game</span> <span class="preset-count" id="countMobile">0</span>
+                </button>
+                <button type="button" class="preset-pill" data-preset="systems" onclick="selectDomainPreset('systems')">
+                    <span>⚡</span> <span id="presetSystems">Systems & Hiệu năng</span> <span class="preset-count" id="countSystems">0</span>
+                </button>
+            </div>
+            <button type="button" id="toggleAnalyticsBtn" class="btn-toggle-analytics" onclick="toggleAnalyticsPanel()">
+                <span>📊</span> <span id="lblBtnAnalytics">Xem Biểu đồ Tăng trưởng</span>
+            </button>
+        </div>
+
+        <!-- Analytics & Chart Panel -->
+        <div id="analyticsPanel" class="analytics-panel" style="display:none;">
+            <div class="analytics-header">
+                <h3 id="chartVelocityTitle">⚡ Bảng xếp hạng Tốc độ Tăng trưởng Sao</h3>
+                <span class="analytics-sub" id="analyticsSubtitle">Top dự án bứt phá trong kỳ</span>
+            </div>
+            <div id="velocityChartBars" class="velocity-chart-bars"></div>
+            
+            <div class="analytics-grid-two">
+                <div class="analytics-card">
+                    <h4 id="chartDomainTitle">🌐 Phân bổ Lĩnh vực Công nghệ</h4>
+                    <div id="domainStackedBar" class="domain-stacked-bar"></div>
+                    <div id="domainLegend" class="domain-legend"></div>
+                </div>
+                <div class="analytics-card">
+                    <h4 id="chartMaturityTitle">🟢 Tỷ lệ Độ hoàn thiện</h4>
+                    <div id="maturityBars" class="maturity-bars"></div>
+                </div>
+            </div>
+        </div>
+
         <div id="cardsGrid" class="cards-grid"></div>
         <div id="emptyState" class="empty-state">Không tìm thấy repository nào phù hợp với bộ lọc hiện tại.</div>
     </div>
@@ -837,6 +1111,20 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 tagAlt: (alt) => `💡 Thay thế: ${{alt}}`,
                 deepSummary: (engine, sources) => `Phân tích sâu · ${{engine}} · ${{sources}} nguồn`,
                 btnDeepDive: "🔬 Chi tiết kiến trúc & Deep Dive",
+                lblDomainPresets: "🎯 Chuyên môn:",
+                presetAll: "Tất cả",
+                presetAi: "AI & Agent",
+                presetWeb: "Web & Fullstack",
+                presetSecurity: "DevSecOps & Cloud",
+                presetMobile: "Mobile & Game",
+                presetSystems: "Systems & Hiệu năng",
+                lblBtnAnalytics: "Xem Biểu đồ Tăng trưởng",
+                lblBtnAnalyticsHide: "Ẩn Biểu đồ Tăng trưởng",
+                chartVelocityTitle: "⚡ Bảng xếp hạng Tốc độ Tăng trưởng Sao",
+                analyticsSubtitle: "Top dự án bứt phá trong kỳ",
+                chartDomainTitle: "🌐 Phân bổ Lĩnh vực Công nghệ",
+                chartMaturityTitle: "🟢 Tỷ lệ Độ hoàn thiện",
+                chartStarsUnit: "sao mới",
                 lblDataSource: "Nguồn xu hướng",
                 optSourceGitHub: "🔥 GitHub Trending",
                 optSourceHN: "📰 Hacker News Trends",
@@ -952,6 +1240,20 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 tagAlt: (alt) => `💡 Alternative: ${{alt}}`,
                 deepSummary: (engine, sources) => `Deep Analysis · ${{engine}} · ${{sources}} sources`,
                 btnDeepDive: "🔬 Architecture & Deep Dive",
+                lblDomainPresets: "🎯 Domain:",
+                presetAll: "All",
+                presetAi: "AI & Agents",
+                presetWeb: "Web & Fullstack",
+                presetSecurity: "DevSecOps & Cloud",
+                presetMobile: "Mobile & Game",
+                presetSystems: "Systems & Perf",
+                lblBtnAnalytics: "View Growth Chart",
+                lblBtnAnalyticsHide: "Hide Growth Chart",
+                chartVelocityTitle: "⚡ Star Growth & Velocity Leaderboard",
+                analyticsSubtitle: "Top momentum projects in period",
+                chartDomainTitle: "🌐 Technology Domain Breakdown",
+                chartMaturityTitle: "🟢 Project Maturity Distribution",
+                chartStarsUnit: "new stars",
                 lblDataSource: "Trending Source",
                 optSourceGitHub: "🔥 GitHub Trending",
                 optSourceHN: "📰 Hacker News Trends",
@@ -1241,6 +1543,18 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             setText('syncWatchlistBtn', t.syncWatchlist);
             setText('loadedCount', t.countBadge(reposData.length));
             setText('emptyState', t.emptyState);
+            setText('lblDomainPresets', t.lblDomainPresets);
+            setText('presetAll', t.presetAll);
+            setText('presetAi', t.presetAi);
+            setText('presetWeb', t.presetWeb);
+            setText('presetSecurity', t.presetSecurity);
+            setText('presetMobile', t.presetMobile);
+            setText('presetSystems', t.presetSystems);
+            setText('lblBtnAnalytics', isAnalyticsOpen ? t.lblBtnAnalyticsHide : t.lblBtnAnalytics);
+            setText('chartVelocityTitle', t.chartVelocityTitle);
+            setText('analyticsSubtitle', t.analyticsSubtitle);
+            setText('chartDomainTitle', t.chartDomainTitle);
+            setText('chartMaturityTitle', t.chartMaturityTitle);
 
             // Filters
             populateCategories();
@@ -1642,8 +1956,25 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                     ? keywords.every(keyword => corpus.includes(keyword))
                     : keywords.some(keyword => corpus.includes(keyword)));
 
-                return matchesCat && matchesRepoType && matchesMaturity && matchesVelocity && matchesWatchlist && matchesAlt && matchesStatus && matchesQuery;
+                const matchesPreset = matchesDomainPreset(r, activeDomainPreset);
+
+                return matchesCat && matchesRepoType && matchesMaturity && matchesVelocity && matchesWatchlist && matchesAlt && matchesStatus && matchesQuery && matchesPreset;
             }});
+
+            // Update Domain Preset Counts
+            if (document.getElementById('countAll')) {{
+                document.getElementById('countAll').textContent = reposData.length;
+                ['ai', 'web', 'security', 'mobile', 'systems'].forEach(preset => {{
+                    const c = reposData.filter(r => matchesDomainPreset(r, preset)).length;
+                    const el = document.getElementById('count' + preset.charAt(0).toUpperCase() + preset.slice(1));
+                    if (el) el.textContent = c;
+                }});
+            }}
+
+            // Refresh Analytics if open
+            if (isAnalyticsOpen) {{
+                renderAnalyticsCharts(filtered);
+            }}
 
             const visible = filtered.slice(0, limit);
             const t = I18N[currentLang];
@@ -1771,6 +2102,167 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
         setLanguage(currentLang);
         if (searchEndpoint && (!reposData || reposData.length === 0)) {{
             searchProjects();
+        }}
+
+        // Domain Presets & Analytics Logic
+        let activeDomainPreset = 'all';
+        let isAnalyticsOpen = false;
+
+        const DOMAIN_PRESETS = {{
+            ai: {{
+                categories: ['AI & Machine Learning', 'Data Science & Big Data'],
+                keywords: ['ai', 'agent', 'agents', 'llm', 'gpt', 'claude', 'deepseek', 'model', 'rag', 'embedding', 'transformer', 'prompt', 'vision', 'diffusion', 'inference', 'neural', 'langchain', 'ollama', 'tree-sitter', 'openai', 'anthropic']
+            }},
+            web: {{
+                categories: ['Web & Frontend', 'Backend & API'],
+                keywords: ['web', 'frontend', 'backend', 'fullstack', 'react', 'vue', 'angular', 'next', 'nuxt', 'svelte', 'api', 'http', 'fastapi', 'flask', 'django', 'node', 'express', 'nest', 'php', 'html', 'css', 'tailwind', 'graphql', 'rest']
+            }},
+            security: {{
+                categories: ['DevOps & Infrastructure', 'Security & Privacy', 'Cloud & Serverless'],
+                keywords: ['security', 'audit', 'vuln', 'vulnerability', 'cve', 'cloud', 'docker', 'kubernetes', 'k8s', 'devops', 'infra', 'infrastructure', 'linux', 'kernel', 'monitoring', 'ci/cd', 'pipeline', 'penetration', 'firewall', 'proxy', 'auth', 'iam']
+            }},
+            mobile: {{
+                categories: ['Mobile Development', 'Game Development & Graphics'],
+                keywords: ['mobile', 'android', 'ios', 'flutter', 'react-native', 'swift', 'kotlin', 'dart', 'game', 'gaming', 'unity', 'unreal', 'godot', 'graphics', 'vfx', '3d', 'shader', 'opengl', 'vulkan', 'metal', 'webgl']
+            }},
+            systems: {{
+                categories: ['Developer Tooling & CLI', 'System Programming', 'Databases & Storage'],
+                keywords: ['c', 'c++', 'rust', 'zig', 'go', 'golang', 'assembly', 'system', 'systems', 'cli', 'compiler', 'interpreter', 'runtime', 'database', 'sqlite', 'redis', 'postgres', 'memory', 'performance', 'jit', 'ast', 'parser']
+            }}
+        }};
+
+        function matchesDomainPreset(r, preset) {{
+            if (!preset || preset === 'all') return true;
+            const def = DOMAIN_PRESETS[preset];
+            if (!def) return true;
+            if (def.categories.includes(r.category)) return true;
+            const corpus = normalizeSearch([
+                r.name, r.description, r.core_purpose, r.language, r.category,
+                (r.tech_stack || []).join(' '), (r.key_features || []).join(' '), r.target_roles || ''
+            ].join(' '));
+            return def.keywords.some(k => corpus.includes(k));
+        }}
+
+        function selectDomainPreset(preset) {{
+            activeDomainPreset = preset;
+            document.querySelectorAll('.preset-pill').forEach(btn => {{
+                btn.classList.toggle('active', btn.getAttribute('data-preset') === preset);
+            }});
+            filterCards();
+        }}
+
+        function toggleAnalyticsPanel() {{
+            const panel = document.getElementById('analyticsPanel');
+            const btn = document.getElementById('lblBtnAnalytics');
+            const t = I18N[currentLang];
+            if (!panel) return;
+            isAnalyticsOpen = !isAnalyticsOpen;
+            panel.style.display = isAnalyticsOpen ? 'block' : 'none';
+            if (btn) btn.textContent = isAnalyticsOpen ? t.lblBtnAnalyticsHide : t.lblBtnAnalytics;
+            if (isAnalyticsOpen) {{
+                renderAnalyticsCharts();
+            }}
+        }}
+
+        function renderAnalyticsCharts(reposToChart) {{
+            const repos = reposToChart || reposData || [];
+            if (!repos.length) return;
+            const t = I18N[currentLang];
+
+            // 1. Velocity Leaderboard
+            const sortedByStars = [...repos].sort((a, b) => {{
+                const sA = Number(String(a.stars_since || a.hn_points || 0).replace(/[^0-9]/g, '')) || 0;
+                const sB = Number(String(b.stars_since || b.hn_points || 0).replace(/[^0-9]/g, '')) || 0;
+                return sB - sA;
+            }}).slice(0, 8);
+
+            const maxStars = Math.max(1, ...(sortedByStars.map(r => Number(String(r.stars_since || r.hn_points || 0).replace(/[^0-9]/g, '')) || 0)));
+            const barsContainer = document.getElementById('velocityChartBars');
+            if (barsContainer) {{
+                barsContainer.innerHTML = '';
+                sortedByStars.forEach(r => {{
+                    const stars = Number(String(r.stars_since || r.hn_points || 0).replace(/[^0-9]/g, '')) || 0;
+                    const pct = Math.max(8, Math.round((stars / maxStars) * 100));
+                    const row = document.createElement('div');
+                    row.className = 'velocity-bar-row';
+                    row.innerHTML = `
+                        <a href="${{r.url}}" target="_blank" class="velocity-bar-name" title="${{r.name}}">📦 ${{r.name}}</a>
+                        <div class="velocity-bar-bg">
+                            <div class="velocity-bar-fill" style="width: ${{pct}}%;"></div>
+                        </div>
+                        <div class="velocity-bar-val">${{r.hn_points ? '▲ ' + stars : '+' + stars.toLocaleString()}} ${{t.chartStarsUnit}}</div>
+                    `;
+                    barsContainer.appendChild(row);
+                }});
+            }}
+
+            // 2. Domain Distribution Stacked Bar
+            const domainCounts = {{ ai: 0, web: 0, security: 0, mobile: 0, systems: 0, other: 0 }};
+            const domainColors = {{
+                ai: '#a371f7',
+                web: '#58a6ff',
+                security: '#f85149',
+                mobile: '#f0883e',
+                systems: '#3fb950',
+                other: '#8b949e'
+            }};
+            const domainNames = {{
+                ai: 'AI & Agent',
+                web: 'Web',
+                security: 'Security',
+                mobile: 'Mobile/Game',
+                systems: 'Systems',
+                other: 'Other'
+            }};
+
+            repos.forEach(r => {{
+                let matched = false;
+                for (const d of ['ai', 'web', 'security', 'mobile', 'systems']) {{
+                    if (matchesDomainPreset(r, d)) {{
+                        domainCounts[d]++;
+                        matched = true;
+                        break;
+                    }}
+                }}
+                if (!matched) domainCounts.other++;
+            }});
+
+            const total = repos.length;
+            const stackedBar = document.getElementById('domainStackedBar');
+            const legend = document.getElementById('domainLegend');
+            if (stackedBar && legend) {{
+                stackedBar.innerHTML = '';
+                legend.innerHTML = '';
+                for (const [key, count] of Object.entries(domainCounts)) {{
+                    if (count === 0) continue;
+                    const pct = Math.round((count / total) * 100);
+                    const seg = document.createElement('div');
+                    seg.style.cssText = `width: ${{pct}}%; background: ${{domainColors[key]}}; height: 100%; transition: width 0.3s;`;
+                    seg.title = `${{domainNames[key]}}: ${{count}} (${{pct}}%)`;
+                    stackedBar.appendChild(seg);
+
+                    const legItem = document.createElement('div');
+                    legItem.className = 'legend-item';
+                    legItem.innerHTML = `<span class="legend-dot" style="background: ${{domainColors[key]}}"></span> ${{domainNames[key]}}: <strong>${{pct}}%</strong> (${{count}})`;
+                    legend.appendChild(legItem);
+                }}
+            }}
+
+            // 3. Maturity Breakdown
+            const matCounts = {{ production: 0, beta: 0, experimental: 0 }};
+            repos.forEach(r => {{
+                if (r.maturity_level === 'production') matCounts.production++;
+                else if (r.maturity_level === 'experimental') matCounts.experimental++;
+                else matCounts.beta++;
+            }});
+            const matContainer = document.getElementById('maturityBars');
+            if (matContainer) {{
+                matContainer.innerHTML = `
+                    <div class="maturity-row"><span>🟢 Production Ready:</span> <strong>${{matCounts.production}} (${{Math.round(matCounts.production / total * 100)}}%)</strong></div>
+                    <div class="maturity-row"><span>🟡 Beta / Active:</span> <strong>${{matCounts.beta}} (${{Math.round(matCounts.beta / total * 100)}}%)</strong></div>
+                    <div class="maturity-row"><span>🟠 Experimental:</span> <strong>${{matCounts.experimental}} (${{Math.round(matCounts.experimental / total * 100)}}%)</strong></div>
+                `;
+            }}
         }}
 
         // Deep Dive Modal Logic
