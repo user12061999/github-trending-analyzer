@@ -67,6 +67,14 @@ def _init_schema(conn: sqlite3.Connection) -> None:
             confidence REAL DEFAULT 1.0,
             created_at TEXT NOT NULL
         );
+
+        CREATE TABLE IF NOT EXISTS repo_bookmarks (
+            full_name TEXT PRIMARY KEY,
+            bookmarked_at TEXT NOT NULL,
+            tags TEXT DEFAULT '[]',
+            notes TEXT DEFAULT '',
+            repo_data TEXT DEFAULT '{}'
+        );
         """)
 
 
@@ -316,5 +324,88 @@ def extract_adaptive_preferences(db_path: Optional[str] = None) -> Dict[str, Lis
             "languages": suggested_languages,
             "categories": suggested_categories,
         }
+    finally:
+        conn.close()
+
+
+
+def save_bookmark(
+    full_name: str,
+    repo_data: Optional[Dict[str, Any]] = None,
+    tags: Optional[List[str]] = None,
+    notes: Optional[str] = None,
+    db_path: Optional[str] = None
+) -> Dict[str, Any]:
+    """Save or update a bookmarked repository."""
+    if not full_name or not isinstance(full_name, str):
+        raise ValueError("Tên repo không hợp lệ.")
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    conn = get_connection(db_path)
+    try:
+        with conn:
+            existing = conn.execute("SELECT bookmarked_at, tags, notes, repo_data FROM repo_bookmarks WHERE full_name = ?", (full_name,)).fetchone()
+            curr_tags = json.loads(existing["tags"]) if (existing and existing["tags"]) else []
+            curr_notes = existing["notes"] if existing else ""
+            curr_repo_data = json.loads(existing["repo_data"]) if (existing and existing["repo_data"]) else {}
+            curr_bm_at = existing["bookmarked_at"] if existing else now
+
+            final_tags = tags if tags is not None else curr_tags
+            final_notes = notes if notes is not None else curr_notes
+            final_repo_data = repo_data if repo_data is not None else curr_repo_data
+
+            conn.execute("""
+            INSERT INTO repo_bookmarks (full_name, bookmarked_at, tags, notes, repo_data)
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(full_name) DO UPDATE SET
+                tags = excluded.tags,
+                notes = excluded.notes,
+                repo_data = CASE WHEN excluded.repo_data != '{}' THEN excluded.repo_data ELSE repo_bookmarks.repo_data END
+            """, (full_name, curr_bm_at, json.dumps(final_tags, ensure_ascii=False), final_notes, json.dumps(final_repo_data, ensure_ascii=False)))
+
+            return {
+                "full_name": full_name,
+                "bookmarked_at": curr_bm_at,
+                "tags": final_tags,
+                "notes": final_notes,
+                "repo_data": final_repo_data,
+            }
+    finally:
+        conn.close()
+
+
+def delete_bookmark(full_name: str, db_path: Optional[str] = None) -> bool:
+    """Delete a bookmarked repository."""
+    conn = get_connection(db_path)
+    try:
+        with conn:
+            cursor = conn.execute("DELETE FROM repo_bookmarks WHERE full_name = ?", (full_name,))
+            return cursor.rowcount > 0
+    finally:
+        conn.close()
+
+
+def get_all_bookmarks(db_path: Optional[str] = None) -> Dict[str, Dict[str, Any]]:
+    """Return all saved bookmarks indexed by full_name."""
+    conn = get_connection(db_path)
+    try:
+        rows = conn.execute("SELECT full_name, bookmarked_at, tags, notes, repo_data FROM repo_bookmarks ORDER BY bookmarked_at DESC").fetchall()
+        result = {}
+        for r in rows:
+            try:
+                tags = json.loads(r["tags"]) if r["tags"] else []
+            except Exception:
+                tags = []
+            try:
+                repo_data = json.loads(r["repo_data"]) if r["repo_data"] else {}
+            except Exception:
+                repo_data = {}
+            result[r["full_name"]] = {
+                "full_name": r["full_name"],
+                "bookmarked_at": r["bookmarked_at"],
+                "tags": tags,
+                "notes": r["notes"] or "",
+                "repo_data": repo_data,
+            }
+        return result
     finally:
         conn.close()

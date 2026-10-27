@@ -689,6 +689,96 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             background: #238636;
             color: #fff;
         }}
+        .btn-rate.btn-bookmark {{
+            color: #d29922;
+            background: rgba(210, 153, 34, 0.1);
+            border-color: rgba(210, 153, 34, 0.35);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.78rem;
+            padding: 3px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }}
+        .btn-rate.btn-bookmark:hover {{
+            background: rgba(210, 153, 34, 0.25);
+            border-color: #d29922;
+            color: #e3b341;
+        }}
+        .btn-rate.btn-bookmark.active {{
+            background: #d29922;
+            color: #0d1117;
+            font-weight: 700;
+            border-color: #e3b341;
+            box-shadow: 0 0 8px rgba(210, 153, 34, 0.4);
+        }}
+        .preset-pill.preset-bm-pill {{
+            border-color: rgba(210, 153, 34, 0.4);
+            color: #d29922;
+        }}
+        .preset-pill.preset-bm-pill.active {{
+            background: rgba(210, 153, 34, 0.22);
+            border-color: #e3b341;
+            color: #f0c674;
+        }}
+        .bookmark-summary {{
+            background: rgba(210, 153, 34, 0.08);
+            border-left: 3px solid #d29922;
+            border-radius: 4px;
+            padding: 6px 10px;
+            margin-bottom: 10px;
+            font-size: 0.8rem;
+        }}
+        .bm-tag-pill {{
+            display: inline-block;
+            background: rgba(210, 153, 34, 0.2);
+            color: #e3b341;
+            padding: 1px 7px;
+            border-radius: 12px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            border: 1px solid rgba(210, 153, 34, 0.35);
+        }}
+        .btn-edit-bm {{
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.75rem;
+            padding: 0 4px;
+        }}
+        .btn-edit-bm:hover {{
+            color: #e3b341;
+        }}
+        .bookmark-editor {{
+            background: rgba(22, 27, 34, 0.98);
+            border: 1px solid #d29922;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 12px;
+            animation: fadeIn 0.2s ease;
+        }}
+        .modal-backdrop {{
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(3px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }}
+        .export-modal-box {{
+            background: #161b22;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            width: 90%;
+            max-width: 680px;
+            padding: 18px 22px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+        }}
 
         /* Analytics & Chart Panel */
         .analytics-panel {{
@@ -952,6 +1042,7 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                     <option value="tried">✅ Đã thử</option>
                     <option value="skipped">⏭️ Bỏ qua</option>
                     <option value="liked">👍 Đã Like</option>
+                    <option value="bookmarked">⭐ Đã lưu (Bookmark)</option>
                 </select>
                 <label class="checkbox-filter">
                     <input type="checkbox" id="watchlistOnly" onchange="filterCards()"> <span id="lblWatchlistText">⭐ Khớp sở thích (>0%)</span>
@@ -985,10 +1076,18 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 <button type="button" class="preset-pill" data-preset="systems" onclick="selectDomainPreset('systems')">
                     <span>⚡</span> <span id="presetSystems">Systems & Hiệu năng</span> <span class="preset-count" id="countSystems">0</span>
                 </button>
+                <button type="button" class="preset-pill preset-bm-pill" data-preset="bookmarks" onclick="selectDomainPreset('bookmarks')">
+                    <span>🔖</span> <span id="presetBookmarks">Đã lưu</span> <span class="preset-count" id="countBookmarks">0</span>
+                </button>
             </div>
-            <button type="button" id="toggleAnalyticsBtn" class="btn-toggle-analytics" onclick="toggleAnalyticsPanel()">
-                <span>📊</span> <span id="lblBtnAnalytics">Xem Biểu đồ Tăng trưởng</span>
-            </button>
+            <div style="display:flex; gap:8px; align-items:center;">
+                <button type="button" id="exportBookmarksBtn" class="btn-toggle-analytics" onclick="openExportModal()" style="display:none; background:rgba(210,153,34,0.15); border-color:#d29922; color:#e3b341;">
+                    <span>📤</span> <span id="lblBtnExportBookmarks">Xuất Danh Sách Lưu</span>
+                </button>
+                <button type="button" id="toggleAnalyticsBtn" class="btn-toggle-analytics" onclick="toggleAnalyticsPanel()">
+                    <span>📊</span> <span id="lblBtnAnalytics">Xem Biểu đồ Tăng trưởng</span>
+                </button>
+            </div>
         </div>
 
         <!-- Analytics & Chart Panel -->
@@ -1015,6 +1114,24 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
         <div id="cardsGrid" class="cards-grid"></div>
         <div id="emptyState" class="empty-state">Không tìm thấy repository nào phù hợp với bộ lọc hiện tại.</div>
     </div>
+        <!-- Export Bookmarks Modal -->
+        <div id="exportModal" class="modal-backdrop" style="display:none;" onclick="if(event.target===this)closeExportModal()">
+            <div class="export-modal-box">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid var(--border); padding-bottom:8px;">
+                    <h3 style="margin:0; font-size:1.05rem; color:#e3b341;" id="exportModalTitle">📤 Xuất Danh Sách Repo Đã Lưu</h3>
+                    <button type="button" onclick="closeExportModal()" style="background:transparent; border:none; color:var(--text-muted); cursor:pointer; font-size:1.2rem;">✕</button>
+                </div>
+                <div style="margin-bottom:10px; font-size:0.82rem; color:var(--text-muted);" id="exportModalSubtitle">
+                    Bản tóm tắt Markdown của các repo bạn đã lưu kèm tag và ghi chú:
+                </div>
+                <textarea id="exportTextarea" readonly style="width:100%; height:220px; background:#0d1117; border:1px solid var(--border); color:var(--text-main); font-family:monospace; font-size:0.8rem; padding:8px; border-radius:6px; resize:vertical; margin-bottom:12px;"></textarea>
+                <div style="display:flex; justify-content:flex-end; gap:8px;">
+                    <button type="button" onclick="closeExportModal()" class="btn-copy" style="background:#21262d; color:var(--text-main); border-color:var(--border);" id="exportCloseBtn">Đóng</button>
+                    <button type="button" onclick="copyExportMarkdown()" class="btn-copy" style="background:#238636; color:#fff; border-color:#2ea043;" id="exportCopyBtn">📋 Sao chép Markdown</button>
+                </div>
+            </div>
+        </div>
+
 
     <script>
         let reposData = {data_json};
@@ -1022,6 +1139,79 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
         let githubTotal = null;
         let resultMode = 'search';
         let searching = false;
+        // Bookmarks & Personal Notes Management
+        let bookmarksMap = {{}};
+        try {{
+            const cachedBm = localStorage.getItem('gh_bookmarks');
+            if (cachedBm) bookmarksMap = JSON.parse(cachedBm);
+        }} catch (e) {{
+            console.warn('Could not read bookmarks from localStorage:', e);
+        }}
+
+        function saveBookmarkToStorage(name, repoData, tags, notes) {{
+            const curr = bookmarksMap[name] || {{}};
+            bookmarksMap[name] = {{
+                full_name: name,
+                bookmarked_at: curr.bookmarked_at || new Date().toISOString(),
+                tags: tags !== undefined ? tags : (curr.tags || []),
+                notes: notes !== undefined ? notes : (curr.notes || ''),
+                repo_data: (repoData && repoData.name) ? repoData : (curr.repo_data || {{}})
+            }};
+            try {{ localStorage.setItem('gh_bookmarks', JSON.stringify(bookmarksMap)); }} catch (e) {{}}
+            updateBookmarkBadge();
+            if (searchEndpoint) {{
+                fetch('/api/bookmarks', {{
+                    method: 'POST',
+                    headers: {{'Content-Type': 'application/json'}},
+                    body: JSON.stringify({{
+                        action: 'save',
+                        full_name: name,
+                        tags: bookmarksMap[name].tags,
+                        notes: bookmarksMap[name].notes,
+                        repo_data: bookmarksMap[name].repo_data
+                    }})
+                }}).catch(err => console.warn('Sync bookmark failed:', err));
+            }}
+        }}
+
+        function removeBookmarkFromStorage(name) {{
+            delete bookmarksMap[name];
+            try {{ localStorage.setItem('gh_bookmarks', JSON.stringify(bookmarksMap)); }} catch (e) {{}}
+            updateBookmarkBadge();
+            if (searchEndpoint) {{
+                fetch('/api/bookmarks', {{
+                    method: 'POST',
+                    headers: {{'Content-Type': 'application/json'}},
+                    body: JSON.stringify({{ action: 'delete', full_name: name }})
+                }}).catch(err => console.warn('Sync delete bookmark failed:', err));
+            }}
+        }}
+
+        function updateBookmarkBadge() {{
+            const countEl = document.getElementById('countBookmarks');
+            const bmCount = Object.keys(bookmarksMap).length;
+            if (countEl) countEl.textContent = bmCount;
+            const exportBtn = document.getElementById('exportBookmarksBtn');
+            if (exportBtn) exportBtn.style.display = bmCount > 0 ? 'inline-flex' : 'none';
+        }}
+
+        async function loadServerBookmarks() {{
+            if (!searchEndpoint) return;
+            try {{
+                const res = await fetch('/api/bookmarks');
+                if (res.ok) {{
+                    const data = await res.json();
+                    if (data && typeof data === 'object') {{
+                        Object.assign(bookmarksMap, data);
+                        try {{ localStorage.setItem('gh_bookmarks', JSON.stringify(bookmarksMap)); }} catch (e) {{}}
+                        updateBookmarkBadge();
+                        filterCards();
+                    }}
+                }}
+            }} catch (e) {{
+                console.warn('Could not fetch server bookmarks:', e);
+            }}
+        }}
 
         // Internationalization State & Dictionaries
         let currentLang = localStorage.getItem('gh_trending_dashboard_lang') || 'vi';
@@ -1118,6 +1308,24 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 presetSecurity: "DevSecOps & Cloud",
                 presetMobile: "Mobile & Game",
                 presetSystems: "Systems & Hiệu năng",
+                presetBookmarks: "Đã lưu",
+                btnBookmark: "Lưu",
+                btnBookmarked: "Đã lưu",
+                bookmarkEditTitle: "📝 Ghi chú & Tag Cá Nhân",
+                bookmarkTagsPlaceholder: "Thêm tag (cách nhau bởi dấu phẩy, vd: ai-agent, production, cần-thử)...",
+                bookmarkNotesPlaceholder: "Ghi chú cá nhân (vd: Kiến trúc Orca rất hay, nghiên cứu cho sprint tới)...",
+                bookmarkSaveBtn: "💾 Lưu ghi chú",
+                bookmarkRemoveBtn: "🗑️ Bỏ lưu repo",
+                emptyBookmarks: "Bạn chưa lưu repo nào. Hãy nhấp nút 🔖 Lưu ở bất kỳ repo nào để tạo bộ sưu tập riêng!",
+                btnExportBookmarks: "Xuất Danh Sách Lưu",
+                exportModalTitle: "📤 Xuất Danh Sách Repo Đã Lưu",
+                exportModalSubtitle: "Bản tóm tắt Markdown của các repo bạn đã lưu kèm tag và ghi chú:",
+                exportCopyBtn: "📋 Sao chép Markdown",
+                exportCopied: "✓ Đã sao chép Markdown vào clipboard!",
+                exportCloseBtn: "Đóng",
+                statusBookmarked: "⭐ Đã lưu (Bookmark)",
+                bmPersonalNotes: "⭐ Ghi chú cá nhân",
+                bmEditBtn: "✏️ Sửa",
                 lblBtnAnalytics: "Xem Biểu đồ Tăng trưởng",
                 lblBtnAnalyticsHide: "Ẩn Biểu đồ Tăng trưởng",
                 chartVelocityTitle: "⚡ Bảng xếp hạng Tốc độ Tăng trưởng Sao",
@@ -1247,6 +1455,24 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 presetSecurity: "DevSecOps & Cloud",
                 presetMobile: "Mobile & Game",
                 presetSystems: "Systems & Perf",
+                presetBookmarks: "Saved",
+                btnBookmark: "Bookmark",
+                btnBookmarked: "Bookmarked",
+                bookmarkEditTitle: "📝 Personal Notes & Tags",
+                bookmarkTagsPlaceholder: "Add tags (comma separated, e.g. ai-agent, production, to-try)...",
+                bookmarkNotesPlaceholder: "Personal notes (e.g. Great architecture, research in next sprint)...",
+                bookmarkSaveBtn: "💾 Save Note",
+                bookmarkRemoveBtn: "🗑️ Remove Bookmark",
+                emptyBookmarks: "No bookmarked repositories yet. Click 🔖 Bookmark on any repo to build your personal collection!",
+                btnExportBookmarks: "Export Bookmarks",
+                exportModalTitle: "📤 Export Bookmarked Repositories",
+                exportModalSubtitle: "Markdown summary of your bookmarked repositories with custom tags and notes:",
+                exportCopyBtn: "📋 Copy Markdown",
+                exportCopied: "✓ Copied Markdown to clipboard!",
+                exportCloseBtn: "Close",
+                statusBookmarked: "⭐ Bookmarked",
+                bmPersonalNotes: "⭐ Personal Notes",
+                bmEditBtn: "✏️ Edit",
                 lblBtnAnalytics: "View Growth Chart",
                 lblBtnAnalyticsHide: "Hide Growth Chart",
                 chartVelocityTitle: "⚡ Star Growth & Velocity Leaderboard",
@@ -1550,6 +1776,12 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             setText('presetSecurity', t.presetSecurity);
             setText('presetMobile', t.presetMobile);
             setText('presetSystems', t.presetSystems);
+            setText('presetBookmarks', t.presetBookmarks);
+            setText('lblBtnExportBookmarks', t.btnExportBookmarks);
+            setText('exportModalTitle', t.exportModalTitle);
+            setText('exportModalSubtitle', t.exportModalSubtitle);
+            setText('exportCopyBtn', t.exportCopyBtn);
+            setText('exportCloseBtn', t.exportCloseBtn);
             setText('lblBtnAnalytics', isAnalyticsOpen ? t.lblBtnAnalyticsHide : t.lblBtnAnalytics);
             setText('chartVelocityTitle', t.chartVelocityTitle);
             setText('analyticsSubtitle', t.analyticsSubtitle);
@@ -1589,13 +1821,14 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             }}
 
             const statType = document.getElementById('statusFilter');
-            if (statType && statType.options && statType.options.length >= 5) {{
+            if (statType && statType.options && statType.options.length >= 6) {{
                 const val = statType.value;
                 statType.options[0].textContent = t.filterStatusAll;
                 statType.options[1].textContent = t.statusLabels.want_to_try;
                 statType.options[2].textContent = t.statusLabels.tried;
                 statType.options[3].textContent = t.statusLabels.skipped;
                 statType.options[4].textContent = t.statusLabels.liked;
+                statType.options[5].textContent = t.statusBookmarked;
                 statType.value = val;
             }}
 
@@ -1645,6 +1878,8 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             empty.style.display = "none";
 
             list.forEach((raw, idx) => {{
+                const bmData = bookmarksMap[raw.name] || null;
+                const isBookmarked = Boolean(bmData);
                 const r = Object.fromEntries(Object.entries(raw).map(([key, value]) => [key,
                     typeof value === 'string' ? escapeText(value) :
                     Array.isArray(value) ? value.map(x => typeof x === 'string' ? escapeText(x) : x) : value]));
@@ -1700,6 +1935,7 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                             <div class="rating-buttons">
                                 <button type="button" class="btn-rate btn-like ${{raw.user_rating === 1 ? 'active' : ''}}" title="Useful" data-action="like">👍</button>
                                 <button type="button" class="btn-rate btn-dislike ${{raw.user_rating === -1 ? 'active' : ''}}" title="Not useful" data-action="dislike">👎</button>
+                                <button type="button" class="btn-rate btn-bookmark ${{isBookmarked ? 'active' : ''}}" title="${{isBookmarked ? t.btnBookmarked : t.btnBookmark}}" data-repo="${{r.name}}">🔖 <span class="bm-label">${{isBookmarked ? t.btnBookmarked : t.btnBookmark}}</span></button>
                                 <button type="button" class="btn-chat" title="${{t.chatBtnText}}">${{t.chatBtnText}}</button>
                             </div>
                             <select class="status-select" title="Status">
@@ -1708,6 +1944,36 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                                 <option value="tried" ${{raw.user_status === 'tried' ? 'selected' : ''}}>${{t.statusLabels.tried}}</option>
                                 <option value="skipped" ${{raw.user_status === 'skipped' ? 'selected' : ''}}>${{t.statusLabels.skipped}}</option>
                             </select>
+                        </div>
+
+                        <!-- Bookmark Summary & Notes Highlight -->
+                        <div class="bookmark-summary" id="bmSummary_${{idx}}" style="${{isBookmarked && ((bmData?.tags && bmData.tags.length) || bmData?.notes) ? '' : 'display:none;'}}">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                                <span style="font-weight:600; color:#e3b341; font-size:0.75rem;">${{t.bmPersonalNotes}}</span>
+                                <button type="button" class="btn-edit-bm" data-idx="${{idx}}">${{t.bmEditBtn}}</button>
+                            </div>
+                            <div class="bm-tags-list" style="display:flex; gap:4px; flex-wrap:wrap; margin-bottom:4px;">
+                                ${{(bmData?.tags || []).map(tag => `<span class="bm-tag-pill">🏷️ ${{escapeText(tag)}}</span>`).join('')}}
+                            </div>
+                            <div class="bm-notes-text" style="color:var(--text-main); font-style:italic; font-size:0.8rem;">
+                                ${{escapeText(bmData?.notes || '')}}
+                            </div>
+                        </div>
+
+                        <!-- Bookmark Editor (expandable) -->
+                        <div class="bookmark-editor" id="bmEditor_${{idx}}" style="display:none;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                                <span style="font-size:0.8rem; font-weight:bold; color:#e3b341;">${{t.bookmarkEditTitle}}</span>
+                                <button type="button" class="btn-close-bm-editor" data-idx="${{idx}}" style="background:transparent; border:none; color:var(--text-muted); cursor:pointer; font-size:0.9rem;">✕</button>
+                            </div>
+                            <div style="display:flex; flex-direction:column; gap:6px;">
+                                <input type="text" class="bm-tags-input" placeholder="${{t.bookmarkTagsPlaceholder}}" value="${{escapeText((bmData?.tags || []).join(', '))}}" style="background:#0d1117; border:1px solid var(--border); color:var(--text-main); padding:4px 8px; border-radius:4px; font-size:0.82rem;">
+                                <textarea class="bm-notes-input" placeholder="${{t.bookmarkNotesPlaceholder}}" rows="2" style="background:#0d1117; border:1px solid var(--border); color:var(--text-main); padding:4px 8px; border-radius:4px; font-size:0.82rem; resize:vertical;">${{escapeText(bmData?.notes || '')}}</textarea>
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <button type="button" class="btn-remove-bm" data-idx="${{idx}}" style="background:transparent; border:1px solid #da3633; color:#f85149; padding:3px 8px; border-radius:4px; font-size:0.75rem; cursor:pointer;">${{t.bookmarkRemoveBtn}}</button>
+                                    <button type="button" class="btn-save-bm" data-idx="${{idx}}" style="background:#d29922; color:#0d1117; border:none; padding:4px 12px; border-radius:4px; font-weight:bold; font-size:0.82rem; cursor:pointer;">${{t.bookmarkSaveBtn}}</button>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Interactive Repo Q&A Chat Box -->
@@ -1800,6 +2066,78 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                         const newStatus = statusSelect.value;
                         await sendFeedback(raw.name, {{ status: newStatus }});
                         raw.user_status = newStatus;
+                    }});
+                }}
+
+                // Bookmark Event Listeners
+                const bmBtn = card.querySelector('.btn-bookmark');
+                const bmSummary = card.querySelector(`#bmSummary_${{idx}}`);
+                const bmEditor = card.querySelector(`#bmEditor_${{idx}}`);
+                const editBmBtn = card.querySelector('.btn-edit-bm');
+                const closeBmEditorBtn = card.querySelector('.btn-close-bm-editor');
+                const saveBmBtn = card.querySelector('.btn-save-bm');
+                const removeBmBtn = card.querySelector('.btn-remove-bm');
+                const tagsInput = card.querySelector('.bm-tags-input');
+                const notesInput = card.querySelector('.bm-notes-input');
+
+                if (bmBtn && bmEditor) {{
+                    bmBtn.addEventListener('click', () => {{
+                        const currentlyBookmarked = Boolean(bookmarksMap[raw.name]);
+                        if (!currentlyBookmarked) {{
+                            saveBookmarkToStorage(raw.name, raw, [], '');
+                            bmBtn.classList.add('active');
+                            const label = bmBtn.querySelector('.bm-label');
+                            if (label) label.textContent = t.btnBookmarked;
+                            bmEditor.style.display = 'block';
+                            if (tagsInput) tagsInput.focus();
+                        }} else {{
+                            const isHidden = bmEditor.style.display === 'none';
+                            bmEditor.style.display = isHidden ? 'block' : 'none';
+                            if (isHidden && tagsInput) tagsInput.focus();
+                        }}
+                    }});
+                }}
+                if (editBmBtn && bmEditor) {{
+                    editBmBtn.addEventListener('click', () => {{
+                        bmEditor.style.display = 'block';
+                        if (tagsInput) tagsInput.focus();
+                    }});
+                }}
+                if (closeBmEditorBtn && bmEditor) {{
+                    closeBmEditorBtn.addEventListener('click', () => {{
+                        bmEditor.style.display = 'none';
+                    }});
+                }}
+                if (saveBmBtn) {{
+                    saveBmBtn.addEventListener('click', () => {{
+                        const rawTags = (tagsInput ? tagsInput.value : '').split(',').map(s => s.trim()).filter(Boolean);
+                        const tags = [...new Set(rawTags)];
+                        const notes = notesInput ? notesInput.value.trim() : '';
+                        saveBookmarkToStorage(raw.name, raw, tags, notes);
+                        bmBtn.classList.add('active');
+                        const label = bmBtn.querySelector('.bm-label');
+                        if (label) label.textContent = t.btnBookmarked;
+                        if (bmSummary) {{
+                            const tagsList = bmSummary.querySelector('.bm-tags-list');
+                            if (tagsList) tagsList.innerHTML = tags.map(tag => `<span class="bm-tag-pill">🏷️ ${{escapeText(tag)}}</span>`).join('');
+                            const notesText = bmSummary.querySelector('.bm-notes-text');
+                            if (notesText) notesText.textContent = notes;
+                            bmSummary.style.display = (tags.length || notes) ? 'block' : 'none';
+                        }}
+                        bmEditor.style.display = 'none';
+                    }});
+                }}
+                if (removeBmBtn) {{
+                    removeBmBtn.addEventListener('click', () => {{
+                        removeBookmarkFromStorage(raw.name);
+                        bmBtn.classList.remove('active');
+                        const label = bmBtn.querySelector('.bm-label');
+                        if (label) label.textContent = t.btnBookmark;
+                        if (bmSummary) bmSummary.style.display = 'none';
+                        bmEditor.style.display = 'none';
+                        if (activeDomainPreset === 'bookmarks') {{
+                            filterCards();
+                        }}
                     }});
                 }}
 
@@ -1920,7 +2258,24 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             const altOnly = document.getElementById("altOnly").checked;
             const selectedStatus = document.getElementById("statusFilter") ? document.getElementById("statusFilter").value : "";
 
-            const filtered = reposData.filter(r => {{
+            let sourceRepos = reposData;
+            if (activeDomainPreset === 'bookmarks') {{
+                const bmList = Object.values(bookmarksMap).map(b => b.repo_data).filter(r => r && r.name);
+                sourceRepos = bmList;
+                if (sourceRepos.length === 0) {{
+                    const empty = document.getElementById("emptyState");
+                    const grid = document.getElementById("cardsGrid");
+                    const t = I18N[currentLang];
+                    empty.textContent = t.emptyBookmarks;
+                    empty.style.display = "block";
+                    grid.innerHTML = "";
+                    updateBookmarkBadge();
+                    document.getElementById('resultsSummary').textContent = t.summaryText(0, 0, reposData.length, githubTotal, resultMode);
+                    return;
+                }}
+            }}
+
+            const filtered = sourceRepos.filter(r => {{
                 const matchesCat = !selectedCat || r.category === selectedCat;
                 const matchesRepoType = !selectedRepoType || r.repo_type === selectedRepoType;
                 const matchesMaturity = !selectedMaturity || r.maturity_level === selectedMaturity;
@@ -1940,6 +2295,8 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 let matchesStatus = true;
                 if (selectedStatus === 'liked') {{
                     matchesStatus = r.user_rating === 1;
+                }} else if (selectedStatus === 'bookmarked') {{
+                    matchesStatus = Boolean(bookmarksMap[r.name]);
                 }} else if (selectedStatus) {{
                     matchesStatus = r.user_status === selectedStatus;
                 }}
@@ -1970,6 +2327,11 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                     if (el) el.textContent = c;
                 }});
             }}
+                if (document.getElementById('countBookmarks')) {{
+                    document.getElementById('countBookmarks').textContent = Object.keys(bookmarksMap).length;
+                }}
+                const expBtn = document.getElementById('exportBookmarksBtn');
+                if (expBtn) expBtn.style.display = Object.keys(bookmarksMap).length > 0 ? 'inline-flex' : 'none';
 
             // Refresh Analytics if open
             if (isAnalyticsOpen) {{
@@ -2100,6 +2462,8 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
 
         // Initialize Language and Render
         setLanguage(currentLang);
+        updateBookmarkBadge();
+        loadServerBookmarks();
         if (searchEndpoint && (!reposData || reposData.length === 0)) {{
             searchProjects();
         }}
@@ -2133,6 +2497,7 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
 
         function matchesDomainPreset(r, preset) {{
             if (!preset || preset === 'all') return true;
+            if (preset === 'bookmarks') return Boolean(bookmarksMap[r.name]);
             const def = DOMAIN_PRESETS[preset];
             if (!def) return true;
             if (def.categories.includes(r.category)) return true;
@@ -2403,6 +2768,67 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             }});
         }});
 
+
+        // Export Bookmarks Logic
+        function openExportModal() {{
+            const modal = document.getElementById('exportModal');
+            const textarea = document.getElementById('exportTextarea');
+            if (!modal || !textarea) return;
+            const t = I18N[currentLang];
+
+            const list = Object.values(bookmarksMap).filter(b => b && b.full_name);
+            if (!list.length) {{
+                textarea.value = (currentLang === 'vi') ? "Chưa có repository nào trong danh sách đã lưu." : "No saved repositories.";
+            }} else {{
+                let md = `# 🔖 GitHub Trending Saved Repositories (${{list.length}})\n\n`;
+                md += `*Exported on ${{new Date().toLocaleDateString(currentLang === 'vi' ? 'vi-VN' : 'en-US')}}*\n\n---\n\n`;
+                list.forEach((b, i) => {{
+                    const r = b.repo_data || {{}};
+                    const url = r.url || `https://github.com/${{b.full_name}}`;
+                    const stars = r.stars_total ? ` (★ ${{r.stars_total.toLocaleString()}})` : '';
+                    md += `### ${{i + 1}}. [${{b.full_name}}](${{url}})${{stars}}\n`;
+                    if (b.tags && b.tags.length) {{
+                        md += `- **Tags:** ${{b.tags.map(tag => `\`${{tag}}\``).join(', ')}}\n`;
+                    }}
+                    if (b.notes) {{
+                        md += `- **Notes:** ${{b.notes}}\n`;
+                    }}
+                    if (r.category) {{
+                        md += `- **Category:** ${{r.category}}\n`;
+                    }}
+                    if (r.core_purpose) {{
+                        md += `- **Core Purpose:** ${{r.core_purpose}}\n`;
+                    }}
+                    if (r.tech_stack && r.tech_stack.length) {{
+                        md += `- **Tech Stack:** ${{r.tech_stack.join(', ')}}\n`;
+                    }}
+                    md += `\n`;
+                }});
+                textarea.value = md;
+            }}
+            modal.style.display = 'flex';
+        }}
+
+        function closeExportModal() {{
+            const modal = document.getElementById('exportModal');
+            if (modal) modal.style.display = 'none';
+        }}
+
+        function copyExportMarkdown() {{
+            const textarea = document.getElementById('exportTextarea');
+            const btn = document.getElementById('exportCopyBtn');
+            const t = I18N[currentLang];
+            if (!textarea) return;
+            navigator.clipboard.writeText(textarea.value).then(() => {{
+                const old = btn.textContent;
+                btn.textContent = t.exportCopied;
+                setTimeout(() => {{ btn.textContent = old; }}, 2000);
+            }}).catch(() => {{
+                textarea.select();
+                document.execCommand('copy');
+                alert(t.exportCopied);
+            }});
+        }}
     </script>
         <!-- Deep Dive Modal -->
         <div id="deepDiveModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
@@ -2445,3 +2871,4 @@ def save_and_open_html_dashboard(
             pass
 
     return abs_path
+

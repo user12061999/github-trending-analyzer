@@ -8,6 +8,9 @@ import unittest
 
 from src.history_db import (
     add_learned_knowledge,
+    delete_bookmark,
+    get_all_bookmarks,
+    save_bookmark,
     extract_adaptive_preferences,
     get_all_feedback,
     get_connection,
@@ -131,6 +134,43 @@ class TestHistoryAndFeedback(unittest.TestCase):
         self.assertTrue(any(c in ("AI & Machine Learning", "Database & Storage") for c in prefs["categories"]))
         self.assertTrue(any(k in ("rust", "tokio", "llm", "rocksdb", "raft") for k in prefs["keywords"]))
 
+
+    def test_bookmarks_crud(self):
+        # 1. Save bookmark
+        saved = save_bookmark(
+            full_name="facebook/react",
+            repo_data={"name": "facebook/react", "stars_total": 220000, "category": "Web & Frontend"},
+            tags=["frontend", "ui", "library"],
+            notes="Kiểm tra version 19 mới ra mắt",
+            db_path=self.db_path
+        )
+        self.assertEqual(saved["full_name"], "facebook/react")
+        self.assertEqual(saved["tags"], ["frontend", "ui", "library"])
+        self.assertEqual(saved["notes"], "Kiểm tra version 19 mới ra mắt")
+        self.assertEqual(saved["repo_data"]["stars_total"], 220000)
+
+        # 2. Get all bookmarks
+        all_bm = get_all_bookmarks(db_path=self.db_path)
+        self.assertIn("facebook/react", all_bm)
+        self.assertEqual(len(all_bm), 1)
+
+        # 3. Update notes & tags
+        updated = save_bookmark(
+            full_name="facebook/react",
+            tags=["frontend", "core"],
+            notes="Đã kiểm tra xong",
+            db_path=self.db_path
+        )
+        self.assertEqual(updated["tags"], ["frontend", "core"])
+        self.assertEqual(updated["notes"], "Đã kiểm tra xong")
+        # Ensure repo_data was preserved
+        self.assertEqual(updated["repo_data"]["stars_total"], 220000)
+
+        # 4. Delete bookmark
+        deleted = delete_bookmark("facebook/react", db_path=self.db_path)
+        self.assertTrue(deleted)
+        all_bm_after = get_all_bookmarks(db_path=self.db_path)
+        self.assertNotIn("facebook/react", all_bm_after)
 
 if __name__ == "__main__":
     unittest.main()

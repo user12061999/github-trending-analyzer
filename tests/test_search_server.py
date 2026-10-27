@@ -112,6 +112,14 @@ class TestGitHubSearch(unittest.TestCase):
         self.assertIn('WHAT IT DOES & CORE PURPOSE', html)
         self.assertIn('KEY FEATURES & HIGHLIGHTS', html)
 
+    def test_dashboard_has_bookmarks_elements(self):
+        html = generate_html_dashboard([], search_endpoint='/api/search')
+        self.assertIn('presetBookmarks', html)
+        self.assertIn('btn-bookmark', html)
+        self.assertIn('countBookmarks', html)
+        self.assertIn('exportModal', html)
+        self.assertIn('/api/bookmarks', html)
+
     @patch('src.search_server.get_hn_trending_repos')
     @patch('src.search_server.analyze_repository')
     def test_search_and_analyze_with_hn_source(self, mock_analyze, mock_hn):

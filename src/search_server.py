@@ -170,12 +170,41 @@ def make_handler(use_ai=False, model=None, deep=False):
             elif self.path == '/api/knowledge':
                 from src.history_db import get_learned_knowledge
                 self.send(200, get_learned_knowledge())
+            elif self.path == '/api/bookmarks':
+                from src.history_db import get_all_bookmarks
+                self.send(200, get_all_bookmarks())
             else:
                 self.send(404, {'error': 'Không tìm thấy.'})
 
         def do_POST(self):
             if not self.allowed():
                 self.send(403, {'error': 'Chỉ nhận tìm kiếm từ dashboard local.'}); return
+            if self.path == '/api/bookmarks':
+                try:
+                    length = int(self.headers.get('Content-Length', '0'))
+                    if not 0 < length <= 65536:
+                        raise ValueError('Dữ liệu bookmark không hợp lệ.')
+                    payload = json.loads(self.rfile.read(length))
+                    action = payload.get('action', 'save')
+                    full_name = payload.get('full_name')
+                    if not full_name or not isinstance(full_name, str):
+                        raise ValueError('Tên repo không hợp lệ.')
+                    from src.history_db import save_bookmark, delete_bookmark
+                    if action == 'delete':
+                        deleted = delete_bookmark(full_name)
+                        self.send(200, {'status': 'deleted', 'full_name': full_name, 'success': deleted})
+                    else:
+                        result = save_bookmark(
+                            full_name=full_name,
+                            repo_data=payload.get('repo_data'),
+                            tags=payload.get('tags'),
+                            notes=payload.get('notes'),
+                        )
+                        self.send(200, {'status': 'saved', 'bookmark': result})
+                except Exception as exc:
+                    self.send(400, {'error': str(exc)})
+                return
+
             if self.path == '/api/feedback':
                 try:
                     length = int(self.headers.get('Content-Length', '0'))
