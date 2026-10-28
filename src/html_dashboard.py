@@ -1203,6 +1203,9 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
         let githubTotal = null;
         let resultMode = 'search';
         let searching = false;
+        let activeDomainPreset = 'all';
+        let isAnalyticsOpen = false;
+        let activeTopicFilter = '';
         // Bookmarks & Personal Notes Management
         let bookmarksMap = {{}};
         try {{
@@ -2327,8 +2330,6 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
 
 
         // Topic / Tag Filtering Logic
-        let activeTopicFilter = '';
-
         function filterByTopic(tag) {{
             if (activeTopicFilter === tag) {{
                 activeTopicFilter = '';
@@ -2629,17 +2630,9 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             filterCards();
         }});
 
-        // Initialize Language and Render
-        setLanguage(currentLang);
-        updateBookmarkBadge();
-        loadServerBookmarks();
-        if (searchEndpoint && (!reposData || reposData.length === 0)) {{
-            searchProjects();
-        }}
+// Startup deferred to end of script
 
         // Domain Presets & Analytics Logic
-        let activeDomainPreset = 'all';
-        let isAnalyticsOpen = false;
 
         const DOMAIN_PRESETS = {{
             ai: {{
@@ -2997,6 +2990,14 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 document.execCommand('copy');
                 alert(t.exportCopied);
             }});
+        }}
+
+        // Final Startup Initialization (after all variables & functions are declared)
+        setLanguage(currentLang);
+        updateBookmarkBadge();
+        loadServerBookmarks();
+        if (searchEndpoint && (!reposData || reposData.length === 0)) {{
+            searchProjects();
         }}
     </script>
         <!-- Deep Dive Modal -->
