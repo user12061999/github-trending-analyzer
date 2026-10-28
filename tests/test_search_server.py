@@ -30,7 +30,7 @@ class TestGitHubSearch(unittest.TestCase):
     @patch('src.search_server.urllib.request.urlopen')
     def test_name_and_content_scope_are_distinct(self, request):
         request.return_value.__enter__.return_value.read.return_value = b'{"items":[],"total_count":0}'
-        for scope, qualifier, excluded in [('name', 'in:name', 'in:readme'), ('content', 'in:readme', 'in:name')]:
+        for scope, qualifier, excluded in [('name', 'in:name', 'in:readme'), ('content', 'in:readme', 'in:name'), ('topic', 'topic:voice', 'in:name')]:
             search_github('voice', scope=scope)
             query = parse_qs(urlsplit(request.call_args.args[0].full_url).query)['q'][0]
             self.assertIn(qualifier, query)
@@ -119,6 +119,9 @@ class TestGitHubSearch(unittest.TestCase):
         self.assertIn('countBookmarks', html)
         self.assertIn('exportModal', html)
         self.assertIn('/api/bookmarks', html)
+        self.assertIn('optScopeTopic', html)
+        self.assertIn('topicsBar', html)
+        self.assertIn('topicsPills', html)
 
     @patch('src.search_server.get_hn_trending_repos')
     @patch('src.search_server.analyze_repository')

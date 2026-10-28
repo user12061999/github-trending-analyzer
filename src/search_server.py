@@ -20,8 +20,8 @@ from src.hacker_news import get_hn_trending_repos
 
 
 def validate_search(query, limit, mode, language, sort, scope='name'):
-    if scope not in ('name', 'content'):
-        raise ValueError('Phạm vi tìm kiếm phải là tên project hoặc nội dung README.')
+    if scope not in ('name', 'content', 'topic'):
+        raise ValueError('Phạm vi tìm kiếm phải là tên project, nội dung README hoặc chủ đề/tag.')
     if not isinstance(query, str) or len(query) > 256:
         raise ValueError('Từ khóa phải là chuỗi tối đa 256 ký tự.')
     if type(limit) is not int or not 1 <= limit <= 30:
@@ -37,8 +37,13 @@ def search_github(query, limit=10, mode='all', language='', sort='best-match', s
     terms = [term.strip() for term in query.split(',') if term.strip()]
     if len(terms) > 6:
         raise ValueError('Dùng tối đa 6 từ khóa, ngăn cách bằng dấu phẩy.')
-    q = (' OR ' if mode == 'any' else ' ').join(terms) or 'stars:>0'
-    q += (' in:name' if scope == 'name' else ' in:readme') + ' is:public fork:false archived:false'
+    if scope == 'topic':
+        topic_terms = [f'topic:{term.lower().replace(" ", "-")}' for term in terms]
+        q = (' OR ' if mode == 'any' else ' ').join(topic_terms) or 'stars:>0'
+        q += ' is:public fork:false archived:false'
+    else:
+        q = (' OR ' if mode == 'any' else ' ').join(terms) or 'stars:>0'
+        q += (' in:name' if scope == 'name' else ' in:readme') + ' is:public fork:false archived:false'
     if language.strip():
         q += ' language:' + json.dumps(language.strip())
     params = {'q': q, 'per_page': limit, 'order': 'desc'}
@@ -66,9 +71,11 @@ def search_github(query, limit=10, mode='all', language='', sort='best-match', s
         if not re.fullmatch(r'[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+', name):
             continue
         owner, repo_name = name.split('/')
-        repos.append(TrendingRepo(name, owner, repo_name, f'https://github.com/{name}', item.get('description') or '',
+        repo_obj = TrendingRepo(name, owner, repo_name, f'https://github.com/{name}', item.get('description') or '',
                                   item.get('language') or 'Unknown', '#8b949e', str(item.get('stargazers_count', 0)),
-                                  str(item.get('forks_count', 0)), '0', 'search'))
+                                  str(item.get('forks_count', 0)), '0', 'search')
+        repo_obj.topics = item.get('topics', [])
+        repos.append(repo_obj)
     return repos, int(data.get('total_count', 0)), bool(data.get('incomplete_results', False))
 
 

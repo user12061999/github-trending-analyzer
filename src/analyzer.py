@@ -90,6 +90,7 @@ class RepoAnalysis:
     suitable_major_en: str = ""
     target_roles_en: str = ""
     real_world_impact_en: str = ""
+    topics: List[str] = field(default_factory=list)
 
     def to_dict(self) -> Dict[str, any]:
         return {
@@ -143,6 +144,7 @@ class RepoAnalysis:
             "suitable_major_en": self.suitable_major_en,
             "target_roles_en": self.target_roles_en,
             "real_world_impact_en": self.real_world_impact_en,
+            "topics": self.topics,
         }
 
 
@@ -685,6 +687,25 @@ def analyze_repository(
         )
         analysis.match_score = m_score
         analysis.matched_keywords = m_keywords
+
+    # 6.8. Repository Topics & Tags
+    topics = list(getattr(repo, 'topics', []))
+    if not topics:
+        inferred = set()
+        if repo.language and repo.language.lower() != 'unknown':
+            inferred.add(repo.language.lower().replace(' ', '-'))
+        for t in tech_stack:
+            if t and len(t) <= 20:
+                inferred.add(t.lower().replace(' ', '-'))
+        for kw in getattr(analysis, 'matched_keywords', []):
+            if kw and len(kw) <= 20:
+                inferred.add(kw.lower().replace(' ', '-'))
+        desc_lower = (repo.description or '').lower()
+        for term in ('agent', 'llm', 'rag', 'cli', 'mcp', 'terminal', 'compiler', 'database', 'docker', 'k8s', 'security', 'automation', 'vision', 'diffusion'):
+            if term in desc_lower:
+                inferred.add(term)
+        topics = sorted(list(inferred))[:8]
+    analysis.topics = topics
 
     # 7. Temporal Trajectory & Historical Memory Lookup
     try:

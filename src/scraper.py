@@ -38,6 +38,7 @@ class TrendingRepo:
     stars_since: str
     timeframe: str  # daily, weekly, monthly
     built_by: List[str] = field(default_factory=list)
+    topics: List[str] = field(default_factory=list)
 
     def to_dict(self) -> Dict[str, any]:
         return {
@@ -53,6 +54,7 @@ class TrendingRepo:
             "stars_since": self.stars_since,
             "timeframe": self.timeframe,
             "built_by": self.built_by,
+            "topics": self.topics,
         }
 
 

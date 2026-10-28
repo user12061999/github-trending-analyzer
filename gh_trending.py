@@ -119,6 +119,12 @@ def parse_arguments():
         help="Lọc và ưu tiên sắp xếp theo sở thích cấu hình trong watchlist.json",
     )
     parser.add_argument(
+        "--topic",
+        type=str,
+        default=None,
+        help="Tìm kiếm hoặc lọc repository theo GitHub topic / chủ đề cụ thể (ví dụ: --topic agent, --topic mcp, --topic rag)",
+    )
+    parser.add_argument(
         "--match", "-m",
         type=str,
         default=None,
@@ -296,7 +302,17 @@ def main():
         print(f"{CYAN}⏳ Đang cào dữ liệu từ {src_name}...{RESET}")
 
     try:
-        if source == "hn":
+        if getattr(args, "topic", None):
+            from src.search_server import search_github
+            if not args.json:
+                print(f"{CYAN}🔍 Đang tìm kiếm repository theo topic #{args.topic} từ GitHub...{RESET}")
+            repos, _, _ = search_github(
+                query=args.topic,
+                limit=args.limit or 10,
+                scope="topic",
+                language=args.language or "",
+            )
+        elif source == "hn":
             from src.hacker_news import get_hn_trending_repos
             repos = get_hn_trending_repos(
                 timeframe=args.since,

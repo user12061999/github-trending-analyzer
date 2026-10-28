@@ -779,6 +779,58 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             padding: 18px 22px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
         }}
+        .topics-bar {{
+            background: rgba(22, 27, 34, 0.7);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 14px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }}
+        .topic-pill {{
+            background: #21262d;
+            border: 1px solid rgba(88, 166, 255, 0.25);
+            color: #58a6ff;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.76rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }}
+        .topic-pill:hover {{
+            background: rgba(56, 139, 253, 0.2);
+            border-color: #58a6ff;
+            color: #79c0ff;
+        }}
+        .topic-pill.active {{
+            background: #1f6feb;
+            border-color: #58a6ff;
+            color: #ffffff;
+            font-weight: 700;
+            box-shadow: 0 0 8px rgba(31, 111, 235, 0.5);
+        }}
+        .card-topic-tag {{
+            display: inline-block;
+            background: rgba(56, 139, 253, 0.1);
+            color: #58a6ff;
+            border: 1px solid rgba(56, 139, 253, 0.25);
+            padding: 1px 7px;
+            border-radius: 10px;
+            font-size: 0.72rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+        }}
+        .card-topic-tag:hover {{
+            background: rgba(56, 139, 253, 0.28);
+            border-color: #58a6ff;
+            color: #ffffff;
+        }}
 
         /* Analytics & Chart Panel */
         .analytics-panel {{
@@ -969,6 +1021,7 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                     <label id="lblSearchScope" for="searchScope">Tìm kiếm theo</label>
                     <select id="searchScope">
                         <option id="optScopeName" value="name">Tên project</option>
+                        <option id="optScopeTopic" value="topic">🏷️ Chủ đề / Tag (GitHub Topics)</option>
                         <option id="optScopeContent" value="content">Từ khóa bên trong project (README)</option>
                     </select>
                 </div>
@@ -1108,6 +1161,17 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                     <h4 id="chartMaturityTitle">🟢 Tỷ lệ Độ hoàn thiện</h4>
                     <div id="maturityBars" class="maturity-bars"></div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Trending Topics / Tags Bar -->
+        <div id="topicsBar" class="topics-bar" style="display:none;">
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <span class="preset-label" id="lblTrendingTopics">🏷️ Chủ đề nổi bật:</span>
+                <div id="topicsPills" style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;"></div>
+            </div>
+            <div id="activeTopicBadge" style="display:none; align-items:center; gap:6px; margin-left:auto;">
+                <span id="activeTopicText" class="bm-tag-pill" style="cursor:pointer;" onclick="clearTopicFilter()"></span>
             </div>
         </div>
 
@@ -1325,7 +1389,13 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 exportCloseBtn: "Đóng",
                 statusBookmarked: "⭐ Đã lưu (Bookmark)",
                 bmPersonalNotes: "⭐ Ghi chú cá nhân",
+
                 bmEditBtn: "✏️ Sửa",
+                optScopeTopic: "🏷️ Chủ đề / Tag (GitHub Topics)",
+                searchPlaceholderTopic: "Nhập topic/tag (vd: agent, rag, mcp, llm, terminal, rust)...",
+                searchHelpTopic: "Tìm kiếm repo có gắn topic/tag tương ứng trên GitHub. Có thể nhập nhiều tag cách nhau bằng dấu phẩy.",
+                lblTrendingTopics: "🏷️ Chủ đề nổi bật:",
+                tagFilterActive: (t) => `Đang lọc tag: #${{t}} ✕`,
                 lblBtnAnalytics: "Xem Biểu đồ Tăng trưởng",
                 lblBtnAnalyticsHide: "Ẩn Biểu đồ Tăng trưởng",
                 chartVelocityTitle: "⚡ Bảng xếp hạng Tốc độ Tăng trưởng Sao",
@@ -1472,7 +1542,13 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 exportCloseBtn: "Close",
                 statusBookmarked: "⭐ Bookmarked",
                 bmPersonalNotes: "⭐ Personal Notes",
+
                 bmEditBtn: "✏️ Edit",
+                optScopeTopic: "🏷️ Topics / Tags (GitHub Topics)",
+                searchPlaceholderTopic: "Enter topic/tag (e.g. agent, rag, mcp, llm, terminal, rust)...",
+                searchHelpTopic: "Search repos tagged with specific GitHub topics. Separate multiple tags with commas.",
+                lblTrendingTopics: "🏷️ Trending Topics:",
+                tagFilterActive: (t) => `Filtered by tag: #${{t}} ✕`,
                 lblBtnAnalytics: "View Growth Chart",
                 lblBtnAnalyticsHide: "Hide Growth Chart",
                 chartVelocityTitle: "⚡ Star Growth & Velocity Leaderboard",
@@ -1747,7 +1823,9 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             setText('lblSearchInput', t.lblSearchInput);
             setText('lblSearchScope', t.lblSearchScope);
             setText('optScopeName', t.optScopeName);
+            setText('optScopeTopic', t.optScopeTopic);
             setText('optScopeContent', t.optScopeContent);
+            setText('lblTrendingTopics', t.lblTrendingTopics);
             setText('lblResultLimit', t.lblResultLimit);
             setText('lblKeywordMode', t.lblKeywordMode);
             setText('optModeAll', t.optModeAll);
@@ -1929,6 +2007,13 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                             ${{r.commercial_alternative ? `<span class="pill-tag tag-alternative">${{t.tagAlt(r.commercial_alternative)}}</span>` : ''}}
                             ${{r.match_score > 0 ? `<span class="pill-tag tag-match">⭐ ${{r.match_score}}% Match</span>` : ''}}
                         </div>
+
+                        <!-- Repository Topics / Tags -->
+                        ${{(raw.topics && raw.topics.length) ? `
+                            <div style="display:flex; gap:5px; flex-wrap:wrap; margin-bottom:10px;">
+                                ${{(raw.topics.slice(0, 8)).map(tag => `<span class="card-topic-tag" title="Lọc theo tag #${{escapeText(tag)}}" onclick="filterByTopic('${{escapeText(tag)}}')">#${{escapeText(tag)}}</span>`).join('')}}
+                            </div>
+                        ` : ''}}
 
                         <!-- Feedback Toolbar -->
                         <div class="feedback-bar">
@@ -2240,6 +2325,77 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             }});
         }}
 
+
+        // Topic / Tag Filtering Logic
+        let activeTopicFilter = '';
+
+        function filterByTopic(tag) {{
+            if (activeTopicFilter === tag) {{
+                activeTopicFilter = '';
+            }} else {{
+                activeTopicFilter = tag;
+            }}
+            updateTopicPillsUI();
+            filterCards();
+        }}
+
+        function clearTopicFilter() {{
+            activeTopicFilter = '';
+            updateTopicPillsUI();
+            filterCards();
+        }}
+
+        function updateTopicPillsUI() {{
+            const badge = document.getElementById('activeTopicBadge');
+            const text = document.getElementById('activeTopicText');
+            const t = I18N[currentLang];
+            if (badge && text) {{
+                if (activeTopicFilter) {{
+                    badge.style.display = 'flex';
+                    text.textContent = t.tagFilterActive(activeTopicFilter);
+                }} else {{
+                    badge.style.display = 'none';
+                }}
+            }}
+            document.querySelectorAll('.topic-pill').forEach(btn => {{
+                btn.classList.toggle('active', btn.getAttribute('data-tag') === activeTopicFilter);
+            }});
+        }}
+
+        function renderTrendingTopics(repos) {{
+            const bar = document.getElementById('topicsBar');
+            const container = document.getElementById('topicsPills');
+            if (!bar || !container) return;
+
+            const topicCounts = {{}};
+            (repos || []).forEach(r => {{
+                (r.topics || []).forEach(tag => {{
+                    const clean = String(tag).toLowerCase().trim();
+                    if (clean && clean.length > 1) {{
+                        topicCounts[clean] = (topicCounts[clean] || 0) + 1;
+                    }}
+                }});
+            }});
+
+            const sortedTopics = Object.entries(topicCounts).sort((a, b) => b[1] - a[1]).slice(0, 12);
+            if (sortedTopics.length === 0) {{
+                bar.style.display = 'none';
+                return;
+            }}
+            bar.style.display = 'flex';
+            container.innerHTML = '';
+            sortedTopics.forEach(([tag, count]) => {{
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'topic-pill' + (activeTopicFilter === tag ? ' active' : '');
+                btn.setAttribute('data-tag', tag);
+                btn.innerHTML = `#${{escapeText(tag)}} <span style="opacity:0.75; font-size:0.7rem;">(${{count}})</span>`;
+                btn.onclick = () => filterByTopic(tag);
+                container.appendChild(btn);
+            }});
+            updateTopicPillsUI();
+        }}
+
         function normalizeSearch(value) {{
             return String(value || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd');
         }}
@@ -2302,20 +2458,26 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 }}
 
                 const techText = (r.tech_stack || []).join(" ");
+                const topicsText = (r.topics || []).join(" ");
                 const quickText = r.quick_run || "";
                 const altText = r.commercial_alternative || "";
                 const researchText = ['how_it_works', 'practical_examples', 'limitations', 'adoption_notes', 'comparisons'].map(key => (r[key] || []).join(' ')).join(' ');
                 const corpus = normalizeSearch([
                     r.name, r.description, r.core_purpose, r.language, r.category,
-                    altText, techText, quickText, researchText, (r.key_features || []).join(' '), r.target_roles,
+                    altText, techText, topicsText, quickText, researchText, (r.key_features || []).join(' '), r.target_roles,
                 ].join(' '));
+
+                let matchesTopic = true;
+                if (activeTopicFilter) {{
+                    matchesTopic = (r.topics || []).some(t => String(t).toLowerCase() === activeTopicFilter.toLowerCase());
+                }}
                 const matchesQuery = Boolean(searchEndpoint) || !keywords.length || (mode === 'all'
                     ? keywords.every(keyword => corpus.includes(keyword))
                     : keywords.some(keyword => corpus.includes(keyword)));
 
                 const matchesPreset = matchesDomainPreset(r, activeDomainPreset);
 
-                return matchesCat && matchesRepoType && matchesMaturity && matchesVelocity && matchesWatchlist && matchesAlt && matchesStatus && matchesQuery && matchesPreset;
+                return matchesCat && matchesRepoType && matchesMaturity && matchesVelocity && matchesWatchlist && matchesAlt && matchesStatus && matchesQuery && matchesPreset && matchesTopic;
             }});
 
             // Update Domain Preset Counts
@@ -2333,6 +2495,7 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 const expBtn = document.getElementById('exportBookmarksBtn');
                 if (expBtn) expBtn.style.display = Object.keys(bookmarksMap).length > 0 ? 'inline-flex' : 'none';
 
+            renderTrendingTopics(sourceRepos);
             // Refresh Analytics if open
             if (isAnalyticsOpen) {{
                 renderAnalyticsCharts(filtered);
@@ -2413,7 +2576,7 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.error || (currentLang === 'vi' ? 'Không tìm kiếm được.' : 'Search failed.'));
                 reposData = data.results; githubTotal = data.total_count; resultMode = data.mode;
-                document.getElementById('sourceBadge').textContent = data.source === 'hn' ? `📰 Hacker News · ${{t.timeLabels[data.timeframe] || data.timeframe}}` : resultMode === 'trending' ? `📈 Trending · ${{t.timeLabels[data.timeframe] || data.timeframe}}` : `🔎 GitHub Search · ${{data.scope === 'content' ? (currentLang === 'vi' ? 'Nội dung README' : 'README Content') : (currentLang === 'vi' ? 'Tên project' : 'Project Name')}}`;
+                document.getElementById('sourceBadge').textContent = data.source === 'hn' ? `📰 Hacker News · ${{t.timeLabels[data.timeframe] || data.timeframe}}` : resultMode === 'trending' ? `📈 Trending · ${{t.timeLabels[data.timeframe] || data.timeframe}}` : `🔎 GitHub Search · ${{data.scope === 'topic' ? (currentLang === 'vi' ? 'Chủ đề / Tag' : 'Topics / Tags') : data.scope === 'content' ? (currentLang === 'vi' ? 'Nội dung README' : 'README Content') : (currentLang === 'vi' ? 'Tên project' : 'Project Name')}}`;
                 document.getElementById('velocityFilter').hidden = resultMode !== 'trending';
                 populateCategories();
                 ['repoTypeFilter', 'maturityFilter', 'velocityFilter', 'statusFilter'].forEach(id => {{ const el = document.getElementById(id); if (el) el.value = ''; }});
@@ -2436,13 +2599,17 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             document.getElementById('githubSort').disabled = !hasKeyword;
             document.getElementById('keywordMode').disabled = !hasKeyword;
             document.getElementById('trendingPeriod').disabled = hasKeyword;
-            const content = document.getElementById('searchScope').value === 'content';
-            document.getElementById('searchInput').placeholder = content ? t.searchPlaceholderContent : t.searchPlaceholderName;
-            document.getElementById('searchHelp').textContent = !hasKeyword
-                ? t.searchHelpEmpty
-                : content
-                    ? t.searchHelpContent
-                    : t.searchHelpName;
+            const scopeVal = document.getElementById('searchScope').value;
+            if (scopeVal === 'topic') {{
+                document.getElementById('searchInput').placeholder = t.searchPlaceholderTopic;
+                document.getElementById('searchHelp').textContent = t.searchHelpTopic;
+            }} else if (scopeVal === 'content') {{
+                document.getElementById('searchInput').placeholder = t.searchPlaceholderContent;
+                document.getElementById('searchHelp').textContent = !hasKeyword ? t.searchHelpEmpty : t.searchHelpContent;
+            }} else {{
+                document.getElementById('searchInput').placeholder = t.searchPlaceholderName;
+                document.getElementById('searchHelp').textContent = !hasKeyword ? t.searchHelpEmpty : t.searchHelpName;
+            }}
         }}
 
         document.getElementById('searchInput').addEventListener('input', updateSearchMode);
@@ -2455,6 +2622,8 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             updateSearchMode();
             document.getElementById('searchError').textContent = '';
             document.getElementById('searchStatus').textContent = '';
+            activeTopicFilter = '';
+            updateTopicPillsUI();
             ['repoTypeFilter', 'categoryFilter', 'maturityFilter', 'velocityFilter', 'statusFilter'].forEach(id => {{ const el = document.getElementById(id); if (el) el.value = ''; }});
             ['watchlistOnly', 'altOnly'].forEach(id => document.getElementById(id).checked = false);
             filterCards();
