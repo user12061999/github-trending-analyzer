@@ -131,52 +131,377 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
 
         [hidden] {{ display: none !important; }}
         .search-button:disabled {{ opacity: .65; cursor: wait; }}
-        .search-form {{ display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin-top: 20px; }}
-        .search-field {{ display: flex; flex-direction: column; gap: 6px; }}
-        .keyword-field {{ flex: 1; min-width: min(280px, 100%); }}
-        .search-field label {{ color: var(--text-muted); font-size: .85rem; }}
-        .search-field input, .search-field select {{ padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-main); color: var(--text-bright); font: inherit; }}
-        .search-field input:focus, .search-field select:focus {{ outline: 2px solid var(--accent-blue); outline-offset: 2px; }}
-        .limit-field input {{ width: 140px; }}
-        .search-button {{ padding: 11px 18px; border: 1px solid var(--accent-blue); border-radius: 8px; background: var(--accent-blue); color: #0d1117; font: inherit; font-weight: 600; cursor: pointer; }}
-        .reset-button {{ background: transparent; color: var(--text-bright); border-color: var(--border); }}
-        .search-help, .results-summary {{ font-size: .85rem; color: var(--text-muted); margin-top: 10px; }}
-        .results-summary {{ color: var(--text-bright); }}
-        @media (max-width: 600px) {{
-            body {{ padding: 12px; }}
-            header {{ padding: 18px; }}
-            .keyword-field {{ flex-basis: 100%; }}
-            .search-button {{ flex-grow: 1; }}
-        }}
-        .controls {{
+
+        /* Unified Modern Search Form */
+        .search-form {{
+            margin-top: 18px;
             display: flex;
-            gap: 12px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-            align-items: center;
+            flex-direction: column;
+            gap: 10px;
         }}
-        .select-filter {{
-            padding: 10px 14px;
-            background: #0d1117;
+        .search-bar-primary {{
+            display: flex;
+            align-items: center;
+            background: var(--bg-main);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 5px 8px;
+            gap: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+            transition: all 0.2s ease;
+        }}
+        .search-bar-primary:focus-within {{
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.2);
+        }}
+        .search-scope-wrapper {{
+            position: relative;
+            flex-shrink: 0;
+        }}
+        .search-scope-select {{
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-bright);
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.15s ease;
+        }}
+        .search-scope-select:hover {{
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--border-hover);
+        }}
+        .search-input-wrapper {{
+            display: flex;
+            align-items: center;
+            flex: 1;
+            position: relative;
+        }}
+        .search-input-wrapper .search-icon {{
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-left: 6px;
+            margin-right: 6px;
+            pointer-events: none;
+            user-select: none;
+        }}
+        .search-input-wrapper input[type="search"] {{
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--text-bright);
+            font-size: 0.95rem;
+            padding: 8px 4px;
+            outline: none;
+        }}
+        .search-input-wrapper input[type="search"]::placeholder {{
+            color: #6e7681;
+        }}
+        .clear-input-btn {{
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 50%;
+            transition: color 0.15s ease;
+        }}
+        .clear-input-btn:hover {{
+            color: var(--text-bright);
+        }}
+        .search-button {{
+            padding: 9px 18px;
+            border: 1px solid var(--accent-blue);
+            border-radius: 8px;
+            background: var(--accent-blue);
+            color: #0d1117;
+            font: inherit;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.15s ease;
+        }}
+        .search-button:hover {{
+            background: #79c0ff;
+            border-color: #79c0ff;
+        }}
+        .btn-toggle-advanced {{
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.04);
             border: 1px solid var(--border);
             border-radius: 8px;
+            color: var(--text-muted);
+            padding: 9px 14px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.15s ease;
+        }}
+        .btn-toggle-advanced:hover, .btn-toggle-advanced.active, .btn-toggle-advanced.has-active-filters {{
+            background: rgba(88, 166, 255, 0.12);
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+        }}
+        .advanced-badge {{
+            background: var(--accent-blue);
+            color: #0d1117;
+            font-size: 0.72rem;
+            font-weight: 800;
+            border-radius: 10px;
+            padding: 1px 6px;
+        }}
+
+        /* Collapsible Advanced Options Panel */
+        .advanced-search-panel {{
+            background: #161b22;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+            animation: fadeInPanel 0.2s ease-out;
+        }}
+        @keyframes fadeInPanel {{
+            from {{ opacity: 0; transform: translateY(-6px); }}
+            to {{ opacity: 1; transform: translateY(0); }}
+        }}
+        .advanced-panel-header {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 10px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid rgba(48, 54, 61, 0.6);
+        }}
+        .advanced-panel-title {{
+            font-size: 0.88rem;
+            font-weight: 700;
             color: var(--text-bright);
-            font-size: 0.92rem;
+        }}
+        .btn-close-advanced {{
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }}
+        .btn-close-advanced:hover {{
+            color: var(--text-bright);
+            background: rgba(255, 255, 255, 0.08);
+        }}
+        .advanced-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }}
+        .advanced-field {{
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }}
+        .advanced-field label {{
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+        }}
+        .advanced-field input, .advanced-field select {{
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--bg-main);
+            color: var(--text-bright);
+            font: inherit;
+            font-size: 0.88rem;
+            outline: none;
+        }}
+        .advanced-field input:focus, .advanced-field select:focus {{
+            border-color: var(--accent-blue);
+        }}
+        .advanced-panel-footer {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 12px;
+            margin-top: 12px;
+            border-top: 1px solid rgba(48, 54, 61, 0.6);
+        }}
+        .btn-reset-options {{
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 0.82rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }}
+        .btn-reset-options:hover {{
+            color: var(--accent-red);
+            border-color: var(--accent-red);
+        }}
+        .btn-collapse-panel {{
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-bright);
+            border-radius: 6px;
+            padding: 6px 14px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+        }}
+        .btn-collapse-panel:hover {{
+            background: rgba(255, 255, 255, 0.1);
+        }}
+
+        /* Search Meta Bar (Status & Summary Strip) */
+        .search-meta-bar {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            gap: 10px;
+            flex-wrap: wrap;
+            min-height: 28px;
+        }}
+        .meta-left {{
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }}
+        .meta-pill {{
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 14px;
+            font-size: 0.82rem;
+            font-weight: 600;
+        }}
+        .meta-summary {{
+            background: rgba(88, 166, 255, 0.12);
+            color: var(--accent-blue);
+            border: 1px solid rgba(88, 166, 255, 0.3);
+        }}
+        .meta-status {{
+            background: rgba(210, 153, 34, 0.15);
+            color: var(--accent-yellow);
+            border: 1px solid rgba(210, 153, 34, 0.35);
+        }}
+        .meta-error {{
+            background: rgba(248, 81, 73, 0.15);
+            color: var(--accent-red);
+            border: 1px solid rgba(248, 81, 73, 0.35);
+        }}
+        .btn-help-hint {{
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: all 0.15s ease;
+        }}
+        .btn-help-hint:hover {{
+            color: var(--accent-blue);
+            background: rgba(88, 166, 255, 0.08);
+        }}
+        .search-help-box {{
+            background: rgba(22, 27, 34, 0.8);
+            border: 1px dashed var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin-top: 6px;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }}
+
+        @media (max-width: 768px) {{
+            body {{ padding: 12px; }}
+            header {{ padding: 16px; }}
+            .search-bar-primary {{ flex-wrap: wrap; }}
+            .search-scope-wrapper {{ width: 100%; }}
+            .search-scope-select {{ width: 100%; }}
+            .search-input-wrapper {{ width: 100%; }}
+            .search-button, .btn-toggle-advanced {{ flex: 1; }}
+        }}
+
+        /* Secondary Filter Toolbar */
+        .controls {{
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+            flex-wrap: wrap;
+            align-items: center;
+            background: rgba(13, 17, 23, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+        }}
+        .filter-toolbar-label {{
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-right: 4px;
+            white-space: nowrap;
+        }}
+        .select-filter {{
+            padding: 6px 10px;
+            background: #161b22;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-bright);
+            font-size: 0.84rem;
             outline: none;
             cursor: pointer;
+        }}
+        .select-filter:hover {{
+            border-color: var(--border-hover);
         }}
         .checkbox-filter {{
             display: flex;
             align-items: center;
-            gap: 8px;
-            background: #0d1117;
+            gap: 6px;
+            background: #161b22;
             border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 9px 14px;
+            border-radius: 6px;
+            padding: 6px 10px;
             color: var(--accent-yellow);
-            font-size: 0.9rem;
+            font-size: 0.82rem;
             cursor: pointer;
             user-select: none;
+        }}
+        .checkbox-filter:hover {{
+            border-color: var(--border-hover);
+        }}
+        .btn-clear-filters {{
+            background: transparent;
+            border: 1px dashed var(--border);
+            color: var(--text-muted);
+            border-radius: 6px;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin-left: auto;
+            white-space: nowrap;
+            transition: all 0.15s ease;
+        }}
+        .btn-clear-filters:hover {{
+            color: var(--accent-red);
+            border-color: var(--accent-red);
         }}
 
         .cards-grid {{
@@ -1006,65 +1331,107 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             </div>
 
             <form id="searchForm" class="search-form">
-                <div class="search-field" {'hidden' if not search_endpoint else ''}>
-                    <label id="lblDataSource" for="dataSource">Nguồn xu hướng</label>
-                    <select id="dataSource" onchange="updateSearchMode()">
-                        <option id="optSourceGitHub" value="github">🔥 GitHub Trending</option>
-                        <option id="optSourceHN" value="hn">📰 Hacker News Trends</option>
-                    </select>
+                <!-- Clean Hero Search Bar -->
+                <div class="search-bar-primary">
+                    <div class="search-scope-wrapper" {'hidden' if not search_endpoint else ''}>
+                        <select id="searchScope" class="search-scope-select" aria-label="Phạm vi tìm kiếm">
+                            <option id="optScopeTopic" value="topic">🏷️ Chủ đề / Tag (GitHub Topics)</option>
+                            <option id="optScopeName" value="name">📦 Tên project</option>
+                            <option id="optScopeContent" value="content">📄 Từ khóa bên trong project (README)</option>
+                        </select>
+                    </div>
+                    <div class="search-input-wrapper">
+                        <span class="search-icon">🔍</span>
+                        <label id="lblSearchInput" for="searchInput" style="display:none;">Từ khóa</label>
+                        <input type="search" id="searchInput" placeholder="Ví dụ: agent, voice, Unity" autocomplete="off" aria-describedby="searchHelp">
+                        <button type="button" id="clearSearchInputBtn" class="clear-input-btn" title="Xóa từ khóa" style="display:none;" onclick="clearSearchInput()">✕</button>
+                    </div>
+                    <button id="searchButton" type="submit" class="search-button">🔍 Tìm kiếm</button>
+                    <button type="button" id="toggleAdvancedSearchBtn" class="btn-toggle-advanced" aria-expanded="false" onclick="toggleAdvancedSearch()">
+                        <span id="lblAdvancedToggle">⚙️ Tùy chọn</span>
+                        <span id="advancedOptionsBadge" class="advanced-badge" style="display:none;">0</span>
+                    </button>
                 </div>
-                <div class="search-field keyword-field">
-                    <label id="lblSearchInput" for="searchInput">Từ khóa</label>
-                    <input type="search" id="searchInput" placeholder="Ví dụ: agent, voice, Unity" autocomplete="off" aria-describedby="searchHelp">
+
+                <!-- Collapsible Advanced Search Panel -->
+                <div id="advancedSearchPanel" class="advanced-search-panel" style="display:none;">
+                    <div class="advanced-panel-header">
+                        <span class="advanced-panel-title" id="lblAdvancedTitle">⚙️ Tùy chọn tìm kiếm & nghiên cứu nâng cao</span>
+                        <button type="button" class="btn-close-advanced" onclick="toggleAdvancedSearch(false)">✕</button>
+                    </div>
+                    <div class="advanced-grid">
+                        <div class="advanced-field" {'hidden' if not search_endpoint else ''}>
+                            <label id="lblDataSource" for="dataSource">Nguồn xu hướng</label>
+                            <select id="dataSource" onchange="updateSearchMode(); updateAdvancedBadge();">
+                                <option id="optSourceGitHub" value="github">🔥 GitHub Trending</option>
+                                <option id="optSourceHN" value="hn">📰 Hacker News Trends</option>
+                            </select>
+                        </div>
+                        <div class="advanced-field" {'hidden' if not search_endpoint else ''}>
+                            <label id="lblTrendingPeriod" for="trendingPeriod">Kỳ Trending (khi từ khóa trống)</label>
+                            <select id="trendingPeriod" onchange="updateAdvancedBadge();">
+                                <option id="optPeriodDaily" value="daily">Hôm nay</option>
+                                <option id="optPeriodWeekly" value="weekly">Tuần này</option>
+                                <option id="optPeriodMonthly" value="monthly">Tháng này</option>
+                            </select>
+                        </div>
+                        <div class="advanced-field" {'hidden' if not search_endpoint else ''}>
+                            <label id="lblGithubLanguage" for="githubLanguage">Ngôn ngữ</label>
+                            <input id="githubLanguage" placeholder="Python, Rust, C#..." maxlength="40" oninput="updateAdvancedBadge();">
+                        </div>
+                        <div class="advanced-field" {'hidden' if not search_endpoint else ''}>
+                            <label id="lblGithubSort" for="githubSort">Sắp xếp khi có từ khóa</label>
+                            <select id="githubSort" onchange="updateAdvancedBadge();">
+                                <option id="optSortMatch" value="best-match">Phù hợp nhất</option>
+                                <option id="optSortStars" value="stars">Nhiều stars nhất</option>
+                                <option id="optSortUpdated" value="updated">Cập nhật gần nhất</option>
+                            </select>
+                        </div>
+                        <div class="advanced-field">
+                            <label id="lblKeywordMode" for="keywordMode">Cách khớp từ khóa</label>
+                            <select id="keywordMode" onchange="updateAdvancedBadge();">
+                                <option id="optModeAll" value="all">Khớp tất cả từ khóa</option>
+                                <option id="optModeAny" value="any">Khớp ít nhất một từ khóa</option>
+                            </select>
+                        </div>
+                        <div class="advanced-field limit-field">
+                            <label id="lblResultLimit" for="resultLimit">Số lượng project</label>
+                            <input type="number" id="resultLimit" min="1" max="30" step="1" value="10" required onchange="updateAdvancedBadge();">
+                        </div>
+                        <div class="advanced-field" style="justify-content: flex-end; padding-bottom: 4px;" {'hidden' if not search_endpoint else ''}>
+                            <label id="lblDeepContainer" class="checkbox-filter" style="margin: 0;">
+                                <input id="deepResearch" type="checkbox" {'checked' if default_deep else ''} onchange="updateAdvancedBadge();">
+                                <span id="lblDeepText">Phân tích sâu (chậm hơn)</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="advanced-panel-footer">
+                        <button type="button" id="resetSearch" class="btn-reset-options">↺ Đặt lại mặc định</button>
+                        <button type="button" class="btn-collapse-panel" onclick="toggleAdvancedSearch(false)">Thu gọn ▲</button>
+                    </div>
                 </div>
-                <div class="search-field" {'hidden' if not search_endpoint else ''}>
-                    <label id="lblSearchScope" for="searchScope">Tìm kiếm theo</label>
-                    <select id="searchScope">
-                        <option id="optScopeName" value="name">Tên project</option>
-                        <option id="optScopeTopic" value="topic">🏷️ Chủ đề / Tag (GitHub Topics)</option>
-                        <option id="optScopeContent" value="content">Từ khóa bên trong project (README)</option>
-                    </select>
-                </div>
-                <div class="search-field limit-field">
-                    <label id="lblResultLimit" for="resultLimit">Số lượng project</label>
-                    <input type="number" id="resultLimit" min="1" max="30" step="1" value="10" required>
-                </div>
-                <div class="search-field">
-                    <label id="lblKeywordMode" for="keywordMode">Cách khớp từ khóa</label>
-                    <select id="keywordMode">
-                        <option id="optModeAll" value="all">Khớp tất cả từ khóa</option>
-                        <option id="optModeAny" value="any">Khớp ít nhất một từ khóa</option>
-                    </select>
-                </div>
-                <div class="search-field" {'hidden' if not search_endpoint else ''}>
-                    <label id="lblGithubLanguage" for="githubLanguage">Ngôn ngữ</label>
-                    <input id="githubLanguage" placeholder="Python, Rust, C#..." maxlength="40" style="width:170px">
-                </div>
-                <div class="search-field" {'hidden' if not search_endpoint else ''}>
-                    <label id="lblGithubSort" for="githubSort">Sắp xếp khi có từ khóa</label>
-                    <select id="githubSort">
-                        <option id="optSortMatch" value="best-match">Phù hợp nhất</option>
-                        <option id="optSortStars" value="stars">Nhiều stars nhất</option>
-                        <option id="optSortUpdated" value="updated">Cập nhật gần nhất</option>
-                    </select>
-                </div>
-                <div class="search-field" {'hidden' if not search_endpoint else ''}>
-                    <label id="lblTrendingPeriod" for="trendingPeriod">Kỳ Trending (khi từ khóa trống)</label>
-                    <select id="trendingPeriod">
-                        <option id="optPeriodDaily" value="daily">Hôm nay</option>
-                        <option id="optPeriodWeekly" value="weekly">Tuần này</option>
-                        <option id="optPeriodMonthly" value="monthly">Tháng này</option>
-                    </select>
-                </div>
-                <label id="lblDeepContainer" {'hidden' if not search_endpoint else ''}><input id="deepResearch" type="checkbox" {'checked' if default_deep else ''}> <span id="lblDeepText">Phân tích sâu (chậm hơn)</span></label>
-                <button id="searchButton" type="submit" class="search-button">🔍 Tìm kiếm</button>
-                <button type="button" id="resetSearch" class="search-button reset-button">Xóa bộ lọc</button>
             </form>
-            <p id="searchHelp" class="search-help">{search_help}</p>
-            <p id="searchStatus" class="search-help" role="status" aria-live="polite"></p>
-            <p id="searchError" class="search-help" role="alert" style="color:var(--accent-red)"></p>
-            <p id="resultsSummary" class="results-summary" role="status" aria-live="polite"></p>
+
+            <!-- Sleek Status & Summary Meta Bar -->
+            <div class="search-meta-bar">
+                <div class="meta-left">
+                    <span id="resultsSummary" class="meta-pill meta-summary" role="status" aria-live="polite"></span>
+                    <span id="searchStatus" class="meta-pill meta-status" role="status" aria-live="polite" style="display:none;"></span>
+                    <span id="searchError" class="meta-pill meta-error" role="alert" style="display:none;"></span>
+                </div>
+                <div class="meta-right">
+                    <button type="button" id="btnToggleHelp" class="btn-help-hint" onclick="toggleSearchHelp()" title="Mẹo tìm kiếm">
+                        <span>💡</span> <span id="lblHelpHint">Mẹo tìm kiếm</span>
+                    </button>
+                </div>
+            </div>
+            <div id="searchHelpContainer" class="search-help-box" style="display:none;">
+                <p id="searchHelp" class="search-help" style="margin:0;">{search_help}</p>
+            </div>
+
+            <!-- Refined Quick Filter Toolbar -->
             <div class="controls">
+                <span class="filter-toolbar-label" id="lblFilterToolbar">🎯 Lọc kết quả:</span>
                 <select id="categoryFilter" class="select-filter" onchange="filterCards()">
                     <option value="">Tất cả phân loại</option>
                 </select>
@@ -1103,9 +1470,9 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 <label class="checkbox-filter" style="color: #d2a8ff;">
                     <input type="checkbox" id="altOnly" onchange="filterCards()"> <span id="lblAltText">💡 Thay thế thương mại</span>
                 </label>
-                <button type="button" id="syncWatchlistBtn" class="btn-copy" style="background:#238636;color:#fff;border-color:#2ea043;padding:8px 12px;font-size:0.85rem;" title="Học sở thích từ các repo bạn đánh giá cao" {'hidden' if not search_endpoint else ''}>🧠 Đồng bộ sở thích</button>
-            </div>
-        </header>
+                <button type="button" id="syncWatchlistBtn" class="btn-copy" style="background:#238636;color:#fff;border-color:#2ea043;padding:6px 12px;font-size:0.82rem;" title="Học sở thích từ các repo bạn đánh giá cao" {'hidden' if not search_endpoint else ''}>🧠 Đồng bộ sở thích</button>
+                <button type="button" id="clearFiltersBtn" class="btn-clear-filters" onclick="clearCardFilters()" title="Xóa các bộ lọc kết quả bên trên">↺ Bỏ lọc</button>
+            </div></header>
 
         <!-- Domain Presets Bar -->
         <div class="preset-filters-bar">
@@ -1314,6 +1681,12 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 searchBtn: "🔍 Tìm kiếm",
                 searchBtnSearching: "Đang tìm kiếm…",
                 resetBtn: "Xóa bộ lọc",
+                lblAdvancedToggle: "⚙️ Tùy chọn",
+                lblAdvancedTitle: "⚙️ Tùy chọn tìm kiếm & nghiên cứu nâng cao",
+                lblHelpHint: "Mẹo tìm kiếm",
+                lblFilterToolbar: "🎯 Lọc kết quả:",
+                clearFiltersBtn: "↺ Bỏ lọc",
+                clearInputTitle: "Xóa từ khóa",
                 searchHelpDefault: (len, hasEndpoint) => hasEndpoint ? "Để trống từ khóa: lấy GitHub Trending, xếp theo stars mới giảm dần. Có từ khóa: tìm bằng GitHub Search. Tối đa 30 project mỗi lượt." : `Tìm trong ${{len}} project đã tải. Mở tìm kiếm GitHub bằng ./trending --serve.`,
                 searchHelpEmpty: "Để trống từ khóa: lấy GitHub Trending, xếp theo stars mới giảm dần. Tối đa 30 project mỗi lượt.",
                 searchHelpContent: "Tìm từ khóa trong README của project trên GitHub. Nhiều từ khóa ngăn cách bằng dấu phẩy.",
@@ -1467,6 +1840,12 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 searchBtn: "🔍 Search",
                 searchBtnSearching: "Searching…",
                 resetBtn: "Reset filters",
+                lblAdvancedToggle: "⚙️ Options",
+                lblAdvancedTitle: "⚙️ Advanced Search & Research Options",
+                lblHelpHint: "Search Tips",
+                lblFilterToolbar: "🎯 Filter Results:",
+                clearFiltersBtn: "↺ Clear Filters",
+                clearInputTitle: "Clear keyword",
                 searchHelpDefault: (len, hasEndpoint) => hasEndpoint ? "Leave keyword empty: fetch GitHub Trending ranked by new stars. With keywords: search GitHub Search. Max 30 projects per run." : `Search in ${{len}} loaded projects. Open GitHub live search via ./trending --serve.`,
                 searchHelpEmpty: "Leave keyword empty: fetch GitHub Trending ranked by new stars. Max 30 projects per run.",
                 searchHelpContent: "Search keywords in project READMEs on GitHub. Separate multiple keywords with commas.",
@@ -1848,6 +2227,13 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             setText('lblWatchlistText', t.lblWatchlistText);
             setText('lblAltText', t.lblAltText);
             setText('syncWatchlistBtn', t.syncWatchlist);
+            setText('lblAdvancedToggle', t.lblAdvancedToggle);
+            setText('lblAdvancedTitle', t.lblAdvancedTitle);
+            setText('lblHelpHint', t.lblHelpHint);
+            setText('lblFilterToolbar', t.lblFilterToolbar);
+            setText('clearFiltersBtn', t.clearFiltersBtn);
+            const clrInp = document.getElementById('clearSearchInputBtn');
+            if (clrInp) clrInp.title = t.clearInputTitle;
             setText('loadedCount', t.countBadge(reposData.length));
             setText('emptyState', t.emptyState);
             setText('lblDomainPresets', t.lblDomainPresets);
@@ -2549,6 +2935,86 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             }});
         }}
 
+                function clearSearchInput() {{
+            const input = document.getElementById('searchInput');
+            const btn = document.getElementById('clearSearchInputBtn');
+            if (input) {{
+                input.value = '';
+                input.focus();
+            }}
+            if (btn) btn.style.display = 'none';
+            updateSearchMode();
+        }}
+
+        function toggleAdvancedSearch(forceState) {{
+            const panel = document.getElementById('advancedSearchPanel');
+            const btn = document.getElementById('toggleAdvancedSearchBtn');
+            if (!panel) return;
+            const isCurrentlyOpen = panel.style.display !== 'none';
+            const nextState = (forceState !== undefined) ? forceState : !isCurrentlyOpen;
+            panel.style.display = nextState ? 'block' : 'none';
+            if (btn) {{
+                if (nextState) {{
+                    btn.classList.add('active');
+                    btn.setAttribute('aria-expanded', 'true');
+                }} else {{
+                    btn.classList.remove('active');
+                    btn.setAttribute('aria-expanded', 'false');
+                }}
+            }}
+        }}
+
+        function toggleSearchHelp() {{
+            const container = document.getElementById('searchHelpContainer');
+            if (!container) return;
+            container.style.display = (container.style.display === 'none') ? 'block' : 'none';
+        }}
+
+        function updateAdvancedBadge() {{
+            let count = 0;
+            const src = document.getElementById('dataSource');
+            if (src && src.value !== 'github') count++;
+            const period = document.getElementById('trendingPeriod');
+            if (period && period.value !== 'daily') count++;
+            const lang = document.getElementById('githubLanguage');
+            if (lang && lang.value.trim() !== '') count++;
+            const sort = document.getElementById('githubSort');
+            if (sort && sort.value !== 'best-match') count++;
+            const mode = document.getElementById('keywordMode');
+            if (mode && mode.value !== 'all') count++;
+            const limit = document.getElementById('resultLimit');
+            if (limit && Number(limit.value) !== 10) count++;
+            const deep = document.getElementById('deepResearch');
+            if (deep && deep.checked) count++;
+
+            const badge = document.getElementById('advancedOptionsBadge');
+            const toggleBtn = document.getElementById('toggleAdvancedSearchBtn');
+            if (badge) {{
+                if (count > 0) {{
+                    badge.textContent = count;
+                    badge.style.display = 'inline-block';
+                    if (toggleBtn) toggleBtn.classList.add('has-active-filters');
+                }} else {{
+                    badge.style.display = 'none';
+                    if (toggleBtn) toggleBtn.classList.remove('has-active-filters');
+                }}
+            }}
+        }}
+
+        function clearCardFilters() {{
+            ['categoryFilter', 'repoTypeFilter', 'maturityFilter', 'velocityFilter', 'statusFilter'].forEach(id => {{
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            }});
+            const wl = document.getElementById('watchlistOnly');
+            if (wl) wl.checked = false;
+            const alt = document.getElementById('altOnly');
+            if (alt) alt.checked = false;
+            activeTopicFilter = '';
+            updateTopicPillsUI();
+            filterCards();
+        }}
+
         async function searchProjects() {{
             if (!searchEndpoint) {{ filterCards(); return; }}
             if (searching || !document.getElementById('searchForm').reportValidity()) return;
@@ -2557,8 +3023,12 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             const status = document.getElementById('searchStatus');
             const error = document.getElementById('searchError');
             const t = I18N[currentLang];
-            button.disabled = true; button.textContent = t.searchBtnSearching; error.textContent = '';
-            status.textContent = t.searchStatusSearching;
+            button.disabled = true; button.textContent = t.searchBtnSearching;
+            if (error) {{ error.textContent = ''; error.style.display = 'none'; }}
+            if (status) {{
+                status.textContent = t.searchStatusSearching;
+                status.style.display = 'inline-flex';
+            }}
             try {{
                 const response = await fetch(searchEndpoint, {{
                     method: 'POST', headers: {{'Content-Type': 'application/json'}},
@@ -2584,10 +3054,22 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 ['watchlistOnly', 'altOnly'].forEach(id => document.getElementById(id).checked = false);
                 document.getElementById('loadedCount').textContent = t.countBadge(reposData.length);
                 filterCards();
-                status.textContent = resultMode === 'trending' ? t.searchStatusTrendingDone : data.incomplete_results ? t.searchStatusIncomplete : t.searchStatusSearchDone;
+                if (status) {{
+                    status.textContent = resultMode === 'trending' ? t.searchStatusTrendingDone : data.incomplete_results ? t.searchStatusIncomplete : t.searchStatusSearchDone;
+                    status.style.display = 'inline-flex';
+                    setTimeout(() => {{
+                        if (!searching && status) status.style.display = 'none';
+                    }}, 3000);
+                }}
             }} catch (exc) {{
-                error.textContent = exc.message || (currentLang === 'vi' ? 'Mất kết nối server. Hãy chạy lại ./trending --serve.' : 'Server connection lost. Please restart ./trending --serve.');
-                status.textContent = t.searchStatusError;
+                if (error) {{
+                    error.textContent = exc.message || (currentLang === 'vi' ? 'Mất kết nối server. Hãy chạy lại ./trending --serve.' : 'Server connection lost. Please restart ./trending --serve.');
+                    error.style.display = 'inline-flex';
+                }}
+                if (status) {{
+                    status.textContent = t.searchStatusError;
+                    status.style.display = 'inline-flex';
+                }}
             }} finally {{
                 searching = false; button.disabled = false; button.textContent = t.searchBtn;
             }}
@@ -2596,21 +3078,26 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
         function updateSearchMode() {{
             if (!searchEndpoint) return;
             const t = I18N[currentLang];
-            const hasKeyword = Boolean(document.getElementById('searchInput').value.trim());
+            const searchInput = document.getElementById('searchInput');
+            const clearBtn = document.getElementById('clearSearchInputBtn');
+            const hasKeyword = Boolean(searchInput.value.trim());
+            if (clearBtn) clearBtn.style.display = hasKeyword ? 'inline-block' : 'none';
+
             document.getElementById('githubSort').disabled = !hasKeyword;
             document.getElementById('keywordMode').disabled = !hasKeyword;
             document.getElementById('trendingPeriod').disabled = hasKeyword;
             const scopeVal = document.getElementById('searchScope').value;
             if (scopeVal === 'topic') {{
-                document.getElementById('searchInput').placeholder = t.searchPlaceholderTopic;
+                searchInput.placeholder = t.searchPlaceholderTopic;
                 document.getElementById('searchHelp').textContent = t.searchHelpTopic;
             }} else if (scopeVal === 'content') {{
-                document.getElementById('searchInput').placeholder = t.searchPlaceholderContent;
+                searchInput.placeholder = t.searchPlaceholderContent;
                 document.getElementById('searchHelp').textContent = !hasKeyword ? t.searchHelpEmpty : t.searchHelpContent;
             }} else {{
-                document.getElementById('searchInput').placeholder = t.searchPlaceholderName;
+                searchInput.placeholder = t.searchPlaceholderName;
                 document.getElementById('searchHelp').textContent = !hasKeyword ? t.searchHelpEmpty : t.searchHelpName;
             }}
+            updateAdvancedBadge();
         }}
 
         document.getElementById('searchInput').addEventListener('input', updateSearchMode);
@@ -2621,8 +3108,11 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
         document.getElementById('resetSearch').addEventListener('click', () => {{
             document.getElementById('searchForm').reset();
             updateSearchMode();
-            document.getElementById('searchError').textContent = '';
-            document.getElementById('searchStatus').textContent = '';
+            updateAdvancedBadge();
+            const err = document.getElementById('searchError');
+            if (err) {{ err.textContent = ''; err.style.display = 'none'; }}
+            const st = document.getElementById('searchStatus');
+            if (st) {{ st.textContent = ''; st.style.display = 'none'; }}
             activeTopicFilter = '';
             updateTopicPillsUI();
             ['repoTypeFilter', 'categoryFilter', 'maturityFilter', 'velocityFilter', 'statusFilter'].forEach(id => {{ const el = document.getElementById(id); if (el) el.value = ''; }});
@@ -2994,6 +3484,7 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
 
         // Final Startup Initialization (after all variables & functions are declared)
         setLanguage(currentLang);
+        updateAdvancedBadge();
         updateBookmarkBadge();
         loadServerBookmarks();
         if (searchEndpoint && (!reposData || reposData.length === 0)) {{
