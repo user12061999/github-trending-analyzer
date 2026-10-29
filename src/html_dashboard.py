@@ -1798,6 +1798,123 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             align-items: center;
         }}
 
+        /* Release Radar Styles */
+        .tag-release {{
+            background: rgba(138, 180, 248, 0.12);
+            color: #8ab4f8;
+            border: 1px solid rgba(138, 180, 248, 0.3);
+            border-radius: 12px;
+            padding: 2px 8px;
+            font-size: 0.74rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }}
+        .release-radar-wrapper {{
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding: 4px 0;
+        }}
+        .release-hero-card {{
+            background: #161b22;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }}
+        .release-hero-info {{
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }}
+        .release-tag-title {{
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #8ab4f8;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }}
+        .release-meta {{
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }}
+        .release-highlights-box {{
+            background: #090d12;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px 18px;
+        }}
+        .release-highlights-title {{
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: var(--accent-green);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }}
+        .release-highlights-list {{
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }}
+        .release-highlight-item {{
+            font-size: 0.85rem;
+            color: var(--text-main);
+            line-height: 1.5;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }}
+        .release-highlight-bullet {{
+            color: var(--accent-blue);
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }}
+        .release-body-box {{
+            background: #0d1117;
+            border: 1px solid rgba(48, 54, 61, 0.6);
+            border-radius: 8px;
+            padding: 12px 14px;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            max-height: 250px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }}
+        .btn-release-github {{
+            background: #21262d;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--accent-blue);
+            padding: 6px 12px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+        }}
+        .btn-release-github:hover {{
+            background: #30363d;
+            border-color: var(--accent-blue);
+        }}
+
         /* Architecture Diagram Styles */
         .arch-wrapper {{
             display: flex;
@@ -2345,6 +2462,16 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 archStageProcess: "2. Tầng Xử lý & Engine (Core Processing)",
                 archStageStorage: "3. Tầng Lưu trữ & Tích hợp (Storage & Services)",
                 archStageOutput: "4. Tầng Đầu ra & Phản hồi (Output & Delivery)",
+                latestReleaseTitle: "Bản phát hành mới nhất",
+                releaseRadarTitle: "Radar Bản phát hành & Nhật ký Thay đổi (Changelog)",
+                releaseTag: "Phiên bản:",
+                releasePublished: "Ngày phát hành:",
+                releasePrereleaseBadge: "Bản thử nghiệm (Pre-release)",
+                releaseHighlightsTitle: "Điểm mới & Tính năng cập nhật nổi bật:",
+                releaseFullNotesTitle: "Trích đoạn Ghi chú Phát hành (Release Notes):",
+                releaseViewOnGitHub: "Xem trên GitHub Releases",
+                releaseNoRelease: "Dự án này chưa phát hành bản Release chính thức trên GitHub (thường cập nhật trực tiếp qua commit trên nhánh chính).",
+                noReleaseText: "Chưa có bản release chính thức",
                 similarComparedBtn: "✅ Đã chọn so sánh",
                 similarOpenCompare: (n) => `So sánh đối chiếu (${{n}})`,
                 similarCloseBtn: "Đóng",
@@ -2447,6 +2574,7 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 optSourceHN: "📰 Hacker News Trends",
                 modalTabs: {{
                     architecture: "🏗️ Sơ đồ Kiến trúc & Luồng",
+                    release_radar: "📦 Bản phát hành (Changelog)",
                     how_it_works: "🏛️ Cơ chế & Chi tiết",
                     comparisons: "📊 Benchmarks & So sánh",
                     practical_examples: "💻 Code & Lệnh chạy",
@@ -2549,6 +2677,16 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 archStageProcess: "2. Core Processing Engine",
                 archStageStorage: "3. Storage & Integrations",
                 archStageOutput: "4. Output & Delivery Layer",
+                latestReleaseTitle: "Latest Release",
+                releaseRadarTitle: "Release Radar & Changelog",
+                releaseTag: "Version:",
+                releasePublished: "Published:",
+                releasePrereleaseBadge: "Pre-release",
+                releaseHighlightsTitle: "Highlights & Key Updates in this Release:",
+                releaseFullNotesTitle: "Release Notes Excerpt:",
+                releaseViewOnGitHub: "View on GitHub Releases",
+                releaseNoRelease: "No official GitHub release found for this repository (updates may be pushed directly to the main branch).",
+                noReleaseText: "No official release yet",
                 similarComparedBtn: "✅ Selected for comparison",
                 similarOpenCompare: (n) => `Compare Side-by-Side (${{n}})`,
                 similarCloseBtn: "Close",
@@ -2651,6 +2789,7 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 optSourceHN: "📰 Hacker News Trends",
                 modalTabs: {{
                     architecture: "🏗️ Architecture & Pipeline",
+                    release_radar: "📦 Releases & Changelog",
                     how_it_works: "🏛️ Internals & Mechanics",
                     comparisons: "📊 Benchmarks & Comparisons",
                     practical_examples: "💻 Code & Examples",
@@ -3110,6 +3249,7 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                             ${{r.maturity_badge ? `<span class="pill-tag ${{matClass}}">${{r.maturity_badge}}</span>` : ''}}
                             ${{r.commercial_alternative ? `<span class="pill-tag tag-alternative">${{t.tagAlt(r.commercial_alternative)}}</span>` : ''}}
                             ${{r.match_score > 0 ? `<span class="pill-tag tag-match">⭐ ${{r.match_score}}% Match</span>` : ''}}
+                            ${{r.latest_release && r.latest_release.tag_name ? `<span class="pill-tag tag-release" title="${{t.latestReleaseTitle}}">🏷️ ${{escapeText(r.latest_release.tag_name)}}</span>` : ''}}
                         </div>
 
                         <!-- Repository Topics / Tags -->
@@ -4286,6 +4426,23 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             }}
         }}
 
+        function formatReleaseDate(isoString) {{
+            if (!isoString) return '';
+            try {{
+                const d = new Date(isoString);
+                if (isNaN(d.getTime())) return isoString;
+                const diffMs = Date.now() - d.getTime();
+                const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                const formatted = d.toLocaleDateString(currentLang === 'vi' ? 'vi-VN' : 'en-US', {{ year: 'numeric', month: 'short', day: 'numeric' }});
+                if (diffDays <= 0) return `${{formatted}} (${{currentLang === 'vi' ? 'Hôm nay' : 'Today'}})`;
+                if (diffDays === 1) return `${{formatted}} (${{currentLang === 'vi' ? 'Hôm qua' : 'Yesterday'}})`;
+                if (diffDays < 30) return `${{formatted}} (${{diffDays}} ${{currentLang === 'vi' ? 'ngày trước' : 'days ago'}})`;
+                return formatted;
+            }} catch (e) {{
+                return isoString;
+            }}
+        }}
+
         async function renderMermaidSafe(canvasId, fallbackId, code) {{
             const canvas = document.getElementById(canvasId);
             const fallback = document.getElementById(fallbackId);
@@ -4425,6 +4582,16 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                                     </div>
                                 ` : ''}}
 
+                                ${{ r.latest_release && r.latest_release.tag_name ? `
+                                    <div>
+                                        <div class="comparison-section-title">${{t.latestReleaseTitle}}</div>
+                                        <div class="comparison-section-content" style="font-size:0.8rem;">
+                                            <span class="pill-tag tag-release">🏷️ ${{escapeText(r.latest_release.tag_name)}}</span>
+                                            ${{r.latest_release.published_at ? `<div style="font-size:0.75rem; color:var(--text-muted); margin-top:3px;">📅 ${{formatReleaseDate(r.latest_release.published_at)}}</div>` : ''}}
+                                        </div>
+                                    </div>
+                                ` : ''}}
+
                                 ${{ r.quick_run ? `
                                     <div>
                                         <div class="comparison-section-title">${{t.quickRunTitle}}</div>
@@ -4484,6 +4651,7 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             ];
             if (raw.velocity_badge) badges.push(raw.velocity_badge);
             if (raw.hn_points) badges.push(`📰 HN: ▲ ${{raw.hn_points}} pts`);
+            if (raw.latest_release && raw.latest_release.tag_name) badges.push(`🏷️ Release: ${{raw.latest_release.tag_name}}`);
             badges.forEach(b => {{
                 const span = document.createElement('span');
                 span.className = 'pill-tag';
@@ -4494,6 +4662,7 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             // Tabs definition
             const tabDefs = [
                 {{ id: 'architecture', label: t.modalTabs.architecture, mermaid: raw.architecture_mermaid }},
+                {{ id: 'release_radar', label: t.modalTabs.release_radar, release: raw.latest_release }},
                 {{ id: 'how_it_works', label: t.modalTabs.how_it_works, items: raw.how_it_works || [] }},
                 {{ id: 'comparisons', label: t.modalTabs.comparisons, items: raw.comparisons || [] }},
                 {{ id: 'practical_examples', label: t.modalTabs.practical_examples, items: raw.practical_examples || [], quickRun: raw.quick_run }},
@@ -4540,7 +4709,80 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 pane.id = `pane_${{td.id}}`;
                 pane.className = `modal-tab-pane ${{td.id === firstActive ? 'active' : ''}}`;
 
-                if (td.id === 'architecture') {{
+                if (td.id === 'release_radar') {{
+                    const relWrap = document.createElement('div');
+                    relWrap.className = 'release-radar-wrapper';
+                    const rel = td.release;
+                    if (rel && rel.tag_name) {{
+                        const pubDateStr = rel.published_at ? formatReleaseDate(rel.published_at) : '';
+                        const relUrl = rel.html_url || `https://github.com/${{escapeText(raw.name)}}/releases`;
+                        const highlights = rel.highlights || [];
+                        const bodySnippet = rel.body_snippet || '';
+
+                        relWrap.innerHTML = `
+                            <div class="release-hero-card">
+                                <div class="release-hero-info">
+                                    <div class="release-tag-title">
+                                        <span>🏷️</span>
+                                        <span>${{escapeText(rel.tag_name)}}</span>
+                                        ${{rel.prerelease ? `<span class="pill-tag" style="background:rgba(210,153,34,0.15); color:var(--accent-yellow); border-color:rgba(210,153,34,0.4); font-size:0.75rem;">${{t.releasePrereleaseBadge}}</span>` : ''}}
+                                        ${{rel.is_tag_only ? `<span class="pill-tag" style="background:rgba(139,148,158,0.15); color:var(--text-muted); font-size:0.75rem;">Git Tag</span>` : ''}}
+                                    </div>
+                                    <div class="release-meta">
+                                        ${{rel.name && rel.name !== rel.tag_name ? `<span><strong>${{escapeText(rel.name)}}</strong></span>` : ''}}
+                                        ${{pubDateStr ? `<span>📅 ${{t.releasePublished}} ${{pubDateStr}}</span>` : ''}}
+                                    </div>
+                                </div>
+                                <div>
+                                    <a href="${{escapeText(relUrl)}}" target="_blank" rel="noopener noreferrer" class="btn-release-github">
+                                        <span>📦</span> <span>${{t.releaseViewOnGitHub}}</span> <span>↗</span>
+                                    </a>
+                                </div>
+                            </div>
+
+                            ${{highlights.length > 0 ? `
+                                <div class="release-highlights-box">
+                                    <div class="release-highlights-title">
+                                        <span>${{t.releaseHighlightsTitle}}</span>
+                                    </div>
+                                    <ul class="release-highlights-list">
+                                        ${{highlights.map(h => `
+                                            <li class="release-highlight-item">
+                                                <span class="release-highlight-bullet">▹</span>
+                                                <span>${{escapeText(h)}}</span>
+                                            </li>
+                                        `).join('')}}
+                                    </ul>
+                                </div>
+                            ` : ''}}
+
+                            ${{bodySnippet ? `
+                                <div>
+                                    <div style="font-size:0.85rem; font-weight:700; color:var(--text-muted); margin-bottom:8px;">
+                                        ${{t.releaseFullNotesTitle}}
+                                    </div>
+                                    <div class="release-body-box">${{escapeText(bodySnippet)}}</div>
+                                </div>
+                            ` : ''}}
+                        `;
+                    }} else {{
+                        relWrap.innerHTML = `
+                            <div style="background:#161b22; border:1px solid var(--border); border-radius:10px; padding:30px 20px; text-align:center;">
+                                <div style="font-size:2rem; margin-bottom:10px;">📦</div>
+                                <div style="font-size:0.95rem; font-weight:600; color:var(--text-bright); margin-bottom:6px;">
+                                    ${{t.releaseNoRelease}}
+                                </div>
+                                <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:16px;">
+                                    ${{t.releaseRadarTitle}}
+                                </div>
+                                <a href="https://github.com/${{escapeText(raw.name)}}/commits" target="_blank" rel="noopener noreferrer" class="btn-release-github">
+                                    <span>📜</span> <span>Xem lịch sử commits trên GitHub</span> <span>↗</span>
+                                </a>
+                            </div>
+                        `;
+                    }}
+                    pane.appendChild(relWrap);
+                }} else if (td.id === 'architecture') {{
                     const archWrap = document.createElement('div');
                     archWrap.className = 'arch-wrapper';
                     const mermaidCode = td.mermaid || '';

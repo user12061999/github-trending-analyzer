@@ -221,6 +221,15 @@ class TestGitHubSearch(unittest.TestCase):
         self.assertIn('arch-canvas', html)
         self.assertIn('mermaid.live', html)
 
+    def test_dashboard_has_release_radar_feature(self):
+        html = generate_html_dashboard([], search_endpoint='/api/search')
+        self.assertIn('tag-release', html)
+        self.assertIn('release-radar-wrapper', html)
+        self.assertIn('release-hero-card', html)
+        self.assertIn('release-highlights-box', html)
+        self.assertIn('formatReleaseDate', html)
+        self.assertIn('btn-release-github', html)
+
 
 
 if __name__ == '__main__':

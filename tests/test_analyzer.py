@@ -1,6 +1,8 @@
 """Unit tests for Analyzer Engine."""
 
 import unittest
+import json
+from unittest.mock import patch, MagicMock
 from src.analyzer import (
     analyze_repo_heuristic,
     analyze_repository,
@@ -8,6 +10,7 @@ from src.analyzer import (
     extract_features_from_markdown,
     generate_architecture_mermaid,
 )
+from src.fetcher import extract_release_highlights, fetch_repo_release
 from src.scraper import TrendingRepo
 
 SAMPLE_README = """
@@ -126,6 +129,60 @@ class TestAnalyzerEngine(unittest.TestCase):
         data = analysis.to_dict()
         self.assertIn("architecture_mermaid", data)
         self.assertEqual(data["architecture_mermaid"], analysis.architecture_mermaid)
+
+    def test_extract_release_highlights(self):
+        body = '''
+## What's Changed
+* Add new high-performance parser ([#123](https://github.com/foo/bar/pull/123))
+- Fix memory leak in buffer allocation (a1b2c3d)
+• Full Changelog: https://github.com/foo/bar/compare/v1.0...v1.1
+* Enhanced CLI diagnostics with color support
+        '''
+        highlights = extract_release_highlights(body)
+        self.assertEqual(len(highlights), 3)
+        self.assertIn("Add new high-performance parser", highlights[0])
+        self.assertIn("Fix memory leak in buffer allocation", highlights[1])
+        self.assertIn("Enhanced CLI diagnostics with color support", highlights[2])
+
+    @patch("src.fetcher.urllib.request.urlopen")
+    def test_fetch_repo_release_success(self, mock_urlopen):
+        mock_resp = MagicMock()
+        mock_resp.status = 200
+        mock_resp.read.return_value = json.dumps({
+            "tag_name": "v2.0.0",
+            "name": "Major 2.0 Release",
+            "published_at": "2026-10-25T12:00:00Z",
+            "html_url": "https://github.com/org/repo/releases/tag/v2.0.0",
+            "body": "- Revolutionary new architecture\n- 50% faster inference",
+            "prerelease": False
+        }).encode("utf-8")
+        mock_urlopen.return_value.__enter__.return_value = mock_resp
+
+        res = fetch_repo_release("org", "repo", use_cache=False)
+        self.assertIsNotNone(res)
+        self.assertEqual(res["tag_name"], "v2.0.0")
+        self.assertEqual(len(res["highlights"]), 2)
+        self.assertFalse(res["is_tag_only"])
+
+    @patch("src.fetcher.urllib.request.urlopen")
+    def test_fetch_repo_release_tag_fallback(self, mock_urlopen):
+        # 1st call to /releases/latest raises 404
+        import urllib.error
+        err_404 = urllib.error.HTTPError("url", 404, "Not Found", {}, None)
+
+        mock_resp_tag = MagicMock()
+        mock_resp_tag.status = 200
+        mock_resp_tag.read.return_value = json.dumps([
+            {"name": "v1.0.0-rc1"}
+        ]).encode("utf-8")
+
+        mock_urlopen.side_effect = [err_404, MagicMock(__enter__=MagicMock(return_value=mock_resp_tag))]
+
+        res = fetch_repo_release("org", "repo-no-rel", use_cache=False)
+        self.assertIsNotNone(res)
+        self.assertEqual(res["tag_name"], "v1.0.0-rc1")
+        self.assertTrue(res["is_tag_only"])
+
 
 
 

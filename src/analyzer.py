@@ -8,7 +8,7 @@ import urllib.parse
 import urllib.error
 import urllib.request
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 
 from src.alternatives import detect_commercial_alternative
 from src.fetcher import clean_markdown_for_analysis, fetch_repo_readme
@@ -93,6 +93,7 @@ class RepoAnalysis:
     topics: List[str] = field(default_factory=list)
     architecture_mermaid: str = ""
     architecture_description: str = ""
+    latest_release: Optional[Dict[str, Any]] = None
 
     def to_dict(self) -> Dict[str, any]:
         return {
@@ -149,6 +150,7 @@ class RepoAnalysis:
             "topics": self.topics,
             "architecture_mermaid": getattr(self, "architecture_mermaid", ""),
             "architecture_description": getattr(self, "architecture_description", ""),
+            "latest_release": getattr(self, "latest_release", None),
         }
 
 
@@ -798,6 +800,14 @@ def analyze_repository(
             how_it_works=analysis.how_it_works,
             language=repo.language,
         )
+
+    # 6.95. GitHub Latest Release & Changelog Radar
+    if fetch_readme and not getattr(analysis, 'latest_release', None):
+        try:
+            from src.fetcher import fetch_repo_release
+            analysis.latest_release = fetch_repo_release(repo.owner, repo.repo, use_cache=not deep)
+        except Exception:
+            analysis.latest_release = None
 
     # 7. Temporal Trajectory & Historical Memory Lookup
     try:
