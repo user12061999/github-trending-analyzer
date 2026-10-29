@@ -1797,7 +1797,130 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             gap: 10px;
             align-items: center;
         }}
+
+        /* Architecture Diagram Styles */
+        .arch-wrapper {{
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding: 4px 0;
+        }}
+        .arch-header {{
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            flex-wrap: wrap;
+        }}
+        .arch-title {{
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-bright);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }}
+        .arch-subtitle {{
+            font-size: 0.84rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }}
+        .arch-actions {{
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }}
+        .btn-arch-action {{
+            background: #21262d;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-main);
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            transition: all 0.15s ease;
+        }}
+        .btn-arch-action:hover {{
+            background: #30363d;
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+        }}
+        .arch-canvas {{
+            background: #090d12;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 24px 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: auto;
+            min-height: 200px;
+        }}
+        .arch-canvas svg {{
+            max-width: 100%;
+            height: auto;
+        }}
+        .arch-loading {{
+            color: var(--accent-blue);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }}
+        .arch-stages {{
+            background: rgba(22, 27, 34, 0.8);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+        }}
+        .arch-stages-title {{
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--accent-yellow);
+            margin-bottom: 10px;
+        }}
+        .arch-stages-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }}
+        .arch-stage-card {{
+            background: #0d1117;
+            border: 1px solid rgba(48, 54, 61, 0.6);
+            border-radius: 8px;
+            padding: 10px;
+        }}
+        .arch-stage-header {{
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+            margin-bottom: 4px;
+        }}
+        .arch-stage-desc {{
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+            word-break: break-word;
+        }}
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        if (typeof mermaid !== 'undefined') {{
+            mermaid.initialize({{
+                startOnLoad: false,
+                theme: 'dark',
+                securityLevel: 'loose',
+                flowchart: {{
+                    useMaxWidth: true,
+                    htmlLabels: true,
+                    curve: 'basis'
+                }}
+            }});
+        }}
+    </script>
 </head>
 <body>
     <div class="container">
@@ -2211,6 +2334,17 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 similarLoading: "Đang tìm kiếm và phân tích các repository tương đương trên GitHub...",
                 similarEmpty: "Không tìm thấy repository tương tự nào trên GitHub phù hợp với tiêu chí.",
                 similarCompareBtn: "⚖️ So sánh với repo này",
+                archTitle: "Sơ đồ Kiến trúc & Luồng Dữ liệu (Pipeline)",
+                archSubtitle: "Mô hình hóa tương tác giữa người dùng, module xử lý, storage và luồng dữ liệu:",
+                archCopyBtn: "Sao chép Mermaid",
+                archCopied: "Đã sao chép!",
+                archLiveEditor: "Mermaid Live Editor",
+                archOfflineFallback: "Mermaid.js chưa tải (đang offline). Bạn có thể xem hoặc sao chép mã Mermaid bên dưới:",
+                archPipelineStages: "Các giai đoạn xử lý cốt lõi:",
+                archStageInput: "1. Tầng Đầu vào (Input / Ingestion)",
+                archStageProcess: "2. Tầng Xử lý & Engine (Core Processing)",
+                archStageStorage: "3. Tầng Lưu trữ & Tích hợp (Storage & Services)",
+                archStageOutput: "4. Tầng Đầu ra & Phản hồi (Output & Delivery)",
                 similarComparedBtn: "✅ Đã chọn so sánh",
                 similarOpenCompare: (n) => `So sánh đối chiếu (${{n}})`,
                 similarCloseBtn: "Đóng",
@@ -2312,7 +2446,8 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 optSourceGitHub: "🔥 GitHub Trending",
                 optSourceHN: "📰 Hacker News Trends",
                 modalTabs: {{
-                    how_it_works: "🏛️ Kiến trúc & Cơ chế",
+                    architecture: "🏗️ Sơ đồ Kiến trúc & Luồng",
+                    how_it_works: "🏛️ Cơ chế & Chi tiết",
                     comparisons: "📊 Benchmarks & So sánh",
                     practical_examples: "💻 Code & Lệnh chạy",
                     limitations: "⚠️ Giới hạn & Cảnh báo",
@@ -2403,6 +2538,17 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 similarLoading: "Searching and analyzing similar repositories on GitHub...",
                 similarEmpty: "No similar repositories found matching the criteria on GitHub.",
                 similarCompareBtn: "⚖️ Compare with this",
+                archTitle: "Architecture & Data Flow Pipeline",
+                archSubtitle: "Visualizing user interactions, internal processing engine, storage, and data pipeline:",
+                archCopyBtn: "Copy Mermaid",
+                archCopied: "Copied!",
+                archLiveEditor: "Mermaid Live Editor",
+                archOfflineFallback: "Mermaid.js not loaded (offline mode). You can view or copy the Mermaid code below:",
+                archPipelineStages: "Core Pipeline Stages:",
+                archStageInput: "1. Ingestion / Input Layer",
+                archStageProcess: "2. Core Processing Engine",
+                archStageStorage: "3. Storage & Integrations",
+                archStageOutput: "4. Output & Delivery Layer",
                 similarComparedBtn: "✅ Selected for comparison",
                 similarOpenCompare: (n) => `Compare Side-by-Side (${{n}})`,
                 similarCloseBtn: "Close",
@@ -2504,7 +2650,8 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 optSourceGitHub: "🔥 GitHub Trending",
                 optSourceHN: "📰 Hacker News Trends",
                 modalTabs: {{
-                    how_it_works: "🏛️ Architecture & Internals",
+                    architecture: "🏗️ Architecture & Pipeline",
+                    how_it_works: "🏛️ Internals & Mechanics",
                     comparisons: "📊 Benchmarks & Comparisons",
                     practical_examples: "💻 Code & Examples",
                     limitations: "⚠️ Limitations & Warnings",
@@ -4139,6 +4286,52 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             }}
         }}
 
+        async function renderMermaidSafe(canvasId, fallbackId, code) {{
+            const canvas = document.getElementById(canvasId);
+            const fallback = document.getElementById(fallbackId);
+            if (!canvas) return;
+            if (!code || !code.trim()) {{
+                canvas.innerHTML = '<div style="color:var(--text-muted); padding:20px; text-align:center;">Chưa có sơ đồ kiến trúc.</div>';
+                return;
+            }}
+            if (typeof mermaid === 'undefined') {{
+                canvas.style.display = 'none';
+                if (fallback) fallback.style.display = 'block';
+                return;
+            }}
+            try {{
+                const cleanCode = code.trim();
+                const uniqueId = 'mermaidSvg_' + Math.random().toString(36).substring(2, 9);
+                const res = await mermaid.render(uniqueId, cleanCode);
+                canvas.innerHTML = res.svg;
+                canvas.style.display = 'flex';
+                if (fallback) fallback.style.display = 'none';
+            }} catch (err) {{
+                console.warn('Mermaid render error:', err);
+                canvas.style.display = 'none';
+                if (fallback) fallback.style.display = 'block';
+            }}
+        }}
+
+        function copyMermaidCode(btn) {{
+            const code = btn._mermaidCode || '';
+            const t = I18N[currentLang];
+            navigator.clipboard.writeText(code).then(() => {{
+                const span = btn.querySelector('span:last-child');
+                const orig = span ? span.textContent : '';
+                if (span) span.textContent = t.archCopied;
+                btn.style.borderColor = 'var(--accent-green)';
+                btn.style.color = 'var(--accent-green)';
+                setTimeout(() => {{
+                    if (span) span.textContent = orig;
+                    btn.style.borderColor = '';
+                    btn.style.color = '';
+                }}, 2000);
+            }}).catch(() => {{
+                prompt('Mermaid Code:', code);
+            }});
+        }}
+
         function openComparisonModal() {{
             const modal = document.getElementById('comparisonModal');
             const body = document.getElementById('comparisonModalBody');
@@ -4300,6 +4493,7 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
 
             // Tabs definition
             const tabDefs = [
+                {{ id: 'architecture', label: t.modalTabs.architecture, mermaid: raw.architecture_mermaid }},
                 {{ id: 'how_it_works', label: t.modalTabs.how_it_works, items: raw.how_it_works || [] }},
                 {{ id: 'comparisons', label: t.modalTabs.comparisons, items: raw.comparisons || [] }},
                 {{ id: 'practical_examples', label: t.modalTabs.practical_examples, items: raw.practical_examples || [], quickRun: raw.quick_run }},
@@ -4314,8 +4508,12 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             tabsBar.innerHTML = '';
             modalBody.innerHTML = '';
 
-            let firstActive = 'how_it_works';
+            let firstActive = 'architecture';
             for (const td of tabDefs) {{
+                if (td.id === 'architecture' && td.mermaid) {{
+                    firstActive = td.id;
+                    break;
+                }}
                 if ((td.items && td.items.length) || (td.sources && td.sources.length) || td.quickRun) {{
                     firstActive = td.id;
                     break;
@@ -4342,7 +4540,77 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 pane.id = `pane_${{td.id}}`;
                 pane.className = `modal-tab-pane ${{td.id === firstActive ? 'active' : ''}}`;
 
-                if (td.id === 'star_history') {{
+                if (td.id === 'architecture') {{
+                    const archWrap = document.createElement('div');
+                    archWrap.className = 'arch-wrapper';
+                    const mermaidCode = td.mermaid || '';
+                    let liveEditorUrl = 'https://mermaid.live';
+                    try {{
+                        const payload = JSON.stringify({{ code: mermaidCode, mermaid: {{ theme: 'dark' }} }});
+                        const b64 = btoa(unescape(encodeURIComponent(payload)));
+                        liveEditorUrl = `https://mermaid.live/edit#base64:${{b64}}`;
+                    }} catch (e) {{}}
+
+                    const stageInputDesc = `${{escapeText(raw.language || 'Code / Arguments')}} · ${{escapeText((raw.topics || []).slice(0, 3).join(', ') || 'Payload')}}`;
+                    const stageProcDesc = `${{escapeText(raw.name)}} (${{escapeText(raw.repo_type_badge || 'Core Engine')}})`;
+                    const stageStoreDesc = `${{escapeText((raw.tech_stack || []).slice(0, 4).join(', ') || 'Runtime Drivers & Services')}}`;
+                    const stageOutDesc = `${{escapeText(raw.core_purpose || raw.description || 'Target State / Output')}}`;
+
+                    archWrap.innerHTML = `
+                        <div class="arch-header">
+                            <div>
+                                <div class="arch-title">${{t.archTitle}}</div>
+                                <div class="arch-subtitle">${{t.archSubtitle}}</div>
+                            </div>
+                            <div class="arch-actions">
+                                <button type="button" class="btn-arch-action" id="btnCopyArch_${{idx}}" onclick="copyMermaidCode(this)">
+                                    <span>📋</span> <span>${{t.archCopyBtn}}</span>
+                                </button>
+                                <a href="${{liveEditorUrl}}" target="_blank" rel="noopener noreferrer" class="btn-arch-action">
+                                    <span>↗️</span> <span>${{t.archLiveEditor}}</span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="arch-canvas" id="archCanvas_${{idx}}">
+                            <div class="arch-loading">⏳ Đang dựng sơ đồ kiến trúc...</div>
+                        </div>
+                        <div class="arch-fallback" id="archFallback_${{idx}}" style="display:none;">
+                            <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:8px;">
+                                ${{t.archOfflineFallback}}
+                            </div>
+                            <pre class="evidence-code-block"><code>${{escapeText(mermaidCode)}}</code></pre>
+                        </div>
+                        <div class="arch-stages">
+                            <div class="arch-stages-title">${{t.archPipelineStages}}</div>
+                            <div class="arch-stages-grid">
+                                <div class="arch-stage-card">
+                                    <div class="arch-stage-header">${{t.archStageInput}}</div>
+                                    <div class="arch-stage-desc">${{stageInputDesc}}</div>
+                                </div>
+                                <div class="arch-stage-card">
+                                    <div class="arch-stage-header">${{t.archStageProcess}}</div>
+                                    <div class="arch-stage-desc">${{stageProcDesc}}</div>
+                                </div>
+                                <div class="arch-stage-card">
+                                    <div class="arch-stage-header">${{t.archStageStorage}}</div>
+                                    <div class="arch-stage-desc">${{stageStoreDesc}}</div>
+                                </div>
+                                <div class="arch-stage-card">
+                                    <div class="arch-stage-header">${{t.archStageOutput}}</div>
+                                    <div class="arch-stage-desc">${{stageOutDesc}}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    pane.appendChild(archWrap);
+
+                    const copyBtn = archWrap.querySelector(`#btnCopyArch_${{idx}}`);
+                    if (copyBtn) copyBtn._mermaidCode = mermaidCode;
+
+                    setTimeout(() => {{
+                        renderMermaidSafe(`archCanvas_${{idx}}`, `archFallback_${{idx}}`, mermaidCode);
+                    }}, 60);
+                }} else if (td.id === 'star_history') {{
                     const wrap = document.createElement('div');
                     wrap.className = 'star-history-wrapper';
                     const shUrl = `https://api.star-history.com/svg?repos=${{escapeText(raw.name)}}&type=Date`;

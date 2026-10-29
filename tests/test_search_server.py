@@ -211,6 +211,16 @@ class TestGitHubSearch(unittest.TestCase):
         self.assertIn('/api/similar', html)
         self.assertIn('btnSimilar', html)
 
+    def test_dashboard_has_architecture_mermaid_feature(self):
+        html = generate_html_dashboard([], search_endpoint='/api/search')
+        self.assertIn('cdn.jsdelivr.net/npm/mermaid', html)
+        self.assertIn('mermaid.initialize', html)
+        self.assertIn('renderMermaidSafe', html)
+        self.assertIn('copyMermaidCode', html)
+        self.assertIn('arch-wrapper', html)
+        self.assertIn('arch-canvas', html)
+        self.assertIn('mermaid.live', html)
+
 
 
 if __name__ == '__main__':

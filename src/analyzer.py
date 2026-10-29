@@ -91,6 +91,8 @@ class RepoAnalysis:
     target_roles_en: str = ""
     real_world_impact_en: str = ""
     topics: List[str] = field(default_factory=list)
+    architecture_mermaid: str = ""
+    architecture_description: str = ""
 
     def to_dict(self) -> Dict[str, any]:
         return {
@@ -145,6 +147,8 @@ class RepoAnalysis:
             "target_roles_en": self.target_roles_en,
             "real_world_impact_en": self.real_world_impact_en,
             "topics": self.topics,
+            "architecture_mermaid": getattr(self, "architecture_mermaid", ""),
+            "architecture_description": getattr(self, "architecture_description", ""),
         }
 
 
@@ -521,7 +525,8 @@ Trả về JSON đúng cấu trúc sau:
   "limitations": ["Giới hạn, trade-off, trường hợp không phù hợp [S1]"],
   "adoption_notes": ["Hệ điều hành, dependencies, GPU/API, license, cách tích hợp nếu nguồn xác nhận [S1]"],
   "comparisons": ["Khác biệt có căn cứ so với giải pháp nguồn nhắc tới [S1]"],
-  "research_gaps": ["Câu hỏi chưa thể trả lời từ nguồn"]
+  "research_gaps": ["Câu hỏi chưa thể trả lời từ nguồn"],
+  "architecture_mermaid": "Sơ đồ Mermaid flowchart TD hoặc LR ngắn gọn (5-8 bước) mô tả pipeline từ Input -> Processing -> Output của dự án. Chỉ dùng cú pháp flowchart hợp lệ, quote các node [\"...\"]"
 }}
 """
 
@@ -595,6 +600,7 @@ Trả về JSON đúng cấu trúc sau:
                 use_cases=parsed.get("use_cases", []),
                 why_trending=parsed.get("why_trending", ""),
                 quick_verdict=parsed.get("quick_verdict", ""),
+                architecture_mermaid=parsed.get("architecture_mermaid", "").strip() if isinstance(parsed.get("architecture_mermaid"), str) else "",
                 engine_used=f"ai (gemini: {model} | {exemplar_source})",
                 few_shot_source=exemplar_source,
             )
@@ -603,6 +609,80 @@ Trả về JSON đúng cấu trúc sau:
     except Exception as exc:
         print(f"⚠️ AI không hoàn thành ({type(exc).__name__}); chuyển sang trích tài liệu heuristic.", file=sys.stderr)
         return None
+
+
+def generate_architecture_mermaid(
+    repo_name: str,
+    category: str = "",
+    repo_type: str = "",
+    tech_stack: Optional[List[str]] = None,
+    description: str = "",
+    how_it_works: Optional[List[str]] = None,
+    language: str = "",
+) -> str:
+    """Generate a valid Mermaid flowchart diagram modeling data flow and architecture."""
+    tech_stack = tech_stack or []
+    how_it_works = how_it_works or []
+    short_name = repo_name.split("/")[-1] if "/" in repo_name else repo_name
+    short_name = short_name.replace('"', "").replace("'", "")
+    desc_lower = (description or "").lower()
+    cat_lower = (category or "").lower()
+    words = set(re.findall(r"[a-z0-9_\-]+", desc_lower))
+
+    if {"rag", "vector", "embedding", "retriever", "retrieval"} & words or "vector" in cat_lower:
+        return f"""flowchart TD
+    User(["👤 User / Client"]) --> Prompt["📝 Query & User Context"]
+    Prompt --> Ingestion["📥 Retriever & Embedding"]
+    Ingestion <--> VectorDB[("📚 Vector Database / Knowledge Base")]
+    Ingestion --> LLM["🤖 LLM Core ({short_name})"]
+    LLM --> PostProc["🛡️ Guardrails & Response Formatting"]
+    PostProc --> Output(["📤 Streaming Answer & Citations"])"""
+    elif {"agent", "agents", "multi-agent", "orchestration", "orchestrator", "mcp"} & words or "agent" in cat_lower:
+        return f"""flowchart TD
+    User(["👤 User / Orchestrator"]) --> Task["🎯 Task Definition & Goal"]
+    Task --> Planner["🧠 Planning & Reasoning Engine ({short_name})"]
+    Planner <--> Memory[("💾 Context & Memory Store")]
+    Planner <--> ToolExec["⚙️ Tools / MCP Functions"]
+    Planner --> Verification["✅ Validation & Reflection"]
+    Verification --> Output(["🚀 Execution Result / Output"])"""
+    elif "ai" in cat_lower or "machine learning" in cat_lower or {"llm", "diffusion", "inference", "model", "weights"} & words:
+        return f"""flowchart TD
+    InputData(["📥 Input Data / Prompts"]) --> Preprocessor["⚙️ Tokenizer & Preprocessor"]
+    Preprocessor --> ModelCore["🤖 Inference Engine ({short_name})"]
+    ModelCore <--> Accelerators[("⚡ GPU / Compute Backend")]
+    ModelCore --> PostProcessing["🎯 Decoding & Post-Processing"]
+    PostProcessing --> OutputResult(["📤 Model Predictions / Artifacts"])"""
+    elif {"compiler", "linter", "formatter", "ast", "transpiler"} & words:
+        return f"""flowchart LR
+    SourceFiles(["📄 Source Files"]) --> Lexer["🔍 Lexer & Tokenizer"]
+    Lexer --> ASTParser["🌳 AST Parser & Semantic Analysis"]
+    ASTParser --> CoreEngine["⚡ Transform Engine ({short_name})"]
+    CoreEngine --> Emitter(["💾 Formatted Output / Target Code"])"""
+    elif {"cli", "terminal", "shell", "command"} & words or repo_type == "tool_app":
+        return f"""flowchart LR
+    UserDev(["👨‍💻 Developer / Terminal"]) --> CLIParser["📥 CLI Args & Config"]
+    CLIParser --> Runner["🚀 Execution Engine ({short_name})"]
+    Runner <--> FileSystem[("📁 Workspace & File System")]
+    Runner --> Result(["✨ Terminal Output / Result"])"""
+    elif "web" in cat_lower or {"react", "vue", "frontend", "ui", "css", "svelte", "nextjs"} & words:
+        return f"""flowchart TD
+    Browser(["🌐 User Browser"]) --> Router["🧭 Routing & Navigation"]
+    Router --> UIComponent["🎨 Component Tree ({short_name})"]
+    UIComponent --> StateManager["📦 Reactive State Management"]
+    StateManager <--> APILayer["🔌 API & Network Gateway"]
+    APILayer <--> BackendService[("☁️ Backend Services & DB")]"""
+    elif repo_type == "library_sdk" or {"sdk", "library", "client"} & words:
+        return f"""flowchart LR
+    AppCode(["💻 Application Code"]) --> SDK["🔌 Public API Interface ({short_name})"]
+    SDK --> Validation["🛡️ Type Checking & Validation"]
+    Validation --> CoreLib["⚡ Core Module ({short_name})"]
+    CoreLib <--> SystemIO[("📦 System Runtime & Drivers")]"""
+    else:
+        return f"""flowchart TD
+    InputTrigger(["📥 Input / Event Trigger"]) --> Ingestion["⚙️ Input Parser & Validation"]
+    Ingestion --> CoreEngine["🚀 Core Processing Engine ({short_name})"]
+    CoreEngine <--> Persistence[("💾 State & Data Store")]
+    CoreEngine --> OutputTarget(["📤 Output Result / Target State"])"""
 
 
 def analyze_repository(
@@ -706,6 +786,18 @@ def analyze_repository(
                 inferred.add(term)
         topics = sorted(list(inferred))[:8]
     analysis.topics = topics
+
+    # 6.9. Architecture Diagram (Mermaid Pipeline)
+    if not getattr(analysis, 'architecture_mermaid', ''):
+        analysis.architecture_mermaid = generate_architecture_mermaid(
+            repo_name=repo.name,
+            category=analysis.category,
+            repo_type=analysis.repo_type,
+            tech_stack=analysis.tech_stack,
+            description=analysis.core_purpose or repo.description,
+            how_it_works=analysis.how_it_works,
+            language=repo.language,
+        )
 
     # 7. Temporal Trajectory & Historical Memory Lookup
     try:
