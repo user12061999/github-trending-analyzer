@@ -1690,6 +1690,113 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             border-color: var(--accent-blue);
             color: var(--accent-blue);
         }}
+        /* Similar Button on Card */
+        .btn-similar {{
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-muted);
+            padding: 4px 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.15s ease;
+        }}
+        .btn-similar:hover {{
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+            background: rgba(88, 166, 255, 0.08);
+        }}
+
+        /* Similar Projects Modal */
+        .similar-modal-dialog {{
+            background: #0d1117;
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            width: 90vw;
+            max-width: 980px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+            transform: translateY(20px);
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }}
+        .modal-backdrop.open .similar-modal-dialog {{
+            transform: translateY(0);
+        }}
+        .similar-modal-body {{
+            padding: 18px 20px;
+            overflow-y: auto;
+            flex: 1;
+        }}
+        .similar-subtitle {{
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }}
+        .similar-loading {{
+            padding: 30px;
+            text-align: center;
+            color: var(--accent-blue);
+            font-size: 0.92rem;
+            font-weight: 600;
+        }}
+        .similar-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 14px;
+        }}
+        .similar-card {{
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: border-color 0.15s ease;
+        }}
+        .similar-card:hover {{
+            border-color: var(--border-hover);
+        }}
+        .similar-card-header {{
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            gap: 8px;
+        }}
+        .similar-reason-pill {{
+            font-size: 0.74rem;
+            color: var(--accent-yellow);
+            background: rgba(210, 153, 34, 0.12);
+            border: 1px solid rgba(210, 153, 34, 0.3);
+            border-radius: 12px;
+            padding: 2px 8px;
+            display: inline-block;
+        }}
+        .similar-card-actions {{
+            display: flex;
+            gap: 6px;
+            margin-top: auto;
+            padding-top: 10px;
+            border-top: 1px solid rgba(48, 54, 61, 0.5);
+            flex-wrap: wrap;
+            align-items: center;
+        }}
+        .similar-modal-footer {{
+            padding: 12px 20px;
+            border-top: 1px solid var(--border);
+            background: #161b22;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            align-items: center;
+        }}
     </style>
 </head>
 <body>
@@ -2097,6 +2204,16 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 cardStarHistoryHide: "Thu gọn",
                 btnCollapseAllCharts: "Thu gọn biểu đồ Stars",
                 btnExpandAllCharts: "Hiện biểu đồ Stars",
+                btnSimilar: "Tìm tương tự",
+                btnSimilarTitle: "Tìm các repository tương đương giải quyết bài toán tương tự trên GitHub",
+                similarModalTitle: (name) => `Dự án tương tự với ${{name}}`,
+                similarModalSubtitle: "Gợi ý các repository mã nguồn mở tương đương dựa trên chủ đề, tech stack và mục đích sử dụng:",
+                similarLoading: "Đang tìm kiếm và phân tích các repository tương đương trên GitHub...",
+                similarEmpty: "Không tìm thấy repository tương tự nào trên GitHub phù hợp với tiêu chí.",
+                similarCompareBtn: "⚖️ So sánh với repo này",
+                similarComparedBtn: "✅ Đã chọn so sánh",
+                similarOpenCompare: (n) => `So sánh đối chiếu (${{n}})`,
+                similarCloseBtn: "Đóng",
                 clearFiltersBtn: "↺ Bỏ lọc",
                 clearInputTitle: "Xóa từ khóa",
                 searchHelpDefault: (len, hasEndpoint) => hasEndpoint ? "Để trống từ khóa: lấy GitHub Trending, xếp theo stars mới giảm dần. Có từ khóa: tìm bằng GitHub Search. Tối đa 30 project mỗi lượt." : `Tìm trong ${{len}} project đã tải. Mở tìm kiếm GitHub bằng ./trending --serve.`,
@@ -2279,6 +2396,16 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 cardStarHistoryHide: "Collapse",
                 btnCollapseAllCharts: "Collapse Star Charts",
                 btnExpandAllCharts: "Show Star Charts",
+                btnSimilar: "Find Similar",
+                btnSimilarTitle: "Find equivalent open-source projects solving similar problems on GitHub",
+                similarModalTitle: (name) => `Similar Projects to ${{name}}`,
+                similarModalSubtitle: "Open-source alternatives and equivalent tools based on topics, tech stack, and purpose:",
+                similarLoading: "Searching and analyzing similar repositories on GitHub...",
+                similarEmpty: "No similar repositories found matching the criteria on GitHub.",
+                similarCompareBtn: "⚖️ Compare with this",
+                similarComparedBtn: "✅ Selected for comparison",
+                similarOpenCompare: (n) => `Compare Side-by-Side (${{n}})`,
+                similarCloseBtn: "Close",
                 clearFiltersBtn: "↺ Clear Filters",
                 clearInputTitle: "Clear keyword",
                 searchHelpDefault: (len, hasEndpoint) => hasEndpoint ? "Leave keyword empty: fetch GitHub Trending ranked by new stars. With keywords: search GitHub Search. Max 30 projects per run." : `Search in ${{len}} loaded projects. Open GitHub live search via ./trending --serve.`,
@@ -2852,6 +2979,9 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                                 <button type="button" class="btn-rate btn-dislike ${{raw.user_rating === -1 ? 'active' : ''}}" title="Not useful" data-action="dislike">👎</button>
                                 <button type="button" class="btn-rate btn-bookmark ${{isBookmarked ? 'active' : ''}}" title="${{isBookmarked ? t.btnBookmarked : t.btnBookmark}}" data-repo="${{r.name}}">🔖 <span class="bm-label">${{isBookmarked ? t.btnBookmarked : t.btnBookmark}}</span></button>
                                 <button type="button" class="btn-chat" title="${{t.chatBtnText}}">${{t.chatBtnText}}</button>
+                                <button type="button" class="btn-similar" onclick="openSimilarModal('${{escapeText(raw.name)}}', ${{idx}})" title="${{t.btnSimilarTitle}}">
+                                    <span>🔎</span> <span class="similar-label">${{t.btnSimilar}}</span>
+                                </button>
                                 <button type="button" class="btn-compare ${{compareSet.has(raw.name) ? 'active' : ''}}" data-name="${{escapeText(raw.name)}}" title="${{t.btnCompareTitle}}">⚖️ <span class="compare-label">${{compareSet.has(raw.name) ? t.btnCompared : t.btnCompare}}</span></button>
                             </div>
                             <select class="status-select" title="Status">
@@ -3876,6 +4006,139 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             }}
         }}
 
+                let currentSimilarSourceRepo = null;
+        async function openSimilarModal(name, idx) {{
+            const modal = document.getElementById('similarModal');
+            const title = document.getElementById('similarModalTitle');
+            const sub = document.getElementById('similarModalSubtitle');
+            const loading = document.getElementById('similarLoadingState');
+            const errorEl = document.getElementById('similarErrorState');
+            const grid = document.getElementById('similarCardsGrid');
+            const cmpBtn = document.getElementById('btnSimilarOpenCompare');
+            if (!modal) return;
+            const t = I18N[currentLang];
+
+            currentSimilarSourceRepo = name;
+            title.textContent = t.similarModalTitle(name);
+            sub.textContent = t.similarModalSubtitle;
+            grid.innerHTML = '';
+            errorEl.style.display = 'none';
+            loading.style.display = 'block';
+            if (cmpBtn) cmpBtn.style.display = (compareSet.size >= 2) ? 'inline-flex' : 'none';
+
+            modal.style.display = 'flex';
+            setTimeout(() => {{ modal.classList.add('open'); }}, 10);
+
+            // Fetch similar from server
+            const repoObj = reposData[idx] || {{ name }};
+            try {{
+                const res = await fetch('/api/similar', {{
+                    method: 'POST',
+                    headers: {{ 'Content-Type': 'application/json' }},
+                    body: JSON.stringify({{
+                        full_name: name,
+                        category: repoObj.category || '',
+                        topics: repoObj.topics || [],
+                        language: repoObj.language || '',
+                        description: repoObj.description || repoObj.core_purpose || ''
+                    }})
+                }});
+                const data = await res.json();
+                loading.style.display = 'none';
+
+                if (!res.ok) throw new Error(data.error || 'Lỗi tìm kiếm.');
+                const list = data.similar_repos || [];
+                if (list.length === 0) {{
+                    grid.innerHTML = `<div style="grid-column: 1 / -1; text-align:center; padding:30px; color:var(--text-muted); font-size:0.9rem;">${{t.similarEmpty}}</div>`;
+                    return;
+                }}
+
+                grid.innerHTML = list.map(item => {{
+                    const isCmp = compareSet.has(item.name);
+                    const rawUrl = item.url || `https://github.com/${{item.name}}`;
+                    return `
+                        <div class="similar-card">
+                            <div class="similar-card-header">
+                                <a href="${{escapeText(rawUrl)}}" target="_blank" style="font-size:0.95rem; font-weight:700; color:var(--accent-blue); text-decoration:none; word-break:break-word;">
+                                    📦 ${{escapeText(item.name)}}
+                                </a>
+                                <span class="stars-pill" style="font-size:0.75rem;">★ ${{item.stars_total ? Number(item.stars_total).toLocaleString() : '0'}}</span>
+                            </div>
+                            <div style="display:flex; gap:6px; flex-wrap:wrap; font-size:0.78rem;">
+                                <span class="pill-tag">${{escapeText(item.language || 'Unknown')}}</span>
+                                <span class="pill-tag tag-category">${{escapeText(item.category || '')}}</span>
+                            </div>
+                            ${{item.similarity_reason ? `<span class="similar-reason-pill">💡 ${{escapeText(item.similarity_reason)}}</span>` : ''}}
+                            <div style="font-size:0.84rem; color:var(--text-bright); line-height:1.4; flex:1;">
+                                ${{escapeText(item.core_purpose || item.description || '')}}
+                            </div>
+                            <div class="similar-card-actions">
+                                <button type="button" class="btn-compare ${{isCmp ? 'active' : ''}}" style="padding:4px 8px; font-size:0.78rem;" onclick="addSimilarToCompare(this, '${{escapeText(item.name)}}')">
+                                    <span>${{isCmp ? t.similarComparedBtn : t.similarCompareBtn}}</span>
+                                </button>
+                                <div class="ide-dropdown-wrapper">
+                                    <button type="button" class="btn-ide" style="padding:4px 7px; font-size:0.75rem;">
+                                        <span>⚡ Code</span> <span style="font-size:0.65rem;">▾</span>
+                                    </button>
+                                    <div class="ide-menu">
+                                        <a href="cursor://vscode.git/clone?url=${{escapeText(rawUrl)}}.git" class="ide-menu-item">
+                                            <span>🚀 Cursor</span>
+                                        </a>
+                                        <a href="vscode://vscode.git/clone?url=${{escapeText(rawUrl)}}.git" class="ide-menu-item">
+                                            <span>💻 VS Code</span>
+                                        </a>
+                                        <a href="https://github.dev/${{escapeText(item.name)}}" target="_blank" class="ide-menu-item">
+                                            <span>🌐 GitHub.dev</span>
+                                        </a>
+                                    </div>
+                                </div>
+                                <a href="${{escapeText(rawUrl)}}" target="_blank" class="btn-view" style="padding:3px 8px; font-size:0.75rem; margin-left:auto;">${{t.viewOnGithub}}</a>
+                            </div>
+                        </div>
+                    `;
+                }}).join('');
+
+                // Also inject into reposData if not already present, so comparison modal can access it!
+                list.forEach(simItem => {{
+                    if (!reposData.some(r => r.name === simItem.name)) {{
+                        reposData.push(simItem);
+                    }}
+                }});
+
+            }} catch (err) {{
+                loading.style.display = 'none';
+                errorEl.textContent = err.message;
+                errorEl.style.display = 'block';
+            }}
+        }}
+
+        function addSimilarToCompare(btn, name) {{
+            const t = I18N[currentLang];
+            // If source repo not in compareSet, add it first!
+            if (currentSimilarSourceRepo && !compareSet.has(currentSimilarSourceRepo)) {{
+                toggleCompareRepo(currentSimilarSourceRepo);
+            }}
+            toggleCompareRepo(name);
+            const isCmp = compareSet.has(name);
+            btn.classList.toggle('active', isCmp);
+            btn.querySelector('span').textContent = isCmp ? t.similarComparedBtn : t.similarCompareBtn;
+
+            const cmpBtn = document.getElementById('btnSimilarOpenCompare');
+            if (cmpBtn) {{
+                cmpBtn.style.display = (compareSet.size >= 2) ? 'inline-flex' : 'none';
+                const label = document.getElementById('lblSimilarOpenCompare');
+                if (label) label.textContent = t.similarOpenCompare(compareSet.size);
+            }}
+        }}
+
+        function closeSimilarModal() {{
+            const modal = document.getElementById('similarModal');
+            if (modal) {{
+                modal.classList.remove('open');
+                setTimeout(() => {{ modal.style.display = 'none'; }}, 200);
+            }}
+        }}
+
         function openComparisonModal() {{
             const modal = document.getElementById('comparisonModal');
             const body = document.getElementById('comparisonModalBody');
@@ -4161,6 +4424,7 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 if (e.key === 'Escape') {{
                     closeDeepDiveModal();
                     closeComparisonModal();
+                    closeSimilarModal();
                 }}
             }});
         }});
@@ -4278,6 +4542,34 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                     <button type="button" class="modal-close-btn" onclick="closeComparisonModal()" aria-label="Close">✕</button>
                 </div>
                 <div class="comparison-modal-body" id="comparisonModalBody"></div>
+            </div>
+        </div>
+        <!-- Similar Repositories Modal -->
+        <div id="similarModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="similarModalTitle" style="display:none;" onclick="if(event.target===this)closeSimilarModal()">
+            <div class="similar-modal-dialog">
+                <div class="modal-header">
+                    <div class="modal-header-title">
+                        <span>🔎</span>
+                        <span id="similarModalTitle">Dự án tương tự</span>
+                    </div>
+                    <button type="button" class="modal-close-btn" onclick="closeSimilarModal()" aria-label="Close">✕</button>
+                </div>
+                <div class="similar-modal-body">
+                    <div class="similar-subtitle" id="similarModalSubtitle">
+                        Gợi ý các repository mã nguồn mở tương đương dựa trên chủ đề, tech stack và mục đích sử dụng:
+                    </div>
+                    <div id="similarLoadingState" class="similar-loading" style="display:none;">
+                        <span class="loading-spinner">⏳</span> <span id="lblSimilarLoading">Đang tìm kiếm các repository tương đương trên GitHub...</span>
+                    </div>
+                    <div id="similarErrorState" class="similar-error" style="display:none; color:var(--accent-red); margin-bottom:12px;"></div>
+                    <div id="similarCardsGrid" class="similar-grid"></div>
+                </div>
+                <div class="similar-modal-footer">
+                    <button type="button" id="btnSimilarOpenCompare" class="btn-launch-compare" style="display:none;" onclick="closeSimilarModal(); openComparisonModal();">
+                        <span>⚖️</span> <span id="lblSimilarOpenCompare">So sánh đối chiếu</span>
+                    </button>
+                    <button type="button" class="btn-copy" style="background:#21262d; border-color:var(--border); color:var(--text-main);" onclick="closeSimilarModal()">Đóng</button>
+                </div>
             </div>
         </div>
 </body>

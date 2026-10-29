@@ -137,6 +137,71 @@ def search_and_analyze(payload, use_ai=False, model=None, watchlist=None):
             'scope': scope if (not trending and source != 'hn') else None,
             'source': source}
 
+def find_similar_repositories(payload: dict) -> dict:
+    full_name = payload.get('full_name', '').strip()
+    category = payload.get('category', '')
+    topics = payload.get('topics', [])
+    language = payload.get('language', '')
+    description = payload.get('description', '')
+    limit = min(max(int(payload.get('limit', 4)), 1), 8)
+
+    query_parts = []
+    meaningful_topics = [t for t in topics if isinstance(t, str) and t.lower() not in {'python', 'javascript', 'typescript', 'go', 'rust', 'cpp', 'csharp', 'c', 'html', 'css', 'awesome', 'github'}]
+    if meaningful_topics:
+        query_parts.extend(meaningful_topics[:2])
+    elif description:
+        import re
+        words = [w for w in re.findall(r'[A-Za-z0-9\-]{3,}', description) if w.lower() not in {'and', 'the', 'for', 'with', 'from', 'that', 'this', 'tool', 'library', 'project', 'official', 'build', 'your'}]
+        query_parts.extend(words[:2])
+    elif category:
+        query_parts.append(category.split('&')[0].strip())
+    else:
+        repo_short = full_name.split('/')[-1] if '/' in full_name else full_name
+        query_parts.append(repo_short)
+
+    query = ' '.join(query_parts) if query_parts else 'awesome'
+
+    try:
+        repos, total, incomplete = search_github(query, limit=limit + 3, sort='stars', language=language or '')
+    except Exception:
+        repos, total, incomplete = [], 0, False
+
+    similar = [r for r in repos if r.name.lower() != full_name.lower()][:limit]
+
+    if len(similar) < 2 and language:
+        try:
+            fallback_repos, _, _ = search_github(query, limit=limit + 3, sort='stars')
+            for r in fallback_repos:
+                if r.name.lower() != full_name.lower() and not any(s.name.lower() == r.name.lower() for s in similar):
+                    similar.append(r)
+                if len(similar) >= limit:
+                    break
+        except Exception:
+            pass
+
+    analyzed_list = []
+    for r in similar:
+        analysis = analyze_repository(r, fetch_readme=False)
+        data = analysis.to_dict()
+        reasons = []
+        if meaningful_topics:
+            matched_topics = [t for t in meaningful_topics if t.lower() in (r.description or '').lower() or t.lower() in (r.repo or '').lower()]
+            if matched_topics:
+                reasons.append(f'Chủ đề #{matched_topics[0]}')
+        if language and r.language and language.lower() == r.language.lower():
+            reasons.append(f'Cùng ngôn ngữ {r.language}')
+        if not reasons:
+            reasons.append('Cùng lĩnh vực & xếp hạng sao cao')
+        data['similarity_reason'] = ' · '.join(reasons)
+        analyzed_list.append(data)
+
+    return {
+        'source_repo': full_name,
+        'query_used': query,
+        'similar_repos': analyzed_list,
+        'total_count': len(analyzed_list)
+    }
+
 
 def make_handler(use_ai=False, model=None, deep=False):
     page = generate_html_dashboard([], timeframe='search', search_endpoint='/api/search', default_deep=deep).encode()
@@ -267,6 +332,17 @@ def make_handler(use_ai=False, model=None, deep=False):
                         model=model,
                     )
                     self.send(200, ans)
+                except Exception as exc:
+                    self.send(400, {'error': str(exc)})
+                return
+
+            if self.path == '/api/similar':
+                try:
+                    length = int(self.headers.get('Content-Length', '0'))
+                    if not 0 < length <= 8192:
+                        raise ValueError('Dữ liệu yêu cầu không hợp lệ.')
+                    payload = json.loads(self.rfile.read(length))
+                    self.send(200, find_similar_repositories(payload))
                 except Exception as exc:
                     self.send(400, {'error': str(exc)})
                 return

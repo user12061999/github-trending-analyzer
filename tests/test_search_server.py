@@ -3,7 +3,7 @@ import unittest
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlsplit
 
-from src.search_server import search_github, search_and_analyze
+from src.search_server import search_github, search_and_analyze, find_similar_repositories
 from src.analyzer import RepoAnalysis, analyze_repository
 from src.scraper import TrendingRepo
 from src.html_dashboard import generate_html_dashboard
@@ -167,6 +167,50 @@ class TestGitHubSearch(unittest.TestCase):
         self.assertEqual(data['results'][0]['velocity_badge'], '📰 Hacker News Trend')
         self.assertIn('Hacker News', data['results'][0]['why_trending'])
         self.assertEqual(data['results'][0]['hn_points'], 2000)
+
+    @patch('src.search_server.search_github')
+    def test_find_similar_repositories_by_topics(self, mock_search):
+        repo1 = TrendingRepo('org/src-repo', 'org', 'src-repo', 'https://github.com/org/src-repo', 'Source tool', 'Python', '#fff', '100', '10', '10', 'search')
+        repo2 = TrendingRepo('peer/alt-tool', 'peer', 'alt-tool', 'https://github.com/peer/alt-tool', 'Alternative tool with agent capability', 'Python', '#fff', '500', '50', '50', 'search')
+        mock_search.return_value = ([repo1, repo2], 2, False)
+
+        result = find_similar_repositories({
+            'full_name': 'org/src-repo',
+            'topics': ['agent', 'llm'],
+            'language': 'Python',
+            'limit': 3
+        })
+
+        self.assertEqual(result['source_repo'], 'org/src-repo')
+        self.assertEqual(result['query_used'], 'agent llm')
+        self.assertEqual(len(result['similar_repos']), 1)
+        self.assertEqual(result['similar_repos'][0]['name'], 'peer/alt-tool')
+        self.assertIn('Chủ đề #agent', result['similar_repos'][0]['similarity_reason'])
+        self.assertIn('Cùng ngôn ngữ Python', result['similar_repos'][0]['similarity_reason'])
+
+    @patch('src.search_server.search_github')
+    def test_find_similar_repositories_fallback_description(self, mock_search):
+        repo_sim = TrendingRepo('another/comp', 'another', 'comp', 'https://github.com/another/comp', 'Speech synthesizer', 'Python', '#fff', '300', '30', '30', 'search')
+        mock_search.return_value = ([repo_sim], 1, False)
+
+        result = find_similar_repositories({
+            'full_name': 'my/voice',
+            'topics': ['python'],
+            'description': 'Realtime neural voice synthesizer',
+            'language': 'Rust',
+        })
+        self.assertEqual(len(result['similar_repos']), 1)
+        self.assertEqual(result['similar_repos'][0]['name'], 'another/comp')
+
+    def test_dashboard_has_similar_repos_elements(self):
+        html = generate_html_dashboard([], search_endpoint='/api/search')
+        self.assertIn('btn-similar', html)
+        self.assertIn('similarModal', html)
+        self.assertIn('openSimilarModal', html)
+        self.assertIn('addSimilarToCompare', html)
+        self.assertIn('/api/similar', html)
+        self.assertIn('btnSimilar', html)
+
 
 
 if __name__ == '__main__':
