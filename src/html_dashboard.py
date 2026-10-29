@@ -1568,6 +1568,103 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             border-radius: 6px;
             filter: contrast(1.05);
         }}
+        /* Inline Star History Card Section */
+        .card-sh-section {{
+            background: #090d12;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin: 12px 0;
+            transition: all 0.2s ease;
+        }}
+        .card-sh-header {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }}
+        .card-sh-title {{
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #d2a8ff;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }}
+        .btn-toggle-card-sh {{
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: all 0.15s ease;
+        }}
+        .btn-toggle-card-sh:hover {{
+            color: var(--text-bright);
+            background: rgba(255, 255, 255, 0.08);
+        }}
+        .card-sh-body {{
+            margin-top: 8px;
+            text-align: center;
+        }}
+        .sh-chart-wrapper {{
+            background: #0d1117;
+            border: 1px solid rgba(48, 54, 61, 0.5);
+            border-radius: 6px;
+            padding: 6px;
+            overflow: hidden;
+        }}
+        .card-star-history-img {{
+            width: 100%;
+            max-height: 220px;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto;
+            border-radius: 4px;
+            filter: contrast(1.04);
+        }}
+        .card-sh-actions {{
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 8px;
+        }}
+        .btn-sh-link {{
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: all 0.15s ease;
+        }}
+        .btn-sh-link:hover {{
+            color: var(--accent-blue);
+            background: rgba(88, 166, 255, 0.1);
+        }}
+        .btn-toggle-all-sh {{
+            background: #161b22;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: #d2a8ff;
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 6px 10px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.15s ease;
+        }}
+        .btn-toggle-all-sh:hover {{
+            border-color: var(--accent-purple);
+            background: rgba(188, 140, 255, 0.1);
+        }}
+
         .star-history-actions {{
             display: flex;
             justify-content: center;
@@ -1760,6 +1857,9 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                     <input type="checkbox" id="altOnly" onchange="filterCards()"> <span id="lblAltText">💡 Thay thế thương mại</span>
                 </label>
                 <button type="button" id="syncWatchlistBtn" class="btn-copy" style="background:#238636;color:#fff;border-color:#2ea043;padding:6px 12px;font-size:0.82rem;" title="Học sở thích từ các repo bạn đánh giá cao" {'hidden' if not search_endpoint else ''}>🧠 Đồng bộ sở thích</button>
+                <button type="button" id="btnToggleAllCharts" class="btn-toggle-all-sh" onclick="toggleAllStarCharts()" title="Bật/Tắt hiển thị biểu đồ Stars trên toàn bộ các thẻ">
+                    <span>📈</span> <span id="lblToggleAllCharts">Thu gọn biểu đồ Stars</span>
+                </button>
                 <button type="button" id="clearFiltersBtn" class="btn-clear-filters" onclick="clearCardFilters()" title="Xóa các bộ lọc kết quả bên trên">↺ Bỏ lọc</button>
             </div></header>
 
@@ -1993,6 +2093,10 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 cloneVsCode: "💻 VS Code",
                 openGithubDev: "🌐 GitHub.dev",
                 openCodespace: "☁️ Codespace",
+                cardStarHistoryShow: "Mở rộng",
+                cardStarHistoryHide: "Thu gọn",
+                btnCollapseAllCharts: "Thu gọn biểu đồ Stars",
+                btnExpandAllCharts: "Hiện biểu đồ Stars",
                 clearFiltersBtn: "↺ Bỏ lọc",
                 clearInputTitle: "Xóa từ khóa",
                 searchHelpDefault: (len, hasEndpoint) => hasEndpoint ? "Để trống từ khóa: lấy GitHub Trending, xếp theo stars mới giảm dần. Có từ khóa: tìm bằng GitHub Search. Tối đa 30 project mỗi lượt." : `Tìm trong ${{len}} project đã tải. Mở tìm kiếm GitHub bằng ./trending --serve.`,
@@ -2096,7 +2200,8 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                     practical_examples: "💻 Code & Lệnh chạy",
                     limitations: "⚠️ Giới hạn & Cảnh báo",
                     adoption_notes: "🚀 Triển khai & Cài đặt",
-                    sources: "📚 Nguồn tài liệu"
+                    sources: "📚 Nguồn tài liệu",
+                    star_history: "📈 Star History"
                 }},
                 modalNoEvidence: "Chưa có trích dẫn tài liệu cho phần này. Bạn có thể bật tùy chọn 'Phân tích sâu' khi tìm kiếm để tải thêm tài liệu liên kết.",
                 modalSourcesTitle: "Nguồn tài liệu đã xác minh:",
@@ -2170,6 +2275,10 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 cloneVsCode: "💻 VS Code",
                 openGithubDev: "🌐 GitHub.dev",
                 openCodespace: "☁️ Codespace",
+                cardStarHistoryShow: "Expand",
+                cardStarHistoryHide: "Collapse",
+                btnCollapseAllCharts: "Collapse Star Charts",
+                btnExpandAllCharts: "Show Star Charts",
                 clearFiltersBtn: "↺ Clear Filters",
                 clearInputTitle: "Clear keyword",
                 searchHelpDefault: (len, hasEndpoint) => hasEndpoint ? "Leave keyword empty: fetch GitHub Trending ranked by new stars. With keywords: search GitHub Search. Max 30 projects per run." : `Search in ${{len}} loaded projects. Open GitHub live search via ./trending --serve.`,
@@ -2273,7 +2382,8 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                     practical_examples: "💻 Code & Examples",
                     limitations: "⚠️ Limitations & Warnings",
                     adoption_notes: "🚀 Adoption & Setup",
-                    sources: "📚 Document Sources"
+                    sources: "📚 Document Sources",
+                    star_history: "📈 Star History"
                 }},
                 modalNoEvidence: "No direct documentation excerpt found for this section yet. Enable 'Deep Research' in search to fetch linked documents.",
                 modalSourcesTitle: "Verified Document Sources:",
@@ -2560,6 +2670,8 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             setText('clearFiltersBtn', t.clearFiltersBtn);
             setText('lblCompareDockTitle', `⚖️ ${{t.compareDockTitle}}`);
             setText('cmpModalTitle', t.compareModalTitle);
+            const globalShBtn = document.getElementById('lblToggleAllCharts');
+            if (globalShBtn) globalShBtn.textContent = allStarChartsVisible ? t.btnCollapseAllCharts : t.btnExpandAllCharts;
             updateCompareDockUI();
             const clrInp = document.getElementById('clearSearchInputBtn');
             if (clrInp) clrInp.title = t.clearInputTitle;
@@ -2796,6 +2908,34 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                         </div>
 
                         ${{growthHtml}}
+                        <!-- Inline Star History on Card -->
+                        <div class="card-sh-section">
+                            <div class="card-sh-header">
+                                <span class="card-sh-title">📈 ${{t.starHistoryTitle}}</span>
+                                <button type="button" class="btn-toggle-card-sh" onclick="toggleCardStarHistory(this, '${{idx}}')">
+                                    <span class="sh-arrow">▴</span> <span class="sh-text">${{t.cardStarHistoryHide}}</span>
+                                </button>
+                            </div>
+                            <div class="card-sh-body" id="cardSh_${{idx}}">
+                                <div class="sh-chart-wrapper">
+                                    <div class="sh-loading" style="font-size:0.78rem; color:var(--text-muted); padding:8px 0;">⏳ Đang tải biểu đồ...</div>
+                                    <img src="https://api.star-history.com/svg?repos=${{escapeText(r.name)}}&type=Date" 
+                                         alt="${{escapeText(r.name)}} Star History" 
+                                         class="card-star-history-img" 
+                                         loading="lazy" 
+                                         onload="this.previousElementSibling.style.display='none';" 
+                                         onerror="this.previousElementSibling.textContent='${{t.starHistoryOfflineMsg}}';">
+                                </div>
+                                <div class="card-sh-actions">
+                                    <a href="https://star-history.com/#${{escapeText(r.name)}}&Date" target="_blank" rel="noopener noreferrer" class="btn-sh-link">
+                                        <span>🌐</span> <span>Star-History.com</span>
+                                    </a>
+                                    <a href="https://github.com/${{escapeText(r.name)}}/pulse" target="_blank" rel="noopener noreferrer" class="btn-sh-link">
+                                        <span>📊</span> <span>GitHub Pulse</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                         ${{techStackHtml ? `
                             <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 10px;">
                                 <span style="font-size: 0.75rem; color: var(--text-muted); margin-right: 4px;">Tech:</span>
@@ -3648,6 +3788,38 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
         }}
 
                 // Side-by-Side Comparison & Dock Logic
+                let allStarChartsVisible = true;
+        function toggleCardStarHistory(btn, idx) {{
+            const body = document.getElementById(`cardSh_${{idx}}`);
+            if (!body) return;
+            const isHidden = body.style.display === 'none';
+            body.style.display = isHidden ? 'block' : 'none';
+            const arrow = btn.querySelector('.sh-arrow');
+            const text = btn.querySelector('.sh-text');
+            const t = I18N[currentLang];
+            if (arrow) arrow.textContent = isHidden ? '▴' : '▾';
+            if (text) text.textContent = isHidden ? t.cardStarHistoryHide : t.cardStarHistoryShow;
+        }}
+
+        function toggleAllStarCharts() {{
+            allStarChartsVisible = !allStarChartsVisible;
+            const t = I18N[currentLang];
+            const bodies = document.querySelectorAll('.card-sh-body');
+            bodies.forEach(b => {{
+                b.style.display = allStarChartsVisible ? 'block' : 'none';
+            }});
+            document.querySelectorAll('.btn-toggle-card-sh').forEach(btn => {{
+                const arrow = btn.querySelector('.sh-arrow');
+                const text = btn.querySelector('.sh-text');
+                if (arrow) arrow.textContent = allStarChartsVisible ? '▴' : '▾';
+                if (text) text.textContent = allStarChartsVisible ? t.cardStarHistoryHide : t.cardStarHistoryShow;
+            }});
+            const globalBtn = document.getElementById('lblToggleAllCharts');
+            if (globalBtn) {{
+                globalBtn.textContent = allStarChartsVisible ? t.btnCollapseAllCharts : t.btnExpandAllCharts;
+            }}
+        }}
+
         function toggleCompareRepo(name) {{
             if (compareSet.has(name)) {{
                 compareSet.delete(name);

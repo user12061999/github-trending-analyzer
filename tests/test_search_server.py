@@ -142,6 +142,11 @@ class TestGitHubSearch(unittest.TestCase):
         self.assertIn('star-history.com', html)
         self.assertIn('api.star-history.com/svg', html)
         self.assertIn('star_history', html)
+        self.assertIn('card-sh-section', html)
+        self.assertIn('card-star-history-img', html)
+        self.assertIn('btnToggleAllCharts', html)
+        self.assertIn('toggleCardStarHistory', html)
+        self.assertIn('toggleAllStarCharts', html)
 
     @patch('src.search_server.get_hn_trending_repos')
     @patch('src.search_server.analyze_repository')
