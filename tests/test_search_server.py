@@ -123,6 +123,26 @@ class TestGitHubSearch(unittest.TestCase):
         self.assertIn('topicsBar', html)
         self.assertIn('topicsPills', html)
 
+    def test_dashboard_has_comparison_ide_and_star_history_features(self):
+        html = generate_html_dashboard([], search_endpoint='/api/search')
+        # Feature 1: Side-by-side comparison
+        self.assertIn('compareDock', html)
+        self.assertIn('comparisonModal', html)
+        self.assertIn('btn-compare', html)
+        self.assertIn('toggleCompareRepo', html)
+        self.assertIn('openComparisonModal', html)
+
+        # Feature 2: 1-Click IDE launchers
+        self.assertIn('cursor://vscode.git/clone', html)
+        self.assertIn('vscode://vscode.git/clone', html)
+        self.assertIn('https://github.dev/', html)
+        self.assertIn('codespaces.new/', html)
+
+        # Feature 4: Star History
+        self.assertIn('star-history.com', html)
+        self.assertIn('api.star-history.com/svg', html)
+        self.assertIn('star_history', html)
+
     @patch('src.search_server.get_hn_trending_repos')
     @patch('src.search_server.analyze_repository')
     def test_search_and_analyze_with_hn_source(self, mock_analyze, mock_hn):

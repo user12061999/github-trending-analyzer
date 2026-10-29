@@ -180,8 +180,9 @@ class TestDynamicFewShotAndGrounding(unittest.TestCase):
         self.assertGreater(sanitized.grounding_score, 0)
         self.assertTrue(len(sanitized.grounding_critique) >= 1)
 
+    @patch("src.few_shot.find_liked_exemplar_from_db", return_value=None)
     @patch("src.analyzer.urllib.request.urlopen")
-    def test_analyze_repo_ai_injects_few_shot_and_returns_grounded(self, mock_urlopen):
+    def test_analyze_repo_ai_injects_few_shot_and_returns_grounded(self, mock_urlopen, mock_find_db):
         mock_response = MagicMock()
         mock_response.read.return_value = json.dumps({
             "candidates": [{

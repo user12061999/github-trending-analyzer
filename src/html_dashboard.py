@@ -1304,6 +1304,295 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             gap: 4px;
             margin-left: 6px;
         }}
+        /* 1-Click IDE Launch Menu */
+        .footer-actions {{
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }}
+        .ide-dropdown-wrapper {{
+            position: relative;
+            display: inline-block;
+        }}
+        .btn-ide {{
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-bright);
+            padding: 5px 9px;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.15s ease;
+        }}
+        .btn-ide:hover {{
+            background: rgba(88, 166, 255, 0.15);
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+        }}
+        .ide-menu {{
+            display: none;
+            position: absolute;
+            bottom: calc(100% + 6px);
+            right: 0;
+            background: #161b22;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 6px;
+            min-width: 175px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            z-index: 50;
+            flex-direction: column;
+            gap: 2px;
+        }}
+        .ide-dropdown-wrapper:hover .ide-menu,
+        .ide-dropdown-wrapper:focus-within .ide-menu {{
+            display: flex;
+        }}
+        .ide-menu-item {{
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 10px;
+            border-radius: 6px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 0.82rem;
+            font-weight: 500;
+            transition: background 0.12s ease;
+        }}
+        .ide-menu-item:hover {{
+            background: rgba(88, 166, 255, 0.12);
+            color: var(--text-bright);
+        }}
+
+        /* Compare Button on Card */
+        .btn-compare {{
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-muted);
+            padding: 4px 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.15s ease;
+        }}
+        .btn-compare:hover {{
+            border-color: var(--accent-purple);
+            color: var(--accent-purple);
+            background: rgba(188, 140, 255, 0.08);
+        }}
+        .btn-compare.active {{
+            background: rgba(188, 140, 255, 0.18);
+            border-color: var(--accent-purple);
+            color: #d2a8ff;
+            font-weight: 700;
+        }}
+
+        /* Floating Compare Dock */
+        .compare-dock {{
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(22, 27, 34, 0.95);
+            backdrop-filter: blur(8px);
+            border: 1.5px solid var(--accent-purple);
+            border-radius: 30px;
+            padding: 8px 18px;
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6), 0 0 15px rgba(188, 140, 255, 0.25);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            max-width: 90vw;
+            animation: slideUpDock 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }}
+        @keyframes slideUpDock {{
+            from {{ transform: translate(-50%, 30px); opacity: 0; }}
+            to {{ transform: translate(-50%, 0); opacity: 1; }}
+        }}
+        .compare-dock-inner {{
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }}
+        .compare-dock-info {{
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }}
+        .compare-dock-title {{
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #d2a8ff;
+            white-space: nowrap;
+        }}
+        .compare-chips {{
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }}
+        .compare-chip {{
+            background: #0d1117;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 3px 10px;
+            font-size: 0.78rem;
+            color: var(--text-bright);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }}
+        .compare-chip-remove {{
+            cursor: pointer;
+            color: var(--text-muted);
+            font-weight: bold;
+            font-size: 0.85rem;
+        }}
+        .compare-chip-remove:hover {{
+            color: var(--accent-red);
+        }}
+        .compare-dock-actions {{
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }}
+        .btn-launch-compare {{
+            background: var(--accent-purple);
+            border: 1px solid #d2a8ff;
+            color: #0d1117;
+            font-weight: 800;
+            font-size: 0.85rem;
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+        }}
+        .btn-launch-compare:hover {{
+            background: #d2a8ff;
+            box-shadow: 0 0 12px rgba(188, 140, 255, 0.5);
+        }}
+        .btn-clear-compare {{
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 50%;
+        }}
+        .btn-clear-compare:hover {{
+            color: var(--text-bright);
+        }}
+
+        /* Comparison Modal */
+        .comparison-modal-dialog {{
+            background: #0d1117;
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            width: 95vw;
+            max-width: 1200px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+            transform: translateY(20px);
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }}
+        .modal-backdrop.open .comparison-modal-dialog {{
+            transform: translateY(0);
+        }}
+        .comparison-modal-body {{
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }}
+        .comparison-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+            align-items: stretch;
+        }}
+        .comparison-card {{
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }}
+        .comparison-card-header {{
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+        }}
+        .comparison-section-title {{
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }}
+        .comparison-section-content {{
+            font-size: 0.85rem;
+            color: var(--text-bright);
+            line-height: 1.45;
+        }}
+
+        /* Star History Curve */
+        .star-history-wrapper {{
+            background: #090d12;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 14px;
+            text-align: center;
+        }}
+        .star-history-img {{
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+            filter: contrast(1.05);
+        }}
+        .star-history-actions {{
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }}
+        .btn-star-history-link {{
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-bright);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+        }}
+        .btn-star-history-link:hover {{
+            background: rgba(88, 166, 255, 0.12);
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+        }}
     </style>
 </head>
 <body>
@@ -1571,6 +1860,7 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
         let resultMode = 'search';
         let searching = false;
         let activeDomainPreset = 'all';
+        const compareSet = new Set();
         let isAnalyticsOpen = false;
         let activeTopicFilter = '';
         // Bookmarks & Personal Notes Management
@@ -1685,6 +1975,24 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 lblAdvancedTitle: "⚙️ Tùy chọn tìm kiếm & nghiên cứu nâng cao",
                 lblHelpHint: "Mẹo tìm kiếm",
                 lblFilterToolbar: "🎯 Lọc kết quả:",
+                btnCompare: "So sánh",
+                btnCompared: "Đã chọn",
+                btnCompareTitle: "Chọn để so sánh đối chiếu với repo khác",
+                compareDockTitle: "So sánh Repository:",
+                btnLaunchCompare: "So sánh đối chiếu",
+                compareLimitAlert: "Tối đa so sánh 4 repository cùng lúc.",
+                compareModalTitle: "Bảng Ma Trận So Sánh Đối Chiếu Repository",
+                compareRemoveRepo: "Bỏ repo này khỏi so sánh",
+                starHistoryComparisonTitle: "Biểu đồ Đối chiếu Tăng trưởng Stars (Star History)",
+                starHistoryTitle: "Biểu đồ Tăng trưởng Stars",
+                openStarHistoryWeb: "Mở biểu đồ tương tác trên Star-History.com",
+                starHistoryOfflineMsg: "Không thể tải trước hình ảnh từ Star History (có thể do giới hạn API hoặc offline). Bạn có thể mở trực tiếp liên kết bên dưới.",
+                btnIdeTitle: "Mở và thử nghiệm trong IDE",
+                btnIdeCode: "⚡ Code",
+                cloneCursor: "🚀 Cursor",
+                cloneVsCode: "💻 VS Code",
+                openGithubDev: "🌐 GitHub.dev",
+                openCodespace: "☁️ Codespace",
                 clearFiltersBtn: "↺ Bỏ lọc",
                 clearInputTitle: "Xóa từ khóa",
                 searchHelpDefault: (len, hasEndpoint) => hasEndpoint ? "Để trống từ khóa: lấy GitHub Trending, xếp theo stars mới giảm dần. Có từ khóa: tìm bằng GitHub Search. Tối đa 30 project mỗi lượt." : `Tìm trong ${{len}} project đã tải. Mở tìm kiếm GitHub bằng ./trending --serve.`,
@@ -1844,6 +2152,24 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 lblAdvancedTitle: "⚙️ Advanced Search & Research Options",
                 lblHelpHint: "Search Tips",
                 lblFilterToolbar: "🎯 Filter Results:",
+                btnCompare: "Compare",
+                btnCompared: "Selected",
+                btnCompareTitle: "Select to compare side-by-side with other repos",
+                compareDockTitle: "Compare Repositories:",
+                btnLaunchCompare: "Compare Side-by-Side",
+                compareLimitAlert: "You can compare up to 4 repositories at once.",
+                compareModalTitle: "Side-by-Side Repository Comparison Matrix",
+                compareRemoveRepo: "Remove this repo from comparison",
+                starHistoryComparisonTitle: "Star Growth Comparison Chart (Star History)",
+                starHistoryTitle: "Star Growth Curve",
+                openStarHistoryWeb: "Open interactive chart on Star-History.com",
+                starHistoryOfflineMsg: "Unable to load preview image from Star History (API rate limit or offline). You can view directly via the link below.",
+                btnIdeTitle: "Open and test in IDE",
+                btnIdeCode: "⚡ Code",
+                cloneCursor: "🚀 Cursor",
+                cloneVsCode: "💻 VS Code",
+                openGithubDev: "🌐 GitHub.dev",
+                openCodespace: "☁️ Codespace",
                 clearFiltersBtn: "↺ Clear Filters",
                 clearInputTitle: "Clear keyword",
                 searchHelpDefault: (len, hasEndpoint) => hasEndpoint ? "Leave keyword empty: fetch GitHub Trending ranked by new stars. With keywords: search GitHub Search. Max 30 projects per run." : `Search in ${{len}} loaded projects. Open GitHub live search via ./trending --serve.`,
@@ -2232,6 +2558,9 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             setText('lblHelpHint', t.lblHelpHint);
             setText('lblFilterToolbar', t.lblFilterToolbar);
             setText('clearFiltersBtn', t.clearFiltersBtn);
+            setText('lblCompareDockTitle', `⚖️ ${{t.compareDockTitle}}`);
+            setText('cmpModalTitle', t.compareModalTitle);
+            updateCompareDockUI();
             const clrInp = document.getElementById('clearSearchInputBtn');
             if (clrInp) clrInp.title = t.clearInputTitle;
             setText('loadedCount', t.countBadge(reposData.length));
@@ -2411,6 +2740,7 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                                 <button type="button" class="btn-rate btn-dislike ${{raw.user_rating === -1 ? 'active' : ''}}" title="Not useful" data-action="dislike">👎</button>
                                 <button type="button" class="btn-rate btn-bookmark ${{isBookmarked ? 'active' : ''}}" title="${{isBookmarked ? t.btnBookmarked : t.btnBookmark}}" data-repo="${{r.name}}">🔖 <span class="bm-label">${{isBookmarked ? t.btnBookmarked : t.btnBookmark}}</span></button>
                                 <button type="button" class="btn-chat" title="${{t.chatBtnText}}">${{t.chatBtnText}}</button>
+                                <button type="button" class="btn-compare ${{compareSet.has(raw.name) ? 'active' : ''}}" data-name="${{escapeText(raw.name)}}" title="${{t.btnCompareTitle}}">⚖️ <span class="compare-label">${{compareSet.has(raw.name) ? t.btnCompared : t.btnCompare}}</span></button>
                             </div>
                             <select class="status-select" title="Status">
                                 <option value="unread" ${{raw.user_status === 'unread' ? 'selected' : ''}}>${{t.statusLabels.unread}}</option>
@@ -2510,7 +2840,28 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                             <span>💻 ${{r.language || "Unknown"}}</span>
                             <span>🌟 ${{r.stars_total}}</span>
                         </div>
-                        <a href="${{r.url}}" target="_blank" class="btn-view">${{t.viewOnGithub}}</a>
+                        <div class="footer-actions">
+                            <div class="ide-dropdown-wrapper">
+                                <button type="button" class="btn-ide" title="${{t.btnIdeTitle}}">
+                                    <span>${{t.btnIdeCode}}</span> <span style="font-size:0.7rem;">▾</span>
+                                </button>
+                                <div class="ide-menu">
+                                    <a href="cursor://vscode.git/clone?url=${{escapeText(r.url)}}.git" class="ide-menu-item" title="Clone và mở trong Cursor">
+                                        <span>${{t.cloneCursor}}</span>
+                                    </a>
+                                    <a href="vscode://vscode.git/clone?url=${{escapeText(r.url)}}.git" class="ide-menu-item" title="Clone và mở trong VS Code">
+                                        <span>${{t.cloneVsCode}}</span>
+                                    </a>
+                                    <a href="https://github.dev/${{escapeText(r.name)}}" target="_blank" rel="noopener noreferrer" class="ide-menu-item" title="Mở trong trình soạn thảo web GitHub.dev">
+                                        <span>${{t.openGithubDev}}</span>
+                                    </a>
+                                    <a href="https://codespaces.new/${{escapeText(r.name)}}" target="_blank" rel="noopener noreferrer" class="ide-menu-item" title="Khởi chạy GitHub Codespaces">
+                                        <span>${{t.openCodespace}}</span>
+                                    </a>
+                                </div>
+                            </div>
+                            <a href="${{r.url}}" target="_blank" class="btn-view">${{t.viewOnGithub}}</a>
+                        </div>
                     </div>
                 `;
                 const copy = card.querySelector('.btn-copy');
@@ -2613,6 +2964,11 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                             filterCards();
                         }}
                     }});
+                }}
+
+                const compareBtn = card.querySelector('.btn-compare');
+                if (compareBtn) {{
+                    compareBtn.addEventListener('click', () => toggleCompareRepo(raw.name));
                 }}
 
                 const chatBtn = card.querySelector('.btn-chat');
@@ -3291,6 +3647,196 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             }}
         }}
 
+                // Side-by-Side Comparison & Dock Logic
+        function toggleCompareRepo(name) {{
+            if (compareSet.has(name)) {{
+                compareSet.delete(name);
+            }} else {{
+                if (compareSet.size >= 4) {{
+                    const t = I18N[currentLang];
+                    alert(t.compareLimitAlert || "Tối đa so sánh 4 repository cùng lúc.");
+                    return;
+                }}
+                compareSet.add(name);
+            }}
+            updateCompareDockUI();
+            document.querySelectorAll(`.btn-compare[data-name="${{CSS.escape(name)}}"]`).forEach(btn => {{
+                btn.classList.toggle('active', compareSet.has(name));
+                const label = btn.querySelector('.compare-label');
+                if (label) {{
+                    const t = I18N[currentLang];
+                    label.textContent = compareSet.has(name) ? t.btnCompared : t.btnCompare;
+                }}
+            }});
+        }}
+
+        function clearComparison() {{
+            compareSet.clear();
+            updateCompareDockUI();
+            document.querySelectorAll('.btn-compare').forEach(btn => {{
+                btn.classList.remove('active');
+                const label = btn.querySelector('.compare-label');
+                if (label) label.textContent = I18N[currentLang].btnCompare;
+            }});
+        }}
+
+        function updateCompareDockUI() {{
+            const dock = document.getElementById('compareDock');
+            const chips = document.getElementById('compareChips');
+            const launchBtnText = document.getElementById('lblBtnLaunchCompare');
+            if (!dock) return;
+            const t = I18N[currentLang];
+            if (compareSet.size === 0) {{
+                dock.style.display = 'none';
+                return;
+            }}
+            dock.style.display = 'flex';
+            if (launchBtnText) {{
+                launchBtnText.textContent = `${{t.btnLaunchCompare}} (${{compareSet.size}})`;
+            }}
+            if (chips) {{
+                chips.innerHTML = Array.from(compareSet).map(name => `
+                    <span class="compare-chip">
+                        <span>${{escapeText(name)}}</span>
+                        <span class="compare-chip-remove" onclick="toggleCompareRepo('${{escapeText(name)}}')">✕</span>
+                    </span>
+                `).join('');
+            }}
+        }}
+
+        function openComparisonModal() {{
+            const modal = document.getElementById('comparisonModal');
+            const body = document.getElementById('comparisonModalBody');
+            if (!modal || !body || compareSet.size === 0) return;
+            const t = I18N[currentLang];
+            const selectedRepos = reposData.filter(r => compareSet.has(r.name));
+            if (!selectedRepos.length) return;
+
+            const repoNames = selectedRepos.map(r => r.name);
+            const starHistoryUrl = `https://api.star-history.com/svg?repos=${{repoNames.join(',')}}&type=Date`;
+            const starHistoryWeb = `https://star-history.com/#${{repoNames.join('&')}}&Date`;
+
+            let html = `
+                <div class="comparison-grid">
+                    ${{selectedRepos.map((r, i) => {{
+                        const velClass = getVelocityBadgeClass(r.velocity_badge);
+                        const matClass = getMaturityBadgeClass(r.maturity_level);
+                        const displayCore = getDisplayCorePurpose(r, currentLang, `cmp_p_${{i}}`);
+                        const displayMajor = getRoleField(r, 'suitable_major', currentLang);
+                        const displayRoles = getRoleField(r, 'target_roles', currentLang);
+                        const displayImpact = getRoleField(r, 'real_world_impact', currentLang);
+                        const repoTypeDisplay = t.repoTypeBadges[r.repo_type] || r.repo_type_badge || '';
+                        const rawUrl = r.url || `https://github.com/${{r.name}}`;
+
+                        return `
+                            <div class="comparison-card">
+                                <div class="comparison-card-header">
+                                    <div style="display:flex; justify-content:space-between; align-items:start; gap:8px; margin-bottom:8px;">
+                                        <a href="${{escapeText(rawUrl)}}" target="_blank" style="font-size:1.05rem; font-weight:700; color:var(--accent-blue); text-decoration:none; word-break:break-word;">
+                                            📦 ${{escapeText(r.name)}}
+                                        </a>
+                                        <button type="button" class="btn-clear-compare" onclick="toggleCompareRepo('${{escapeText(r.name)}}'); openComparisonModal();" title="${{t.compareRemoveRepo}}">✕</button>
+                                    </div>
+                                    <div style="display:flex; gap:6px; flex-wrap:wrap; font-size:0.8rem; margin-bottom:10px;">
+                                        <span class="pill-tag">★ ${{r.stars_total ? Number(r.stars_total).toLocaleString() : '0'}}</span>
+                                        ${{r.stars_since ? `<span class="pill-tag">+${{r.stars_since}} stars</span>` : ''}}
+                                        <span class="pill-tag">${{escapeText(r.language || 'Unknown')}}</span>
+                                    </div>
+                                    <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                                        <a href="cursor://vscode.git/clone?url=${{escapeText(rawUrl)}}.git" class="btn-ide" title="Open in Cursor" style="padding:4px 8px; font-size:0.75rem;">${{t.cloneCursor}}</a>
+                                        <a href="vscode://vscode.git/clone?url=${{escapeText(rawUrl)}}.git" class="btn-ide" title="Open in VS Code" style="padding:4px 8px; font-size:0.75rem;">${{t.cloneVsCode}}</a>
+                                        <a href="https://github.dev/${{escapeText(r.name)}}" target="_blank" class="btn-ide" title="Open in GitHub.dev" style="padding:4px 8px; font-size:0.75rem;">${{t.openGithubDev}}</a>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="comparison-section-title">${{t.corePurposeTitle}}</div>
+                                    <div class="comparison-section-content" style="color:var(--text-bright); font-weight:500;">${{escapeText(displayCore)}}</div>
+                                </div>
+
+                                <div>
+                                    <div class="comparison-section-title">${{t.modalTabs.comparisons || 'Độ hoàn thiện & Loại'}}</div>
+                                    <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                                        <span class="pill-tag tag-category">🏷️ ${{escapeText(r.category || '')}}</span>
+                                        ${{repoTypeDisplay ? `<span class="pill-tag tag-repo-type">${{escapeText(repoTypeDisplay)}}</span>` : ''}}
+                                        ${{r.maturity_badge ? `<span class="pill-tag ${{matClass}}">${{escapeText(r.maturity_badge)}}</span>` : ''}}
+                                        ${{r.velocity_badge ? `<span class="pill-tag ${{velClass}}">${{escapeText(r.velocity_badge)}}</span>` : ''}}
+                                    </div>
+                                </div>
+
+                                ${{ (r.tech_stack && r.tech_stack.length) ? `
+                                    <div>
+                                        <div class="comparison-section-title">Tech Stack</div>
+                                        <div style="display:flex; gap:4px; flex-wrap:wrap;">
+                                            ${{r.tech_stack.map(st => `<span class="tech-pill">${{escapeText(st)}}</span>`).join('')}}
+                                        </div>
+                                    </div>
+                                ` : ''}}
+
+                                ${{ (displayMajor || displayRoles) ? `
+                                    <div>
+                                        <div class="comparison-section-title">${{t.suitableMajorTitle}} & ${{t.targetRolesTitle}}</div>
+                                        <div class="comparison-section-content" style="font-size:0.8rem; color:var(--text-muted);">
+                                            ${{displayMajor ? `📚 ${{escapeText(displayMajor)}}<br>` : ''}}
+                                            ${{displayRoles ? `👤 ${{escapeText(displayRoles)}}` : ''}}
+                                        </div>
+                                    </div>
+                                ` : ''}}
+
+                                ${{ displayImpact ? `
+                                    <div>
+                                        <div class="comparison-section-title">${{t.realWorldImpactTitle}}</div>
+                                        <div class="comparison-section-content" style="font-size:0.8rem; border-left:2px solid var(--accent-green); padding-left:6px;">${{escapeText(displayImpact)}}</div>
+                                    </div>
+                                ` : ''}}
+
+                                ${{ r.commercial_alternative ? `
+                                    <div>
+                                        <div class="comparison-section-title">${{t.lblAltText}}</div>
+                                        <span class="pill-tag tag-alternative">${{t.tagAlt(r.commercial_alternative)}}</span>
+                                    </div>
+                                ` : ''}}
+
+                                ${{ r.quick_run ? `
+                                    <div>
+                                        <div class="comparison-section-title">${{t.quickRunTitle}}</div>
+                                        <div class="quick-run-box" style="margin:0;">
+                                            <span class="quick-run-code">${{escapeText(r.quick_run)}}</span>
+                                        </div>
+                                    </div>
+                                ` : ''}}
+                            </div>
+                        `;
+                    }}).join('')}}
+                </div>
+
+                <!-- Multi-Repo Star History Comparison Chart -->
+                <div class="star-history-wrapper">
+                    <div style="font-size:0.92rem; font-weight:700; color:#d2a8ff; margin-bottom:10px;">
+                        📈 ${{t.starHistoryComparisonTitle || 'So sánh Biểu đồ Lịch sử Tăng trưởng Stars (Star History)'}}
+                    </div>
+                    <img src="${{starHistoryUrl}}" alt="Star History Comparison" class="star-history-img" loading="lazy" onerror="this.style.display='none'">
+                    <div class="star-history-actions">
+                        <a href="${{starHistoryWeb}}" target="_blank" rel="noopener noreferrer" class="btn-star-history-link">
+                            <span>🌐</span> <span>${{t.openStarHistoryWeb || 'Xem biểu đồ tương tác trên Star-History.com'}}</span>
+                        </a>
+                    </div>
+                </div>
+            `;
+
+            body.innerHTML = html;
+            modal.style.display = 'flex';
+            setTimeout(() => {{ modal.classList.add('open'); }}, 10);
+        }}
+
+        function closeComparisonModal() {{
+            const modal = document.getElementById('comparisonModal');
+            if (modal) {{
+                modal.classList.remove('open');
+                setTimeout(() => {{ modal.style.display = 'none'; }}, 200);
+            }}
+        }}
+
         function openDeepDiveModal(raw, idx) {{
             const modal = document.getElementById('deepDiveModal');
             if (!modal) return;
@@ -3324,7 +3870,8 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 {{ id: 'practical_examples', label: t.modalTabs.practical_examples, items: raw.practical_examples || [], quickRun: raw.quick_run }},
                 {{ id: 'limitations', label: t.modalTabs.limitations, items: raw.limitations || [] }},
                 {{ id: 'adoption_notes', label: t.modalTabs.adoption_notes, items: raw.adoption_notes || [] }},
-                {{ id: 'sources', label: t.modalTabs.sources, sources: raw.data_sources || [], evidence: raw.evidence || [] }}
+                {{ id: 'sources', label: t.modalTabs.sources, sources: raw.data_sources || [], evidence: raw.evidence || [] }},
+                {{ id: 'star_history', label: t.modalTabs.star_history }}
             ];
 
             const tabsBar = document.getElementById('modalTabsBar');
@@ -3360,7 +3907,30 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 pane.id = `pane_${{td.id}}`;
                 pane.className = `modal-tab-pane ${{td.id === firstActive ? 'active' : ''}}`;
 
-                if (td.id === 'sources') {{
+                if (td.id === 'star_history') {{
+                    const wrap = document.createElement('div');
+                    wrap.className = 'star-history-wrapper';
+                    const shUrl = `https://api.star-history.com/svg?repos=${{escapeText(raw.name)}}&type=Date`;
+                    const shWeb = `https://star-history.com/#${{escapeText(raw.name)}}&Date`;
+                    wrap.innerHTML = `
+                        <div style="font-size:0.92rem; font-weight:700; color:var(--text-bright); margin-bottom:12px;">
+                            📈 ${{t.starHistoryTitle}} (${{escapeText(raw.name)}})
+                        </div>
+                        <img src="${{shUrl}}" alt="${{escapeText(raw.name)}} Star History" class="star-history-img" loading="lazy" onerror="this.nextElementSibling.style.display='block'; this.style.display='none';">
+                        <div style="display:none; color:var(--text-muted); font-size:0.85rem; padding:12px;">
+                            ${{t.starHistoryOfflineMsg}}
+                        </div>
+                        <div class="star-history-actions">
+                            <a href="${{shWeb}}" target="_blank" rel="noopener noreferrer" class="btn-star-history-link">
+                                <span>🌐</span> <span>${{t.openStarHistoryWeb}}</span>
+                            </a>
+                            <a href="https://github.com/${{escapeText(raw.name)}}/pulse" target="_blank" rel="noopener noreferrer" class="btn-star-history-link">
+                                <span>📊</span> <span>GitHub Pulse / Insights</span>
+                            </a>
+                        </div>
+                    `;
+                    pane.appendChild(wrap);
+                }} else if (td.id === 'sources') {{
                     if (td.sources && td.sources.length) {{
                         const h = document.createElement('div');
                         h.className = 'evidence-title';
@@ -3416,7 +3986,10 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 }});
             }}
             document.addEventListener('keydown', (e) => {{
-                if (e.key === 'Escape') closeDeepDiveModal();
+                if (e.key === 'Escape') {{
+                    closeDeepDiveModal();
+                    closeComparisonModal();
+                }}
             }});
         }});
 
@@ -3504,6 +4077,35 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 <div id="modalBadges" class="modal-badges"></div>
                 <div class="modal-tabs" id="modalTabsBar"></div>
                 <div class="modal-body" id="modalBody"></div>
+            </div>
+        </div>
+        <!-- Floating Compare Dock -->
+        <div id="compareDock" class="compare-dock" style="display:none;">
+            <div class="compare-dock-inner">
+                <div class="compare-dock-info">
+                    <span class="compare-dock-title" id="lblCompareDockTitle">⚖️ So sánh Repository:</span>
+                    <div id="compareChips" class="compare-chips"></div>
+                </div>
+                <div class="compare-dock-actions">
+                    <button type="button" id="btnLaunchCompare" class="btn-launch-compare" onclick="openComparisonModal()">
+                        <span>⚖️</span> <span id="lblBtnLaunchCompare">So sánh đối chiếu (0)</span>
+                    </button>
+                    <button type="button" class="btn-clear-compare" onclick="clearComparison()" title="Bỏ chọn tất cả">✕</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Side-by-Side Comparison Modal -->
+        <div id="comparisonModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="cmpModalTitle" style="display:none;" onclick="if(event.target===this)closeComparisonModal()">
+            <div class="comparison-modal-dialog">
+                <div class="modal-header">
+                    <div class="modal-header-title">
+                        <span>⚖️</span>
+                        <span id="cmpModalTitle">Bảng Ma Trận So Sánh Đối Chiếu Repository</span>
+                    </div>
+                    <button type="button" class="modal-close-btn" onclick="closeComparisonModal()" aria-label="Close">✕</button>
+                </div>
+                <div class="comparison-modal-body" id="comparisonModalBody"></div>
             </div>
         </div>
 </body>
