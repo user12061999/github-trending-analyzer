@@ -94,6 +94,7 @@ class RepoAnalysis:
     architecture_mermaid: str = ""
     architecture_description: str = ""
     latest_release: Optional[Dict[str, Any]] = None
+    community_pulse: Optional[Dict[str, Any]] = None
 
     def to_dict(self) -> Dict[str, any]:
         return {
@@ -151,6 +152,7 @@ class RepoAnalysis:
             "architecture_mermaid": getattr(self, "architecture_mermaid", ""),
             "architecture_description": getattr(self, "architecture_description", ""),
             "latest_release": getattr(self, "latest_release", None),
+            "community_pulse": getattr(self, "community_pulse", None),
         }
 
 
@@ -808,6 +810,14 @@ def analyze_repository(
             analysis.latest_release = fetch_repo_release(repo.owner, repo.repo, use_cache=not deep)
         except Exception:
             analysis.latest_release = None
+
+    # 6.96. GitHub Community & Health Pulse
+    if fetch_readme and not getattr(analysis, 'community_pulse', None):
+        try:
+            from src.fetcher import fetch_repo_community_pulse
+            analysis.community_pulse = fetch_repo_community_pulse(repo.owner, repo.repo, use_cache=not deep)
+        except Exception:
+            analysis.community_pulse = None
 
     # 7. Temporal Trajectory & Historical Memory Lookup
     try:

@@ -1798,6 +1798,162 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             align-items: center;
         }}
 
+        /* Community Pulse Styles */
+        .tag-pulse {{
+            border-radius: 12px;
+            padding: 2px 8px;
+            font-size: 0.74rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }}
+        .tag-pulse.active {{
+            background: rgba(63, 185, 80, 0.12);
+            color: #3fb950;
+            border: 1px solid rgba(63, 185, 80, 0.3);
+        }}
+        .tag-pulse.steady {{
+            background: rgba(210, 153, 34, 0.12);
+            color: #d29922;
+            border: 1px solid rgba(210, 153, 34, 0.3);
+        }}
+        .tag-pulse.slow {{
+            background: rgba(240, 136, 62, 0.12);
+            color: #f0883e;
+            border: 1px solid rgba(240, 136, 62, 0.3);
+        }}
+        .tag-pulse.dormant {{
+            background: rgba(248, 81, 73, 0.12);
+            color: #f85149;
+            border: 1px solid rgba(248, 81, 73, 0.3);
+        }}
+        .tag-license {{
+            background: rgba(188, 140, 255, 0.12);
+            color: #bc8cff;
+            border: 1px solid rgba(188, 140, 255, 0.3);
+            border-radius: 12px;
+            padding: 2px 8px;
+            font-size: 0.74rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }}
+        .pulse-wrapper {{
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding: 4px 0;
+        }}
+        .pulse-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }}
+        .pulse-stat-card {{
+            background: #161b22;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }}
+        .pulse-stat-header {{
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }}
+        .pulse-stat-val {{
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-bright);
+        }}
+        .pulse-stat-sub {{
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }}
+        .contributors-box {{
+            background: #090d12;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px 18px;
+        }}
+        .contributors-title {{
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }}
+        .contributors-list {{
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }}
+        .contributor-item {{
+            background: #161b22;
+            border: 1px solid rgba(48, 54, 61, 0.7);
+            border-radius: 8px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            transition: all 0.15s ease;
+        }}
+        .contributor-item:hover {{
+            border-color: var(--accent-blue);
+            background: #1f242c;
+            transform: translateY(-2px);
+        }}
+        .contributor-avatar {{
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            object-fit: cover;
+        }}
+        .contributor-info {{
+            display: flex;
+            flex-direction: column;
+        }}
+        .contributor-login {{
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-bright);
+        }}
+        .contributor-commits {{
+            font-size: 0.72rem;
+            color: var(--text-muted);
+        }}
+        .pulse-verdict-box {{
+            background: rgba(88, 166, 255, 0.06);
+            border: 1px solid rgba(88, 166, 255, 0.25);
+            border-radius: 10px;
+            padding: 14px 16px;
+        }}
+        .pulse-verdict-title {{
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }}
+        .pulse-verdict-desc {{
+            font-size: 0.82rem;
+            color: var(--text-main);
+            line-height: 1.5;
+        }}
+
         /* Release Radar Styles */
         .tag-release {{
             background: rgba(138, 180, 248, 0.12);
@@ -2472,6 +2628,21 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 releaseViewOnGitHub: "Xem trên GitHub Releases",
                 releaseNoRelease: "Dự án này chưa phát hành bản Release chính thức trên GitHub (thường cập nhật trực tiếp qua commit trên nhánh chính).",
                 noReleaseText: "Chưa có bản release chính thức",
+                latestPulseTitle: "Trạng thái bảo trì",
+                pulseTitle: "Sức khỏe Bảo trì & Hoạt động Cộng đồng (Pulse)",
+                pulseSubtitle: "Chỉ số cam kết bảo trì từ maintainers, tần suất cập nhật code và mạng lưới đóng góp:",
+                pulseLatestPush: "Hoạt động Commit",
+                pulseOpenIssues: "Issues đang mở",
+                pulseLicense: "Giấy phép (License)",
+                pulseWatchersForks: "Cộng đồng & Forks",
+                pulseTopContribTitle: "Top Contributors (Đóng góp hàng đầu):",
+                pulseHealthVerdictTitle: "Đánh giá mức độ duy trì & Cam kết bảo trì:",
+                pulseVerdictActive: "Dự án đang được cập nhật liên tục và bảo trì rất tích cực bởi cộng đồng. Rất an toàn để tích hợp.",
+                pulseVerdictSteady: "Dự án duy trì nhịp độ cập nhật ổn định trong tháng qua. Có tính khả dụng tốt.",
+                pulseVerdictSlow: "Dự án cập nhật chậm (hơn 1 tháng không có commit mới). Cần kiểm tra kỹ các issue mở trước khi đưa vào sản xuất.",
+                pulseVerdictDormant: "Dự án có dấu hiệu ngủ đông (>3 tháng chưa commit). Hãy cân nhắc kỹ hoặc chuẩn bị phương án tự fork & duy trì.",
+                pulseNoData: "Chưa có dữ liệu sức khỏe cộng đồng từ GitHub API (có thể do offline hoặc rate limit).",
+                pulseCommitsCount: (n) => `${{n}} đóng góp`,
                 similarComparedBtn: "✅ Đã chọn so sánh",
                 similarOpenCompare: (n) => `So sánh đối chiếu (${{n}})`,
                 similarCloseBtn: "Đóng",
@@ -2575,6 +2746,7 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 modalTabs: {{
                     architecture: "🏗️ Sơ đồ Kiến trúc & Luồng",
                     release_radar: "📦 Bản phát hành (Changelog)",
+                    community_pulse: "👥 Sức khỏe & Cộng đồng (Pulse)",
                     how_it_works: "🏛️ Cơ chế & Chi tiết",
                     comparisons: "📊 Benchmarks & So sánh",
                     practical_examples: "💻 Code & Lệnh chạy",
@@ -2687,6 +2859,21 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 releaseViewOnGitHub: "View on GitHub Releases",
                 releaseNoRelease: "No official GitHub release found for this repository (updates may be pushed directly to the main branch).",
                 noReleaseText: "No official release yet",
+                latestPulseTitle: "Maintenance Status",
+                pulseTitle: "Community Pulse & Maintenance Health",
+                pulseSubtitle: "Tracking maintainer commitment, code freshness, open issues, and top contributors:",
+                pulseLatestPush: "Latest Commit Activity",
+                pulseOpenIssues: "Open Issues",
+                pulseLicense: "License",
+                pulseWatchersForks: "Watchers & Network",
+                pulseTopContribTitle: "Top Active Contributors:",
+                pulseHealthVerdictTitle: "Maintenance Health Assessment:",
+                pulseVerdictActive: "Project is under highly active maintenance with recent commits. Very safe for adoption.",
+                pulseVerdictSteady: "Project maintains a steady cadence of updates within the past month. Good reliability.",
+                pulseVerdictSlow: "Activity has slowed down (>1 month without commits). Review open issues before production usage.",
+                pulseVerdictDormant: "Project shows signs of hibernation (>3 months without commits). Consider self-forking if needed.",
+                pulseNoData: "No community pulse data available from GitHub API (offline or rate-limited).",
+                pulseCommitsCount: (n) => `${{n}} contributions`,
                 similarComparedBtn: "✅ Selected for comparison",
                 similarOpenCompare: (n) => `Compare Side-by-Side (${{n}})`,
                 similarCloseBtn: "Close",
@@ -2790,6 +2977,7 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 modalTabs: {{
                     architecture: "🏗️ Architecture & Pipeline",
                     release_radar: "📦 Releases & Changelog",
+                    community_pulse: "👥 Community & Pulse",
                     how_it_works: "🏛️ Internals & Mechanics",
                     comparisons: "📊 Benchmarks & Comparisons",
                     practical_examples: "💻 Code & Examples",
@@ -3250,6 +3438,16 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                             ${{r.commercial_alternative ? `<span class="pill-tag tag-alternative">${{t.tagAlt(r.commercial_alternative)}}</span>` : ''}}
                             ${{r.match_score > 0 ? `<span class="pill-tag tag-match">⭐ ${{r.match_score}}% Match</span>` : ''}}
                             ${{r.latest_release && r.latest_release.tag_name ? `<span class="pill-tag tag-release" title="${{t.latestReleaseTitle}}">🏷️ ${{escapeText(r.latest_release.tag_name)}}</span>` : ''}}
+                            ${{r.community_pulse && r.community_pulse.pulse_status ? `
+                                <span class="pill-tag tag-pulse ${{r.community_pulse.pulse_status}}" title="${{t.latestPulseTitle}}">
+                                    ${{currentLang === 'vi' ? (r.community_pulse.pulse_badge_vi || '') : (r.community_pulse.pulse_badge_en || '')}}
+                                </span>
+                            ` : ''}}
+                            ${{r.community_pulse && r.community_pulse.license_spdx ? `
+                                <span class="pill-tag tag-license" title="${{t.pulseLicense}}">
+                                    📜 ${{escapeText(r.community_pulse.license_spdx)}}
+                                </span>
+                            ` : ''}}
                         </div>
 
                         <!-- Repository Topics / Tags -->
@@ -4592,6 +4790,23 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                                     </div>
                                 ` : ''}}
 
+                                ${{ r.community_pulse ? `
+                                    <div>
+                                        <div class="comparison-section-title">${{t.pulseTitle}}</div>
+                                        <div class="comparison-section-content" style="font-size:0.8rem; display:flex; flex-direction:column; gap:4px;">
+                                            <div>
+                                                <span class="pill-tag tag-pulse ${{r.community_pulse.pulse_status || 'active'}}">
+                                                    ${{currentLang === 'vi' ? (r.community_pulse.pulse_badge_vi || '') : (r.community_pulse.pulse_badge_en || '')}}
+                                                </span>
+                                                ${{r.community_pulse.license_spdx ? `<span class="pill-tag tag-license">📜 ${{escapeText(r.community_pulse.license_spdx)}}</span>` : ''}}
+                                            </div>
+                                            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">
+                                                ⚠️ ${{Number(r.community_pulse.open_issues_count || 0).toLocaleString()}} ${{t.pulseOpenIssues.toLowerCase()}} · 🍴 ${{Number(r.community_pulse.forks_count || 0).toLocaleString()}} forks
+                                            </div>
+                                        </div>
+                                    </div>
+                                ` : ''}}
+
                                 ${{ r.quick_run ? `
                                     <div>
                                         <div class="comparison-section-title">${{t.quickRunTitle}}</div>
@@ -4652,6 +4867,8 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             if (raw.velocity_badge) badges.push(raw.velocity_badge);
             if (raw.hn_points) badges.push(`📰 HN: ▲ ${{raw.hn_points}} pts`);
             if (raw.latest_release && raw.latest_release.tag_name) badges.push(`🏷️ Release: ${{raw.latest_release.tag_name}}`);
+            if (raw.community_pulse && raw.community_pulse.pulse_status) badges.push(currentLang === 'vi' ? raw.community_pulse.pulse_badge_vi : raw.community_pulse.pulse_badge_en);
+            if (raw.community_pulse && raw.community_pulse.license_spdx) badges.push(`📜 ${{raw.community_pulse.license_spdx}}`);
             badges.forEach(b => {{
                 const span = document.createElement('span');
                 span.className = 'pill-tag';
@@ -4663,6 +4880,7 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             const tabDefs = [
                 {{ id: 'architecture', label: t.modalTabs.architecture, mermaid: raw.architecture_mermaid }},
                 {{ id: 'release_radar', label: t.modalTabs.release_radar, release: raw.latest_release }},
+                {{ id: 'community_pulse', label: t.modalTabs.community_pulse, pulse: raw.community_pulse }},
                 {{ id: 'how_it_works', label: t.modalTabs.how_it_works, items: raw.how_it_works || [] }},
                 {{ id: 'comparisons', label: t.modalTabs.comparisons, items: raw.comparisons || [] }},
                 {{ id: 'practical_examples', label: t.modalTabs.practical_examples, items: raw.practical_examples || [], quickRun: raw.quick_run }},
@@ -4709,7 +4927,114 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 pane.id = `pane_${{td.id}}`;
                 pane.className = `modal-tab-pane ${{td.id === firstActive ? 'active' : ''}}`;
 
-                if (td.id === 'release_radar') {{
+                if (td.id === 'community_pulse') {{
+                    const pulseWrap = document.createElement('div');
+                    pulseWrap.className = 'pulse-wrapper';
+                    const pulse = td.pulse;
+
+                    if (pulse && (pulse.last_pushed_at || pulse.license_name || pulse.open_issues_count !== undefined)) {{
+                        const pushTimeStr = pulse.last_pushed_at ? formatReleaseDate(pulse.last_pushed_at) : (currentLang === 'vi' ? 'Chưa xác định' : 'Unknown');
+                        const statusBadge = currentLang === 'vi' ? (pulse.pulse_badge_vi || '🟢 Rất tích cực') : (pulse.pulse_badge_en || '🟢 Highly Active');
+                        const statusKey = pulse.pulse_status || 'active';
+
+                        let verdictText = t.pulseVerdictActive;
+                        if (statusKey === 'steady') verdictText = t.pulseVerdictSteady;
+                        else if (statusKey === 'slow') verdictText = t.pulseVerdictSlow;
+                        else if (statusKey === 'dormant') verdictText = t.pulseVerdictDormant;
+
+                        const contribs = pulse.top_contributors || [];
+
+                        pulseWrap.innerHTML = `
+                            <div class="pulse-grid">
+                                <div class="pulse-stat-card">
+                                    <div class="pulse-stat-header">
+                                        <span>⚡</span> <span>${{t.pulseLatestPush}}</span>
+                                    </div>
+                                    <div class="pulse-stat-val">
+                                        <span class="pill-tag tag-pulse ${{statusKey}}" style="font-size:0.82rem;">${{statusBadge}}</span>
+                                    </div>
+                                    <div class="pulse-stat-sub">📅 ${{pushTimeStr}}</div>
+                                </div>
+
+                                <div class="pulse-stat-card">
+                                    <div class="pulse-stat-header">
+                                        <span>⚠️</span> <span>${{t.pulseOpenIssues}}</span>
+                                    </div>
+                                    <div class="pulse-stat-val" style="color:var(--accent-yellow);">
+                                        ${{Number(pulse.open_issues_count || 0).toLocaleString()}}
+                                    </div>
+                                    <div class="pulse-stat-sub">
+                                        <a href="https://github.com/${{escapeText(raw.name)}}/issues" target="_blank" rel="noopener noreferrer" style="color:var(--accent-blue); text-decoration:none;">
+                                            Xem Issues trên GitHub ↗
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <div class="pulse-stat-card">
+                                    <div class="pulse-stat-header">
+                                        <span>📜</span> <span>${{t.pulseLicense}}</span>
+                                    </div>
+                                    <div class="pulse-stat-val" style="font-size:0.95rem; color:#bc8cff;">
+                                        ${{escapeText(pulse.license_name || 'Chưa định rõ (No license)')}}
+                                    </div>
+                                    <div class="pulse-stat-sub">Branch: <code>${{escapeText(pulse.default_branch || 'main')}}</code></div>
+                                </div>
+
+                                <div class="pulse-stat-card">
+                                    <div class="pulse-stat-header">
+                                        <span>👥</span> <span>${{t.pulseWatchersForks}}</span>
+                                    </div>
+                                    <div class="pulse-stat-val" style="color:var(--accent-blue);">
+                                        👁️ ${{Number(pulse.watchers_count || 0).toLocaleString()}} · 🍴 ${{Number(pulse.forks_count || 0).toLocaleString()}}
+                                    </div>
+                                    <div class="pulse-stat-sub">Mạng lưới theo dõi & forks</div>
+                                </div>
+                            </div>
+
+                            ${{contribs.length > 0 ? `
+                                <div class="contributors-box">
+                                    <div class="contributors-title">
+                                        <span>👥</span> <span>${{t.pulseTopContribTitle}}</span>
+                                    </div>
+                                    <div class="contributors-list">
+                                        ${{contribs.map(c => `
+                                            <a href="${{escapeText(c.html_url)}}" target="_blank" rel="noopener noreferrer" class="contributor-item">
+                                                ${{c.avatar_url ? `<img src="${{escapeText(c.avatar_url)}}" alt="${{escapeText(c.login)}}" class="contributor-avatar" loading="lazy">` : '<div class="contributor-avatar" style="background:#30363d;"></div>'}}
+                                                <div class="contributor-info">
+                                                    <span class="contributor-login">@${{escapeText(c.login)}}</span>
+                                                    <span class="contributor-commits">${{t.pulseCommitsCount(Number(c.contributions || 0).toLocaleString())}}</span>
+                                                </div>
+                                            </a>
+                                        `).join('')}}
+                                    </div>
+                                </div>
+                            ` : ''}}
+
+                            <div class="pulse-verdict-box">
+                                <div class="pulse-verdict-title">
+                                    <span>🛡️</span> <span>${{t.pulseHealthVerdictTitle}}</span>
+                                </div>
+                                <div class="pulse-verdict-desc">${{verdictText}}</div>
+                            </div>
+                        `;
+                    }} else {{
+                        pulseWrap.innerHTML = `
+                            <div style="background:#161b22; border:1px solid var(--border); border-radius:10px; padding:30px 20px; text-align:center;">
+                                <div style="font-size:2rem; margin-bottom:10px;">👥</div>
+                                <div style="font-size:0.95rem; font-weight:600; color:var(--text-bright); margin-bottom:6px;">
+                                    ${{t.pulseNoData}}
+                                </div>
+                                <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:16px;">
+                                    ${{t.pulseTitle}}
+                                </div>
+                                <a href="https://github.com/${{escapeText(raw.name)}}/pulse" target="_blank" rel="noopener noreferrer" class="btn-release-github">
+                                    <span>📊</span> <span>Mở trang GitHub Pulse trực tiếp ↗</span>
+                                </a>
+                            </div>
+                        `;
+                    }}
+                    pane.appendChild(pulseWrap);
+                }} else if (td.id === 'release_radar') {{
                     const relWrap = document.createElement('div');
                     relWrap.className = 'release-radar-wrapper';
                     const rel = td.release;

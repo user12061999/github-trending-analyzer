@@ -230,6 +230,15 @@ class TestGitHubSearch(unittest.TestCase):
         self.assertIn('formatReleaseDate', html)
         self.assertIn('btn-release-github', html)
 
+    def test_dashboard_has_community_pulse_feature(self):
+        html = generate_html_dashboard([], search_endpoint='/api/search')
+        self.assertIn('tag-pulse', html)
+        self.assertIn('tag-license', html)
+        self.assertIn('pulse-wrapper', html)
+        self.assertIn('pulse-grid', html)
+        self.assertIn('contributors-box', html)
+        self.assertIn('pulse-verdict-box', html)
+
 
 
 if __name__ == '__main__':

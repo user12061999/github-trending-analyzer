@@ -5,7 +5,8 @@ import re
 import urllib.error
 import urllib.request
 import json
-from typing import Optional, List, Dict, Any
+import datetime
+from typing import Optional, List, Dict, Any, Tuple
 
 from src.scraper import get_ssl_context
 
@@ -224,6 +225,132 @@ def fetch_repo_release(owner: str, repo: str, timeout: int = 5, use_cache: bool 
                         if use_cache:
                             save_cached_release(owner, repo, res)
                         return res
+    except Exception:
+        pass
+
+    return None
+
+
+def _pulse_cache_key(owner: str, repo: str) -> str:
+    return f"{owner}_{repo}_pulse.json"
+
+
+def get_cached_pulse(owner: str, repo: str) -> Optional[dict]:
+    ensure_cache_dir()
+    filepath = os.path.join(CACHE_DIR, _pulse_cache_key(owner, repo))
+    if os.path.isfile(filepath):
+        try:
+            with open(filepath, "r", encoding="utf-8", errors="replace") as f:
+                return json.load(f)
+        except Exception:
+            return None
+    return None
+
+
+def save_cached_pulse(owner: str, repo: str, data: dict):
+    ensure_cache_dir()
+    filepath = os.path.join(CACHE_DIR, _pulse_cache_key(owner, repo))
+    try:
+        with open(filepath, "w", encoding="utf-8", errors="replace") as f:
+            json.dump(data, f, ensure_ascii=False)
+    except Exception:
+        pass
+
+
+def calculate_pulse_status(pushed_at: str) -> Tuple[str, str, str, int]:
+    """Calculate commit recency status from pushed_at timestamp.
+    Returns (status_key, badge_vi, badge_en, days_since_push).
+    """
+    if not pushed_at:
+        return ("unknown", "⚪ Chưa rõ hoạt động", "⚪ Activity Unknown", -1)
+
+    try:
+        clean_ts = pushed_at.replace("Z", "+00:00")
+        pushed_date = datetime.datetime.fromisoformat(clean_ts)
+        now = datetime.datetime.now(datetime.timezone.utc)
+        diff_days = max(0, (now - pushed_date).days)
+        diff_hours = max(0, int((now - pushed_date).total_seconds() // 3600))
+    except Exception:
+        return ("unknown", "⚪ Chưa rõ hoạt động", "⚪ Activity Unknown", -1)
+
+    if diff_days <= 7:
+        time_str_vi = f"{diff_hours}h trước" if diff_days == 0 else f"{diff_days} ngày trước"
+        time_str_en = f"{diff_hours}h ago" if diff_days == 0 else f"{diff_days}d ago"
+        return ("active", f"🟢 Commit {time_str_vi}", f"🟢 Pushed {time_str_en}", diff_days)
+    elif diff_days <= 30:
+        return ("steady", f"🟡 Commit {diff_days} ngày trước", f"🟡 Pushed {diff_days}d ago", diff_days)
+    elif diff_days <= 90:
+        return ("slow", f"🟠 Commit {diff_days // 7} tuần trước", f"🟠 Pushed {diff_days // 7}w ago", diff_days)
+    else:
+        return ("dormant", f"🔴 Ngủ đông ({diff_days} ngày)", f"🔴 Hibernating ({diff_days}d)", diff_days)
+
+
+def fetch_repo_community_pulse(owner: str, repo: str, timeout: int = 5, use_cache: bool = True) -> Optional[Dict[str, Any]]:
+    """Fetch community health, commit recency, license, open issues, and top contributors."""
+    if use_cache:
+        cached = get_cached_pulse(owner, repo)
+        if cached is not None:
+            return cached
+
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+        "Accept": "application/vnd.github.v3+json",
+    }
+    if os.environ.get("GITHUB_TOKEN"):
+        headers["Authorization"] = "Bearer " + os.environ["GITHUB_TOKEN"]
+
+    ctx = get_ssl_context()
+    repo_url = f"https://api.github.com/repos/{owner}/{repo}"
+
+    try:
+        req = urllib.request.Request(repo_url, headers=headers)
+        with urllib.request.urlopen(req, timeout=timeout, context=ctx) as response:
+            if response.status == 200:
+                raw = json.loads(response.read().decode("utf-8", errors="replace"))
+
+                pushed_at = raw.get("pushed_at") or ""
+                status_key, badge_vi, badge_en, days_since = calculate_pulse_status(pushed_at)
+
+                license_info = raw.get("license") or {}
+                license_name = license_info.get("name") or license_info.get("spdx_id") or ""
+                license_spdx = license_info.get("spdx_id") or ""
+
+                top_contributors = []
+                try:
+                    contrib_url = f"https://api.github.com/repos/{owner}/{repo}/contributors?per_page=5"
+                    c_req = urllib.request.Request(contrib_url, headers=headers)
+                    with urllib.request.urlopen(c_req, timeout=timeout, context=ctx) as c_resp:
+                        if c_resp.status == 200:
+                            c_data = json.loads(c_resp.read().decode("utf-8", errors="replace"))
+                            if isinstance(c_data, list):
+                                for c in c_data[:5]:
+                                    top_contributors.append({
+                                        "login": c.get("login") or "",
+                                        "avatar_url": c.get("avatar_url") or "",
+                                        "contributions": c.get("contributions") or 0,
+                                        "html_url": c.get("html_url") or "",
+                                    })
+                except Exception:
+                    pass
+
+                pulse_data = {
+                    "last_pushed_at": pushed_at,
+                    "created_at": raw.get("created_at") or "",
+                    "default_branch": raw.get("default_branch") or "main",
+                    "pulse_status": status_key,
+                    "pulse_badge_vi": badge_vi,
+                    "pulse_badge_en": badge_en,
+                    "days_since_push": days_since,
+                    "open_issues_count": raw.get("open_issues_count", 0),
+                    "watchers_count": raw.get("subscribers_count", 0),
+                    "forks_count": raw.get("forks_count", 0),
+                    "license_name": license_name,
+                    "license_spdx": license_spdx,
+                    "top_contributors": top_contributors,
+                }
+                if use_cache:
+                    save_cached_pulse(owner, repo, pulse_data)
+                return pulse_data
     except Exception:
         pass
 

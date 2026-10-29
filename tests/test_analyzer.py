@@ -10,7 +10,7 @@ from src.analyzer import (
     extract_features_from_markdown,
     generate_architecture_mermaid,
 )
-from src.fetcher import extract_release_highlights, fetch_repo_release
+from src.fetcher import extract_release_highlights, fetch_repo_release, calculate_pulse_status, fetch_repo_community_pulse
 from src.scraper import TrendingRepo
 
 SAMPLE_README = """
@@ -182,6 +182,73 @@ class TestAnalyzerEngine(unittest.TestCase):
         self.assertIsNotNone(res)
         self.assertEqual(res["tag_name"], "v1.0.0-rc1")
         self.assertTrue(res["is_tag_only"])
+
+    def test_calculate_pulse_status(self):
+        import datetime
+        now = datetime.datetime.now(datetime.timezone.utc)
+        
+        # 1. Pushed today -> active
+        today_iso = now.isoformat()
+        status, vi, en, days = calculate_pulse_status(today_iso)
+        self.assertEqual(status, "active")
+        self.assertIn("🟢", vi)
+        self.assertEqual(days, 0)
+
+        # 2. Pushed 15 days ago -> steady
+        steady_iso = (now - datetime.timedelta(days=15)).isoformat()
+        status, vi, en, days = calculate_pulse_status(steady_iso)
+        self.assertEqual(status, "steady")
+        self.assertIn("🟡", vi)
+        self.assertEqual(days, 15)
+
+        # 3. Pushed 50 days ago -> slow
+        slow_iso = (now - datetime.timedelta(days=50)).isoformat()
+        status, vi, en, days = calculate_pulse_status(slow_iso)
+        self.assertEqual(status, "slow")
+        self.assertIn("🟠", vi)
+
+        # 4. Pushed 120 days ago -> dormant
+        dormant_iso = (now - datetime.timedelta(days=120)).isoformat()
+        status, vi, en, days = calculate_pulse_status(dormant_iso)
+        self.assertEqual(status, "dormant")
+        self.assertIn("🔴", vi)
+
+        # 5. Invalid / empty -> unknown
+        status, vi, en, days = calculate_pulse_status("")
+        self.assertEqual(status, "unknown")
+        self.assertEqual(days, -1)
+
+    @patch("src.fetcher.urllib.request.urlopen")
+    def test_fetch_repo_community_pulse(self, mock_urlopen):
+        repo_data = {
+            "pushed_at": "2026-10-28T10:00:00Z",
+            "created_at": "2024-01-01T00:00:00Z",
+            "default_branch": "main",
+            "open_issues_count": 42,
+            "subscribers_count": 150,
+            "forks_count": 890,
+            "license": {"key": "mit", "name": "MIT License", "spdx_id": "MIT"}
+        }
+        contrib_data = [
+            {"login": "lead-dev", "avatar_url": "https://avatars.com/u1", "contributions": 120, "html_url": "https://github.com/lead-dev"}
+        ]
+
+        mock_resp_repo = MagicMock(status=200, read=MagicMock(return_value=json.dumps(repo_data).encode("utf-8")))
+        mock_resp_contrib = MagicMock(status=200, read=MagicMock(return_value=json.dumps(contrib_data).encode("utf-8")))
+
+        mock_urlopen.side_effect = [
+            MagicMock(__enter__=MagicMock(return_value=mock_resp_repo)),
+            MagicMock(__enter__=MagicMock(return_value=mock_resp_contrib)),
+        ]
+
+        pulse = fetch_repo_community_pulse("test-org", "test-repo", use_cache=False)
+        self.assertIsNotNone(pulse)
+        self.assertEqual(pulse["open_issues_count"], 42)
+        self.assertEqual(pulse["license_spdx"], "MIT")
+        self.assertEqual(pulse["watchers_count"], 150)
+        self.assertEqual(len(pulse["top_contributors"]), 1)
+        self.assertEqual(pulse["top_contributors"][0]["login"], "lead-dev")
+
 
 
 
