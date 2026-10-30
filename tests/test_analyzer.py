@@ -249,6 +249,28 @@ class TestAnalyzerEngine(unittest.TestCase):
         self.assertEqual(len(pulse["top_contributors"]), 1)
         self.assertEqual(pulse["top_contributors"][0]["login"], "lead-dev")
 
+    def test_repo_analysis_has_playground(self):
+        repo = TrendingRepo(
+            name="pallets/flask",
+            owner="pallets",
+            repo="flask",
+            url="https://github.com/pallets/flask",
+            description="The Python micro framework for building web applications.",
+            language="Python",
+            language_color="#3572A5",
+            stars_total="68,000",
+            forks_total="15,000",
+            stars_since="150",
+            timeframe="daily",
+        )
+        analysis = analyze_repository(repo, use_ai=False, fetch_readme=False)
+        self.assertIsNotNone(analysis.playground)
+        self.assertEqual(analysis.playground["port"], 5000)
+        self.assertEqual(analysis.playground["framework"], "Flask")
+        as_dict = analysis.to_dict()
+        self.assertIn("playground", as_dict)
+        self.assertIsNotNone(as_dict["playground"])
+
 
 
 

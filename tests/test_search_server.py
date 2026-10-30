@@ -239,6 +239,17 @@ class TestGitHubSearch(unittest.TestCase):
         self.assertIn('contributors-box', html)
         self.assertIn('pulse-verdict-box', html)
 
+    def test_dashboard_has_playground_feature(self):
+        html = generate_html_dashboard([], search_endpoint='/api/search')
+        self.assertIn('btn-playground', html)
+        self.assertIn('playgroundModal', html)
+        self.assertIn('openPlaygroundModal', html)
+        self.assertIn('closePlaygroundModal', html)
+        self.assertIn('buildPlaygroundDOM', html)
+        self.assertIn('downloadTextFile', html)
+        self.assertIn('generateClientPlayground', html)
+        self.assertIn('btnPlayground', html)
+
 
 
 if __name__ == '__main__':

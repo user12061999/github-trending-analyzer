@@ -347,6 +347,30 @@ def make_handler(use_ai=False, model=None, deep=False):
                     self.send(400, {'error': str(exc)})
                 return
 
+            if self.path == '/api/playground':
+                try:
+                    length = int(self.headers.get('Content-Length', '0'))
+                    if not 0 < length <= 8192:
+                        raise ValueError('Dữ liệu yêu cầu không hợp lệ.')
+                    payload = json.loads(self.rfile.read(length))
+                    full_name = payload.get('full_name') or payload.get('name')
+                    if not full_name:
+                        raise ValueError('Thiếu tên repo.')
+                    from src.playground import generate_playground_manifest
+                    manifest = generate_playground_manifest(
+                        repo_name=full_name,
+                        language=payload.get('language', ''),
+                        description=payload.get('description', ''),
+                        topics=payload.get('topics') or [],
+                        quick_run=payload.get('quick_run', ''),
+                        repo_type=payload.get('repo_type', 'tool_app'),
+                        tech_stack=payload.get('tech_stack') or [],
+                    )
+                    self.send(200, manifest)
+                except Exception as exc:
+                    self.send(400, {'error': str(exc)})
+                return
+
             if self.path != '/api/search':
                 self.send(404, {'error': 'Không tìm thấy.'}); return
             if not slots.acquire(blocking=False):

@@ -95,6 +95,7 @@ class RepoAnalysis:
     architecture_description: str = ""
     latest_release: Optional[Dict[str, Any]] = None
     community_pulse: Optional[Dict[str, Any]] = None
+    playground: Optional[Dict[str, Any]] = None
 
     def to_dict(self) -> Dict[str, any]:
         return {
@@ -153,6 +154,7 @@ class RepoAnalysis:
             "architecture_description": getattr(self, "architecture_description", ""),
             "latest_release": getattr(self, "latest_release", None),
             "community_pulse": getattr(self, "community_pulse", None),
+            "playground": getattr(self, "playground", None),
         }
 
 
@@ -818,6 +820,23 @@ def analyze_repository(
             analysis.community_pulse = fetch_repo_community_pulse(repo.owner, repo.repo, use_cache=not deep)
         except Exception:
             analysis.community_pulse = None
+
+    # 6.97. 1-Click Run & Docker Playground Manifest
+    if not getattr(analysis, 'playground', None):
+        try:
+            from src.playground import generate_playground_manifest
+            analysis.playground = generate_playground_manifest(
+                repo_name=repo.name,
+                language=repo.language or "",
+                description=repo.description or "",
+                topics=getattr(analysis, "topics", []) or getattr(repo, "topics", []),
+                quick_run=getattr(analysis, "quick_run", ""),
+                repo_type=getattr(analysis, "repo_type", "tool_app"),
+                tech_stack=getattr(analysis, "tech_stack", []),
+                readme_raw=readme_raw,
+            )
+        except Exception:
+            analysis.playground = None
 
     # 7. Temporal Trajectory & Historical Memory Lookup
     try:

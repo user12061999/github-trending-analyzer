@@ -1568,6 +1568,250 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             border-radius: 6px;
             filter: contrast(1.05);
         }}
+        /* 1-Click Run & Playground Button */
+        .btn-playground {{
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(99, 102, 241, 0.15));
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            color: #38bdf8;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s ease;
+        }}
+        .btn-playground:hover {{
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(99, 102, 241, 0.3));
+            border-color: #38bdf8;
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+            transform: translateY(-1px);
+        }}
+
+        /* Playground Modal Dialog */
+        .playground-modal-dialog {{
+            background: #0d1117;
+            border: 1.5px solid rgba(56, 189, 248, 0.35);
+            border-radius: 14px;
+            width: 95vw;
+            max-width: 950px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85), 0 0 25px rgba(56, 189, 248, 0.15);
+        }}
+        .playground-modal-body {{
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }}
+
+        /* Playground Container & Tabs */
+        .playground-container {{
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }}
+        .playground-meta-bar {{
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.82rem;
+        }}
+        .playground-subtabs {{
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+            margin-bottom: 6px;
+            overflow-x: auto;
+        }}
+        .pg-subtab-btn {{
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }}
+        .pg-subtab-btn:hover {{
+            color: var(--text-bright);
+            background: rgba(255, 255, 255, 0.05);
+        }}
+        .pg-subtab-btn.active {{
+            background: rgba(56, 189, 248, 0.15);
+            border-color: rgba(56, 189, 248, 0.4);
+            color: #38bdf8;
+        }}
+
+        /* Cloud Launch Grid */
+        .playground-cloud-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 14px;
+        }}
+        .playground-cloud-card {{
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: all 0.2s ease;
+            position: relative;
+        }}
+        .playground-cloud-card:hover {{
+            border-color: rgba(56, 189, 248, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        }}
+        .playground-cloud-card.recommended {{
+            border-color: rgba(63, 185, 80, 0.45);
+            background: linear-gradient(180deg, rgba(63, 185, 80, 0.05) 0%, var(--bg-card) 100%);
+        }}
+        .cloud-card-header {{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }}
+        .cloud-card-title {{
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-bright);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }}
+        .cloud-card-badge {{
+            font-size: 0.72rem;
+            padding: 2px 7px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-muted);
+            font-weight: 600;
+        }}
+        .cloud-card-desc {{
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            line-height: 1.45;
+            flex: 1;
+        }}
+        .btn-cloud-launch {{
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            color: #38bdf8;
+            padding: 7px 12px;
+            border-radius: 6px;
+            font-size: 0.83rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.15s ease;
+            cursor: pointer;
+        }}
+        .btn-cloud-launch:hover {{
+            background: #38bdf8;
+            color: #0d1117;
+            font-weight: 700;
+        }}
+
+        /* Playground Code Card */
+        .playground-code-card {{
+            background: #090d12;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }}
+        .playground-code-header {{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #161b22;
+            padding: 8px 14px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.82rem;
+        }}
+        .playground-file-pill {{
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-weight: 700;
+            color: #e6edf3;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }}
+        .playground-actions-group {{
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }}
+        .btn-pg-action {{
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-bright);
+            padding: 4px 10px;
+            border-radius: 5px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.15s ease;
+        }}
+        .btn-pg-action:hover {{
+            background: rgba(56, 189, 248, 0.15);
+            border-color: rgba(56, 189, 248, 0.4);
+            color: #38bdf8;
+        }}
+        .playground-code-area {{
+            margin: 0;
+            padding: 14px;
+            background: #090d12;
+            color: #79c0ff;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.84rem;
+            line-height: 1.5;
+            overflow-x: auto;
+            max-height: 380px;
+            white-space: pre;
+        }}
+        .playground-tip-box {{
+            background: rgba(56, 189, 248, 0.06);
+            border-left: 3px solid #38bdf8;
+            padding: 10px 14px;
+            border-radius: 0 6px 6px 0;
+            font-size: 0.82rem;
+            color: var(--text-main);
+            line-height: 1.5;
+        }}
+
         /* Inline Star History Card Section */
         .card-sh-section {{
             background: #090d12;
@@ -2596,6 +2840,24 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 cloneVsCode: "💻 VS Code",
                 openGithubDev: "🌐 GitHub.dev",
                 openCodespace: "☁️ Codespace",
+                btnPlayground: "⚡ Chạy thử",
+                btnPlaygroundTitle: "Khởi chạy tức thì trên Cloud hoặc xem Docker Compose & Run Script",
+                playgroundModalTitle: (name) => `⚡ Chạy thử & Playground: ${{name}}`,
+                pgCloudTab: "☁️ Cloud 1-Click",
+                pgDockerTab: "🐳 Docker Compose",
+                pgScriptsTab: "💻 Local Scripts",
+                pgDockerComposeTitle: "Tệp docker-compose.yml",
+                pgDockerfileTitle: "Tệp Dockerfile tối ưu",
+                pgRunCmdTitle: "Lệnh chạy Docker nhanh (CLI)",
+                pgBashTitle: "Bash Script (Linux / macOS / WSL)",
+                pgPowershellTitle: "PowerShell Script (Windows)",
+                pgOneLinerTitle: "Lệnh 1 dòng (One-liner Terminal)",
+                pgCopyBtn: "📋 Sao chép",
+                pgDownloadBtn: "💾 Tải file",
+                pgLaunchBtn: "Khởi chạy ↗",
+                pgCopied: "✓ Đã sao chép vào bộ nhớ tạm!",
+                pgTipDocker: "💡 Hướng dẫn Docker: Lưu file vào thư mục dự án rồi gõ 'docker compose up -d' để chạy ngầm.",
+                pgTipScript: "💡 Hướng dẫn Script: Tự động clone, cài dependencies và khởi động ứng dụng chỉ với 1 click.",
                 cardStarHistoryShow: "Mở rộng",
                 cardStarHistoryHide: "Thu gọn",
                 btnCollapseAllCharts: "Thu gọn biểu đồ Stars",
@@ -2744,6 +3006,7 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 optSourceGitHub: "🔥 GitHub Trending",
                 optSourceHN: "📰 Hacker News Trends",
                 modalTabs: {{
+                    playground: "⚡ Chạy thử (Playground)",
                     architecture: "🏗️ Sơ đồ Kiến trúc & Luồng",
                     release_radar: "📦 Bản phát hành (Changelog)",
                     community_pulse: "👥 Sức khỏe & Cộng đồng (Pulse)",
@@ -2827,6 +3090,24 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 cloneVsCode: "💻 VS Code",
                 openGithubDev: "🌐 GitHub.dev",
                 openCodespace: "☁️ Codespace",
+                btnPlayground: "⚡ Run / Playground",
+                btnPlaygroundTitle: "Instant 1-Click Cloud Launch & Docker Playground",
+                playgroundModalTitle: (name) => `⚡ Run & Playground: ${{name}}`,
+                pgCloudTab: "☁️ Cloud 1-Click",
+                pgDockerTab: "🐳 Docker Compose",
+                pgScriptsTab: "💻 Local Scripts",
+                pgDockerComposeTitle: "docker-compose.yml Manifest",
+                pgDockerfileTitle: "Optimized Dockerfile",
+                pgRunCmdTitle: "Quick Docker Run Command (CLI)",
+                pgBashTitle: "Bash Script (Linux / macOS / WSL)",
+                pgPowershellTitle: "PowerShell Script (Windows)",
+                pgOneLinerTitle: "One-liner Terminal Command",
+                pgCopyBtn: "📋 Copy",
+                pgDownloadBtn: "💾 Download File",
+                pgLaunchBtn: "Launch ↗",
+                pgCopied: "✓ Copied to clipboard!",
+                pgTipDocker: "💡 Docker Tip: Save file into repo directory and run 'docker compose up -d' to start in background.",
+                pgTipScript: "💡 Script Tip: Automatically clones repo, installs dependencies and launches the application.",
                 cardStarHistoryShow: "Expand",
                 cardStarHistoryHide: "Collapse",
                 btnCollapseAllCharts: "Collapse Star Charts",
@@ -2975,6 +3256,7 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 optSourceGitHub: "🔥 GitHub Trending",
                 optSourceHN: "📰 Hacker News Trends",
                 modalTabs: {{
+                    playground: "⚡ 1-Click Run & Playground",
                     architecture: "🏗️ Architecture & Pipeline",
                     release_radar: "📦 Releases & Changelog",
                     community_pulse: "👥 Community & Pulse",
@@ -3596,6 +3878,9 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                             <span>🌟 ${{r.stars_total}}</span>
                         </div>
                         <div class="footer-actions">
+                            <button type="button" class="btn-playground" title="${{t.btnPlaygroundTitle}}">
+                                <span>⚡</span> <span>${{t.btnPlayground}}</span>
+                            </button>
                             <div class="ide-dropdown-wrapper">
                                 <button type="button" class="btn-ide" title="${{t.btnIdeTitle}}">
                                     <span>${{t.btnIdeCode}}</span> <span style="font-size:0.7rem;">▾</span>
@@ -3621,6 +3906,9 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 `;
                 const copy = card.querySelector('.btn-copy');
                 if (copy) copy.addEventListener('click', () => copyCmd(copy, raw.quick_run));
+
+                const pgBtn = card.querySelector('.btn-playground');
+                if (pgBtn) pgBtn.addEventListener('click', () => openPlaygroundModal(raw));
 
                 const likeBtn = card.querySelector('.btn-like');
                 const dislikeBtn = card.querySelector('.btn-dislike');
@@ -4641,6 +4929,446 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             }}
         }}
 
+        function downloadTextFile(filename, content) {{
+            const blob = new Blob([content], {{ type: 'text/plain;charset=utf-8' }});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {{
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }}, 100);
+        }}
+
+        function generateClientPlayground(raw) {{
+            const name = raw.name || '';
+            const lang = (raw.language || '').toLowerCase();
+            const desc = (raw.description || '').toLowerCase();
+            const quick = raw.quick_run || '';
+            let slug = name.split('/').pop().toLowerCase().replace(/[^a-z0-9_-]/g, '-').replace(/^-+|-+$/g, '') || 'app';
+            let port = 8080;
+            let framework = 'App';
+            let category = 'general';
+
+            if (desc.includes('ollama') || quick.includes('11434')) {{
+                port = 11434; framework = 'Ollama / LLM'; category = 'ai';
+            }} else if (desc.includes('streamlit')) {{
+                port = 8501; framework = 'Streamlit'; category = 'ai_web';
+            }} else if (desc.includes('gradio')) {{
+                port = 7860; framework = 'Gradio'; category = 'ai_web';
+            }} else if (desc.includes('fastapi') || desc.includes('uvicorn')) {{
+                port = 8000; framework = 'FastAPI'; category = 'backend';
+            }} else if (desc.includes('flask')) {{
+                port = 5000; framework = 'Flask'; category = 'backend';
+            }} else if (desc.includes('vite')) {{
+                port = 5173; framework = 'Vite'; category = 'frontend';
+            }} else if (['typescript', 'javascript'].includes(lang) || desc.includes('react') || desc.includes('next')) {{
+                port = 3000; framework = 'Node.js / Web'; category = 'frontend';
+            }} else if (['python', 'jupyter notebook'].includes(lang)) {{
+                port = 8000; framework = 'Python'; category = 'python';
+            }} else if (['go', 'golang'].includes(lang)) {{
+                port = 8080; framework = 'Go'; category = 'backend';
+            }} else if (lang === 'rust') {{
+                port = 8080; framework = 'Rust'; category = 'system';
+            }}
+
+            let installCmd = 'npm install';
+            let runCmd = 'npm run dev';
+            if (category === 'frontend') {{
+                if (quick.includes('pnpm')) {{ installCmd = 'pnpm install'; runCmd = 'pnpm dev'; }}
+                else if (quick.includes('yarn')) {{ installCmd = 'yarn install'; runCmd = 'yarn dev'; }}
+            }} else if (['backend', 'ai_web', 'python'].includes(category)) {{
+                installCmd = 'pip install -r requirements.txt';
+                runCmd = framework === 'FastAPI' ? `uvicorn main:app --reload --port ${{port}}` : 'python main.py';
+            }} else if (lang.includes('go')) {{
+                installCmd = 'go mod download';
+                runCmd = 'go run .';
+            }} else if (lang === 'rust') {{
+                installCmd = 'cargo build';
+                runCmd = 'cargo run';
+            }}
+            if (quick && !quick.includes('docker')) {{
+                if (quick.includes('install')) installCmd = quick;
+                else runCmd = quick;
+            }}
+
+            const cloudLinks = [
+                {{
+                    id: 'codespaces',
+                    name: 'GitHub Codespaces',
+                    icon: '🚀',
+                    badge: 'Full Linux VM',
+                    url: `https://codespaces.new/${{name}}`,
+                    description: 'Máy ảo Linux đám mây của GitHub (60h miễn phí/tháng, sẵn sàng trong 30s).',
+                    recommended: true,
+                }},
+                {{
+                    id: 'gitpod',
+                    name: 'Gitpod',
+                    icon: '⚡',
+                    badge: 'Automated Dev',
+                    url: `https://gitpod.io/#https://github.com/${{name}}`,
+                    description: 'Khởi động môi trường dev tự động cài dependencies từ git repo.',
+                    recommended: false,
+                }},
+                {{
+                    id: 'github_dev',
+                    name: 'GitHub.dev',
+                    icon: '💻',
+                    badge: 'Web VS Code',
+                    url: `https://github.dev/${{name}}`,
+                    description: 'Đọc và duyệt mã nguồn tức thì bằng giao diện VS Code trong trình duyệt.',
+                    recommended: false,
+                }}
+            ];
+
+            if (['python', 'jupyter notebook'].includes(lang) || desc.includes('ai') || desc.includes('model') || desc.includes('pytorch')) {{
+                cloudLinks.push({{
+                    id: 'colab',
+                    name: 'Google Colab',
+                    icon: '🔬',
+                    badge: 'Free GPU / TPU',
+                    url: `https://colab.research.google.com/github/${{name}}/blob/main/`,
+                    description: 'Chạy thử mô hình AI hoặc notebook trên GPU/TPU miễn phí của Google.',
+                    recommended: true,
+                }});
+            }}
+            if (['typescript', 'javascript'].includes(lang) || category === 'frontend') {{
+                cloudLinks.push({{
+                    id: 'stackblitz',
+                    name: 'StackBlitz',
+                    icon: '⚡',
+                    badge: 'In-Browser Node',
+                    url: `https://stackblitz.com/github/${{name}}`,
+                    description: 'Khởi chạy Node.js và dev server ngay trong trình duyệt qua WebAssembly.',
+                    recommended: true,
+                }});
+            }}
+
+            const dockerCompose = `version: '3.8'\n\nservices:\n  ${{slug}}:\n    build: .\n    container_name: ${{slug}}-playground\n    ports:\n      - "${{port}}:${{port}}"\n    environment:\n      - PORT=${{port}}\n      - ENV=development\n    volumes:\n      - .:/app\n    restart: unless-stopped`;
+            const dockerfile = category === 'frontend' ?
+                `FROM node:20-alpine\nWORKDIR /app\nCOPY package*.json ./\nRUN npm install\nCOPY . .\nEXPOSE ${{port}}\nCMD ["npm", "run", "dev"]` :
+                `FROM python:3.11-slim\nWORKDIR /app\nCOPY requirements.txt* ./\nRUN pip install --no-cache-dir -r requirements.txt || true\nCOPY . .\nEXPOSE ${{port}}\nCMD ["python", "main.py"]`;
+
+            return {{
+                repo_name: name,
+                slug: slug,
+                framework: framework,
+                port: port,
+                category: category,
+                install_cmd: installCmd,
+                run_cmd: runCmd,
+                cloud_links: cloudLinks,
+                docker: {{
+                    docker_compose: dockerCompose,
+                    dockerfile: dockerfile,
+                    docker_run_cmd: 'docker compose up --build -d'
+                }},
+                scripts: {{
+                    bash: `#!/usr/bin/env bash\nset -e\ngit clone https://github.com/${{name}}.git ${{slug}}\ncd ${{slug}}\n${{installCmd}}\n${{runCmd}}`,
+                    powershell: `$ErrorActionPreference = "Stop"\ngit clone https://github.com/${{name}}.git ${{slug}}\nSet-Location ${{slug}}\n${{installCmd}}\n${{runCmd}}`,
+                    one_liner: `git clone https://github.com/${{name}}.git ${{slug}} && cd ${{slug}} && ${{installCmd}} && ${{runCmd}}`
+                }}
+            }};
+        }}
+
+        function buildPlaygroundDOM(manifest, raw) {{
+            const t = I18N[currentLang];
+            const wrap = document.createElement('div');
+            wrap.className = 'playground-container';
+
+            const slug = manifest.slug || 'app';
+            const port = manifest.port || 8080;
+            const framework = manifest.framework || 'Generic';
+            const docker = manifest.docker || {{}};
+            const scripts = manifest.scripts || {{}};
+            const cloudLinks = manifest.cloud_links || [];
+
+            // Meta Info Bar
+            const metaBar = document.createElement('div');
+            metaBar.className = 'playground-meta-bar';
+            metaBar.innerHTML = `
+                <span><strong>Framework:</strong> <code style="color:#58a6ff;">${{escapeText(framework)}}</code></span>
+                <span><strong>Default Port:</strong> <code style="color:#3fb950;">:${{port}}</code></span>
+                <span><strong>Container:</strong> <code style="color:#bc8cff;">${{escapeText(slug)}}-playground</code></span>
+            `;
+            wrap.appendChild(metaBar);
+
+            // Subtabs
+            const subtabs = document.createElement('div');
+            subtabs.className = 'playground-subtabs';
+            subtabs.innerHTML = `
+                <button type="button" class="pg-subtab-btn active" data-tab="cloud">
+                    <span>${{t.pgCloudTab}}</span> (${{cloudLinks.length}})
+                </button>
+                <button type="button" class="pg-subtab-btn" data-tab="docker">
+                    <span>${{t.pgDockerTab}}</span>
+                </button>
+                <button type="button" class="pg-subtab-btn" data-tab="scripts">
+                    <span>${{t.pgScriptsTab}}</span>
+                </button>
+            `;
+            wrap.appendChild(subtabs);
+
+            // Panes Container
+            const panesWrap = document.createElement('div');
+
+            // --- Pane 1: Cloud 1-Click ---
+            const paneCloud = document.createElement('div');
+            paneCloud.className = 'pg-pane pg-pane-cloud';
+            const cloudGrid = document.createElement('div');
+            cloudGrid.className = 'playground-cloud-grid';
+            cloudLinks.forEach(cl => {{
+                const card = document.createElement('div');
+                card.className = `playground-cloud-card ${{cl.recommended ? 'recommended' : ''}}`;
+                card.innerHTML = `
+                    <div class="cloud-card-header">
+                        <div class="cloud-card-title">
+                            <span>${{cl.icon || '🚀'}}</span>
+                            <span>${{escapeText(cl.name)}}</span>
+                        </div>
+                        <span class="cloud-card-badge">${{escapeText(cl.badge || 'Cloud')}}</span>
+                    </div>
+                    <div class="cloud-card-desc">${{escapeText(cl.description || '')}}</div>
+                    <a href="${{escapeText(cl.url)}}" target="_blank" rel="noopener noreferrer" class="btn-cloud-launch">
+                        <span>${{t.pgLaunchBtn}}</span>
+                    </a>
+                `;
+                cloudGrid.appendChild(card);
+            }});
+            paneCloud.appendChild(cloudGrid);
+            panesWrap.appendChild(paneCloud);
+
+            // --- Pane 2: Docker Compose & Dockerfile ---
+            const paneDocker = document.createElement('div');
+            paneDocker.className = 'pg-pane pg-pane-docker';
+            paneDocker.style.display = 'none';
+
+            let curDockerMode = 'compose';
+            const dockerSubNav = document.createElement('div');
+            dockerSubNav.className = 'playground-subtabs';
+            dockerSubNav.style.marginTop = '4px';
+            dockerSubNav.innerHTML = `
+                <button type="button" class="pg-subtab-btn active" data-dmode="compose">
+                    <span>📄 docker-compose.yml</span>
+                </button>
+                <button type="button" class="pg-subtab-btn" data-dmode="dockerfile">
+                    <span>🐳 Dockerfile</span>
+                </button>
+                <button type="button" class="pg-subtab-btn" data-dmode="cli">
+                    <span>⚡ CLI Run</span>
+                </button>
+            `;
+
+            const dockerCodeCard = document.createElement('div');
+            dockerCodeCard.className = 'playground-code-card';
+            
+            function renderDockerCard() {{
+                let title = 'docker-compose.yml';
+                let content = docker.docker_compose || '';
+                if (curDockerMode === 'dockerfile') {{
+                    title = 'Dockerfile';
+                    content = docker.dockerfile || '';
+                }} else if (curDockerMode === 'cli') {{
+                    title = 'Command Line';
+                    content = docker.docker_run_cmd || 'docker compose up -d';
+                }}
+
+                dockerCodeCard.innerHTML = `
+                    <div class="playground-code-header">
+                        <div class="playground-file-pill">
+                            <span>📄</span> <span>${{title}}</span>
+                        </div>
+                        <div class="playground-actions-group">
+                            <button type="button" class="btn-pg-action btn-pg-copy">
+                                <span>${{t.pgCopyBtn}}</span>
+                            </button>
+                            ${{curDockerMode !== 'cli' ? `
+                                <button type="button" class="btn-pg-action btn-pg-dl">
+                                    <span>${{t.pgDownloadBtn}}</span>
+                                </button>
+                            ` : ''}}
+                        </div>
+                    </div>
+                    <pre class="playground-code-area"><code>${{escapeText(content)}}</code></pre>
+                `;
+
+                const cpBtn = dockerCodeCard.querySelector('.btn-pg-copy');
+                if (cpBtn) {{
+                    cpBtn.addEventListener('click', () => {{
+                        navigator.clipboard.writeText(content).then(() => {{
+                            const old = cpBtn.innerHTML;
+                            cpBtn.innerHTML = `<span>✓ ${{t.pgCopied}}</span>`;
+                            setTimeout(() => {{ cpBtn.innerHTML = old; }}, 1600);
+                        }});
+                    }});
+                }}
+                const dlBtn = dockerCodeCard.querySelector('.btn-pg-dl');
+                if (dlBtn) {{
+                    dlBtn.addEventListener('click', () => {{
+                        downloadTextFile(title, content);
+                    }});
+                }}
+            }}
+
+            dockerSubNav.querySelectorAll('.pg-subtab-btn').forEach(btn => {{
+                btn.addEventListener('click', () => {{
+                    dockerSubNav.querySelectorAll('.pg-subtab-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    curDockerMode = btn.getAttribute('data-dmode');
+                    renderDockerCard();
+                }});
+            }});
+
+            renderDockerCard();
+
+            const dockerTip = document.createElement('div');
+            dockerTip.className = 'playground-tip-box';
+            dockerTip.style.marginTop = '12px';
+            dockerTip.textContent = t.pgTipDocker;
+
+            paneDocker.appendChild(dockerSubNav);
+            paneDocker.appendChild(dockerCodeCard);
+            paneDocker.appendChild(dockerTip);
+            panesWrap.appendChild(paneDocker);
+
+            // --- Pane 3: Local Scripts ---
+            const paneScripts = document.createElement('div');
+            paneScripts.className = 'pg-pane pg-pane-scripts';
+            paneScripts.style.display = 'none';
+
+            let curScriptMode = 'powershell';
+            const scriptSubNav = document.createElement('div');
+            scriptSubNav.className = 'playground-subtabs';
+            scriptSubNav.style.marginTop = '4px';
+            scriptSubNav.innerHTML = `
+                <button type="button" class="pg-subtab-btn active" data-smode="powershell">
+                    <span>🪟 PowerShell (Windows)</span>
+                </button>
+                <button type="button" class="pg-subtab-btn" data-smode="bash">
+                    <span>🐧 Bash (Linux / Mac / WSL)</span>
+                </button>
+                <button type="button" class="pg-subtab-btn" data-smode="oneliner">
+                    <span>⚡ One-liner</span>
+                </button>
+            `;
+
+            const scriptCodeCard = document.createElement('div');
+            scriptCodeCard.className = 'playground-code-card';
+
+            function renderScriptCard() {{
+                let title = 'run.ps1';
+                let content = scripts.powershell || '';
+                if (curScriptMode === 'bash') {{
+                    title = 'run.sh';
+                    content = scripts.bash || '';
+                }} else if (curScriptMode === 'oneliner') {{
+                    title = 'Terminal One-Liner';
+                    content = scripts.one_liner || '';
+                }}
+
+                scriptCodeCard.innerHTML = `
+                    <div class="playground-code-header">
+                        <div class="playground-file-pill">
+                            <span>📜</span> <span>${{title}}</span>
+                        </div>
+                        <div class="playground-actions-group">
+                            <button type="button" class="btn-pg-action btn-pg-script-copy">
+                                <span>${{t.pgCopyBtn}}</span>
+                            </button>
+                            ${{curScriptMode !== 'oneliner' ? `
+                                <button type="button" class="btn-pg-action btn-pg-script-dl">
+                                    <span>${{t.pgDownloadBtn}}</span>
+                                </button>
+                            ` : ''}}
+                        </div>
+                    </div>
+                    <pre class="playground-code-area"><code>${{escapeText(content)}}</code></pre>
+                `;
+
+                const cpBtn = scriptCodeCard.querySelector('.btn-pg-script-copy');
+                if (cpBtn) {{
+                    cpBtn.addEventListener('click', () => {{
+                        navigator.clipboard.writeText(content).then(() => {{
+                            const old = cpBtn.innerHTML;
+                            cpBtn.innerHTML = `<span>✓ ${{t.pgCopied}}</span>`;
+                            setTimeout(() => {{ cpBtn.innerHTML = old; }}, 1600);
+                        }});
+                    }});
+                }}
+                const dlBtn = scriptCodeCard.querySelector('.btn-pg-script-dl');
+                if (dlBtn) {{
+                    dlBtn.addEventListener('click', () => {{
+                        downloadTextFile(title, content);
+                    }});
+                }}
+            }}
+
+            scriptSubNav.querySelectorAll('.pg-subtab-btn').forEach(btn => {{
+                btn.addEventListener('click', () => {{
+                    scriptSubNav.querySelectorAll('.pg-subtab-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    curScriptMode = btn.getAttribute('data-smode');
+                    renderScriptCard();
+                }});
+            }});
+
+            renderScriptCard();
+
+            const scriptTip = document.createElement('div');
+            scriptTip.className = 'playground-tip-box';
+            scriptTip.style.marginTop = '12px';
+            scriptTip.textContent = t.pgTipScript;
+
+            paneScripts.appendChild(scriptSubNav);
+            paneScripts.appendChild(scriptCodeCard);
+            paneScripts.appendChild(scriptTip);
+            panesWrap.appendChild(paneScripts);
+
+            // Subtabs switching logic
+            subtabs.querySelectorAll('.pg-subtab-btn').forEach(btn => {{
+                btn.addEventListener('click', () => {{
+                    subtabs.querySelectorAll('.pg-subtab-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    const tab = btn.getAttribute('data-tab');
+                    paneCloud.style.display = tab === 'cloud' ? 'block' : 'none';
+                    paneDocker.style.display = tab === 'docker' ? 'block' : 'none';
+                    paneScripts.style.display = tab === 'scripts' ? 'block' : 'none';
+                }});
+            }});
+
+            wrap.appendChild(panesWrap);
+            return wrap;
+        }}
+
+        function openPlaygroundModal(raw) {{
+            const modal = document.getElementById('playgroundModal');
+            const title = document.getElementById('playgroundModalTitle');
+            const body = document.getElementById('playgroundModalBody');
+            if (!modal || !body) return;
+
+            const t = I18N[currentLang];
+            if (title) title.innerHTML = `<span>⚡</span> <span>${{t.playgroundModalTitle(escapeText(raw.name))}}</span>`;
+
+            const manifest = raw.playground || generateClientPlayground(raw);
+            body.innerHTML = '';
+            body.appendChild(buildPlaygroundDOM(manifest, raw));
+
+            modal.style.display = 'flex';
+            setTimeout(() => {{ modal.classList.add('open'); }}, 10);
+        }}
+
+        function closePlaygroundModal() {{
+            const modal = document.getElementById('playgroundModal');
+            if (modal) {{
+                modal.classList.remove('open');
+                setTimeout(() => {{ modal.style.display = 'none'; }}, 200);
+            }}
+        }}
+
         async function renderMermaidSafe(canvasId, fallbackId, code) {{
             const canvas = document.getElementById(canvasId);
             const fallback = document.getElementById(fallbackId);
@@ -4878,6 +5606,7 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
 
             // Tabs definition
             const tabDefs = [
+                {{ id: 'playground', label: t.modalTabs.playground, playground: raw.playground }},
                 {{ id: 'architecture', label: t.modalTabs.architecture, mermaid: raw.architecture_mermaid }},
                 {{ id: 'release_radar', label: t.modalTabs.release_radar, release: raw.latest_release }},
                 {{ id: 'community_pulse', label: t.modalTabs.community_pulse, pulse: raw.community_pulse }},
@@ -4895,8 +5624,12 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
             tabsBar.innerHTML = '';
             modalBody.innerHTML = '';
 
-            let firstActive = 'architecture';
+            let firstActive = 'playground';
             for (const td of tabDefs) {{
+                if (td.id === 'playground') {{
+                    firstActive = td.id;
+                    break;
+                }}
                 if (td.id === 'architecture' && td.mermaid) {{
                     firstActive = td.id;
                     break;
@@ -4927,7 +5660,10 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                 pane.id = `pane_${{td.id}}`;
                 pane.className = `modal-tab-pane ${{td.id === firstActive ? 'active' : ''}}`;
 
-                if (td.id === 'community_pulse') {{
+                if (td.id === 'playground') {{
+                    const manifest = td.playground || raw.playground || generateClientPlayground(raw);
+                    pane.appendChild(buildPlaygroundDOM(manifest, raw));
+                }} else if (td.id === 'community_pulse') {{
                     const pulseWrap = document.createElement('div');
                     pulseWrap.className = 'pulse-wrapper';
                     const pulse = td.pulse;
@@ -5405,6 +6141,19 @@ def generate_html_dashboard(analyses: List[RepoAnalysis], timeframe: str = "dail
                     </button>
                     <button type="button" class="btn-copy" style="background:#21262d; border-color:var(--border); color:var(--text-main);" onclick="closeSimilarModal()">Đóng</button>
                 </div>
+            </div>
+        </div>
+        <!-- 1-Click Run & Docker Playground Modal -->
+        <div id="playgroundModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="playgroundModalTitle" style="display:none;" onclick="if(event.target===this)closePlaygroundModal()">
+            <div class="playground-modal-dialog">
+                <div class="modal-header">
+                    <div class="modal-header-title">
+                        <span>⚡</span>
+                        <span id="playgroundModalTitle">1-Click Run & Docker Playground</span>
+                    </div>
+                    <button type="button" class="modal-close-btn" onclick="closePlaygroundModal()" aria-label="Close">✕</button>
+                </div>
+                <div class="playground-modal-body" id="playgroundModalBody"></div>
             </div>
         </div>
 </body>
